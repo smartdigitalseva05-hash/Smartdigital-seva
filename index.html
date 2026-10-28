@@ -45,7 +45,18 @@ header {
   justify-content: space-between;  
   gap: 12px;  
 }  
-  
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-logo {
+  width: 65px;
+  height: 65px;
+  object-fit: contain;
+  flex-shrink: 0;
+}  
 .brand h1 {  
   font-size: 23px;  
   margin: 0;  
@@ -325,10 +336,13 @@ footer p {
 }  
 </style>  </head>  <body>  <header id="home">  
   <div class="header-inner">  
-    <div class="brand">  
-      <h1>Smart Digital Seva</h1>  
-      <p>ସ୍ମାର୍ଟ ଡିଜିଟାଲ ସେବା</p>  
-    </div>  
+    <div class="brand">
+  <img src="file_0000000010e082088bdf8eacb86efbc2.png" alt="Smart Digital Seva Logo" class="brand-logo">
+  <div class="brand-text">
+    <h1>Smart Digital Seva</h1>
+    <p>ସ୍ମାର୍ଟ ଡିଜିଟାଲ ସେବା</p>
+  </div>
+    </div>
     <div class="header-tag">ଆପଣଙ୍କ ସେବାରେ</div>  
   </div>  
 </header>  <nav>  
