@@ -3,458 +3,449 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#101426">
-<title>Creator Studio Pro</title>
+<title>Creator Studio Offline Pro</title>
 <style>
-:root{--bg:#0b1020;--panel:#151d32;--line:#34415e;--text:#f5f7ff;--muted:#aab6d0;--accent:#795bff;--green:#079c7d}
+:root{color-scheme:dark;--bg:#0b1020;--card:#151d32;--line:#303b5a;--text:#f5f7ff;--muted:#aab5d1;--accent:#7957ff;--green:#087e70}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,Arial,sans-serif}
-header{padding:20px;background:linear-gradient(130deg,#222d56,#17152f);border-bottom:1px solid var(--line)}
-header h1{margin:0;font-size:27px}header p{margin:5px 0;color:#c4cde3}
-main{max-width:1200px;margin:auto;padding:14px}
-nav{display:flex;gap:8px;overflow:auto;margin:12px 0}
-button{border:0;border-radius:9px;padding:11px 14px;background:var(--accent);color:white;font-weight:700;cursor:pointer}
-button.secondary{background:#293550;border:1px solid #425171}
+body{margin:0;background:var(--bg);color:var(--text);font:15px system-ui,Arial,sans-serif}
+header{padding:17px;background:#11182b;border-bottom:1px solid var(--line)}
+h1{font-size:22px;margin:0}
+header p,.hint{color:var(--muted);font-size:12px}
+main{max-width:1100px;margin:auto;padding:12px;display:grid;gap:12px}
+nav{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+button,.file{background:#222d49;color:white;border:1px solid var(--line);border-radius:10px;padding:11px 8px;font-weight:650;font-size:13px;cursor:pointer;text-align:center}
+button.primary,.file.primary{background:var(--accent);border-color:var(--accent)}
 button.green{background:var(--green)}
 button:disabled{opacity:.5}
-input,select{font:inherit}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:15px;margin-bottom:14px;min-width:0}
-.panel h2{font-size:19px;margin:0 0 14px}
-.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px}
-.s8{grid-column:span 8}.s6{grid-column:span 6}.s4{grid-column:span 4}.s12{grid-column:span 12}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.row>*{max-width:100%}
-label.field{display:block;margin:12px 0;color:#dce4f8;font-size:13px}
-.field input:not([type=range]):not([type=color]),.field select{display:block;width:100%;margin-top:6px;background:#0d1426;color:white;border:1px solid #3a4765;border-radius:8px;padding:10px}
-input[type=range]{width:100%;accent-color:var(--accent)}
-input[type=color]{width:100%;height:38px}
-.file{display:block;padding:12px;border:1px dashed #637499;border-radius:9px;background:#10182b;margin-bottom:12px}
-.file input{display:block;width:100%;margin-top:8px}
-.video-box{background:#05070d;border-radius:10px;overflow:hidden;min-height:170px;display:grid;place-items:center}
-video{width:100%;max-height:55vh;background:#05070d}
-.placeholder{padding:30px;text-align:center;color:var(--muted)}
-canvas{display:block;width:100%;height:auto;background:#101426;border:1px solid var(--line);border-radius:10px}
-.small{font-size:12px;color:var(--muted)}
+input,select{width:100%;padding:10px;border-radius:9px;background:#0d1426;color:white;border:1px solid var(--line)}
+input[type=range]{padding:0;accent-color:var(--accent)}
+input[type=color]{height:42px;padding:3px}
+label{display:block;color:var(--muted);font-size:12px;margin:10px 0 5px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:13px;min-width:0}
+h2{font-size:16px;margin:0 0 10px}
+video,canvas{display:block;width:100%;background:#05070d;border-radius:10px}
+video{max-height:55vh}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.row{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+.row>*{flex:1}
+.file{display:block;position:relative}
+.file input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.status{background:#0b1325;border:1px solid var(--line);border-radius:9px;padding:10px;font-size:12px;color:#d4ddf6;margin-top:10px;overflow-wrap:anywhere}
 .hidden{display:none!important}
-.notice{padding:11px;border-radius:9px;background:#302b19;border:1px solid #66552a;color:#f6e4a6;font-size:13px;margin:12px 0}
-.status{margin-top:10px;overflow-wrap:anywhere;color:#a9e8d7;font-size:13px}
-hr{border:0;border-top:1px solid var(--line);margin:16px 0}
-footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
-@media(max-width:760px){main{padding:9px}.s8,.s6,.s4{grid-column:span 12}.panel{padding:12px}header h1{font-size:23px}}
+.check{display:flex;align-items:center;gap:8px}
+.check input{width:auto}
+.hint{line-height:1.6}
+@media(min-width:760px){main{grid-template-columns:1fr 1fr}nav,.wide{grid-column:1/-1}}
 </style>
 </head>
 <body>
 <header>
-  <h1>🎬 Creator Studio Pro</h1>
-  <p>Video Editor · YouTube Thumbnail Maker · Photo Studio</p>
+<h1>🎬 Creator Studio Offline Pro</h1>
+<p>Video Editor · YouTube Thumbnail Maker · Photo Studio</p>
 </header>
-
 <main>
-<nav>
-  <button data-tab="videoTab">🎞 Video Editor</button>
-  <button class="secondary" data-tab="thumbTab">🖼 Thumbnail Studio</button>
-  <button class="secondary" data-tab="photoTab">🎨 Photo Editor</button>
-  <button class="secondary" data-tab="projectTab">📦 Project Tools</button>
+<nav class="wide">
+<button class="primary" data-tab="videoPanel">🎞 Video Editor</button>
+<button data-tab="thumbPanel">🖼 Thumbnail</button>
+<button data-tab="photoPanel">🎨 Photo Editor</button>
+<button data-tab="projectPanel">📦 Project Tools</button>
 </nav>
 
-<!-- VIDEO EDITOR -->
-<section id="videoTab" class="tab">
-<div class="grid">
- <div class="panel s8">
-  <h2>Video Preview & Timeline</h2>
-  <label class="file">Import video
-   <input id="videoFile" type="file" accept="video/*">
-  </label>
-  <div class="video-box">
-   <video id="video" controls playsinline class="hidden"></video>
-   <div id="videoPlaceholder" class="placeholder">Import a video to begin editing.</div>
-  </div>
-  <div class="row" style="margin-top:12px">
-   <button id="play">▶ Play</button>
-   <button id="pause" class="secondary">⏸ Pause</button>
-   <button id="snapshot" class="secondary">📸 Capture Frame</button>
-  </div>
-  <label class="field">Timeline position <span id="timeLabel">0.0 s</span>
-   <input id="seek" type="range" min="0" max="100" value="0">
-  </label>
-  <p class="small">The timeline lets you seek through the loaded video.</p>
- </div>
+<section id="videoPanel" class="card">
+<h2>Video Preview & Timeline</h2>
+<label class="file primary">＋ Import Video
+<input id="videoInput" type="file" accept="video/*">
+</label>
+<br>
+<video id="video" controls playsinline></video>
+<div class="row">
+<button id="play">▶ Play</button>
+<button id="pause">Ⅱ Pause</button>
+<button id="capture">📸 Capture Frame</button>
+</div>
+<label>Timeline: <span id="clock">0.00 / 0.00 s</span></label>
+<input id="seek" type="range" min="0" max="1000" value="0">
+<div class="grid2">
+<div><label>Trim start (seconds)</label><input id="start" type="number" min="0" step=".1" value="0"></div>
+<div><label>Trim end (seconds)</label><input id="end" type="number" min="0" step=".1" value="0"></div>
+</div>
+<div class="row">
+<button id="markStart">Set Start Here</button>
+<button id="markEnd">Set End Here</button>
+<button id="goStart">Go to Start</button>
+</div>
+<div class="grid2">
+<div><label>Playback Speed</label>
+<select id="speed">
+<option value=".25">0.25×</option><option value=".5">0.5×</option>
+<option value=".75">0.75×</option><option value="1" selected>1×</option>
+<option value="1.25">1.25×</option><option value="1.5">1.5×</option>
+<option value="2">2×</option>
+</select></div>
+<div><label>Color Filter</label>
+<select id="filter">
+<option value="none">Original</option>
+<option value="grayscale(1)">Black & White</option>
+<option value="sepia(0.7)">Vintage</option>
+<option value="saturate(1.8)">Vivid</option>
+<option value="contrast(1.3)">High Contrast</option>
+<option value="brightness(1.25)">Bright</option>
+</select></div>
+</div>
+<div class="grid2">
+<div><label>Brightness <span id="bVal">100%</span></label><input id="bright" type="range" min="50" max="160" value="100"></div>
+<div><label>Saturation <span id="sVal">100%</span></label><input id="sat" type="range" min="0" max="200" value="100"></div>
+</div>
+<div class="grid2">
+<div><label>Contrast <span id="cVal">100%</span></label><input id="contrast" type="range" min="50" max="160" value="100"></div>
+<div><label>Volume <span id="vVal">100%</span></label><input id="volume" type="range" min="0" max="100" value="100"></div>
+</div>
+<div id="videoStatus" class="status">Import a video to begin editing.</div>
+</section>
 
- <div class="panel s4">
-  <h2>Editing Controls</h2>
-  <div class="grid">
-   <label class="field s6">Trim start (seconds)
-    <input id="trimStart" type="number" min="0" step=".1" value="0">
-   </label>
-   <label class="field s6">Trim end (seconds)
-    <input id="trimEnd" type="number" min="0" step=".1" value="0">
-   </label>
-  </div>
-  <div class="row">
-   <button id="setStart" class="secondary">Set Start Here</button>
-   <button id="setEnd" class="secondary">Set End Here</button>
-   <button id="goStart" class="secondary">Go to Start</button>
-  </div>
-  <label class="field">Playback speed <span id="speedLabel">1×</span>
-   <input id="speed" type="range" min=".25" max="2" step=".25" value="1">
-  </label>
-  <label class="field">Video filter
-   <select id="filter">
-    <option value="none">Original</option>
-    <option value="grayscale(1)">Black & White</option>
-    <option value="sepia(.8)">Vintage</option>
-    <option value="contrast(1.3) saturate(1.3)">Vivid</option>
-    <option value="brightness(1.2)">Bright</option>
-    <option value="saturate(.5)">Soft Saturation</option>
-   </select>
-  </label>
-  <label class="field">Video volume <span id="volumeLabel">100%</span>
-   <input id="volume" type="range" min="0" max="1" step=".05" value="1">
-  </label>
-  <div class="notice">Preview settings are non-destructive. The FFmpeg export below attempts to render the selected trim and filter.</div>
-  <button id="exportVideo" class="green">⬇ Export Edited Video</button>
-  <button id="downloadOriginal" class="secondary">Download Original</button>
-  <div id="exportStatus" class="status">Ready.</div>
-  <progress id="progress" value="0" max="100" style="width:100%;margin-top:8px"></progress>
- </div>
+<section class="card">
+<h2>Export Edited Video</h2>
+<p class="hint">Offline export uses your browser's built-in recording support. WebM is used where supported. MP4 export is not guaranteed.</p>
+<div class="grid2">
+<div><label>Export Resolution</label>
+<select id="resolution">
+<option value="original">Original</option>
+<option value="1080">Up to 1080p</option>
+<option value="720" selected>Up to 720p</option>
+<option value="480">Up to 480p</option>
+</select></div>
+<div><label>Video Quality</label>
+<select id="quality">
+<option value="2000000">Standard</option>
+<option value="5000000" selected>High</option>
+<option value="8000000">Very High</option>
+</select></div>
+</div>
+<label class="check"><input id="audio" type="checkbox" checked> Include original audio if supported</label>
+<button id="export" class="primary" style="width:100%;margin-top:10px">⬇ Export Edited Video</button>
+<a id="videoDownload" class="file green hidden" style="margin-top:9px" download="creator-studio-edited.webm">Download Edited Video</a>
+<div id="exportStatus" class="status">Ready.</div>
+</section>
 
- <div class="panel s6">
-  <h2>🎵 Background Music</h2>
-  <label class="file">Import audio / music
-   <input id="audioFile" type="file" accept="audio/*">
-  </label>
-  <label class="field">Music volume <span id="musicVolumeLabel">35%</span>
-   <input id="musicVolume" type="range" min="0" max="1" step=".05" value=".35">
-  </label>
-  <audio id="audio" loop></audio>
-  <div class="row">
-   <button id="playMusic">▶ Preview Music</button>
-   <button id="stopMusic" class="secondary">■ Stop Music</button>
-  </div>
-  <p class="small">When an audio file is selected for export, it replaces the video's original audio in this simple export workflow.</p>
- </div>
+<section id="thumbPanel" class="card hidden">
+<h2>YouTube Thumbnail Maker</h2>
+<label class="file primary">＋ Import Background Image
+<input id="thumbInput" type="file" accept="image/*">
+</label>
+<br>
+<canvas id="thumb" width="1280" height="720"></canvas>
+<label>Thumbnail Title</label><input id="title" maxlength="100" value="YOUR AMAZING VIDEO">
+<label>Subtitle</label><input id="subtitle" maxlength="100" value="WATCH NOW">
+<div class="grid2">
+<div><label>Title Color</label><input id="titleColor" type="color" value="#ffffff"></div>
+<div><label>Background Color</label><input id="bgColor" type="color" value="#34208a"></div>
+</div>
+<div class="grid2">
+<div><label>Title Size</label><input id="titleSize" type="range" min="30" max="120" value="76"></div>
+<div><label>Outline Size</label><input id="outline" type="range" min="0" max="12" value="5"></div>
+</div>
+<div class="grid2">
+<div><label>Text Position</label><select id="position"><option value="bottom">Bottom</option><option value="middle">Middle</option><option value="top">Top</option></select></div>
+<div><label>Background Fit</label><select id="fit"><option value="cover">Fill Frame</option><option value="contain">Fit Image</option></select></div>
+</div>
+<div class="row">
+<button id="thumbReset">Reset Design</button>
+<button id="thumbPng" class="primary">Download PNG</button>
+<button id="thumbJpg">Download JPG</button>
+</div>
+<p class="hint">Canvas size: 1280 × 720 (16:9). PNG/JPG generation works offline.</p>
+</section>
 
- <div class="panel s6">
-  <h2>Export Settings</h2>
-  <label class="field">Quality
-   <select id="quality">
-    <option value="fast">Fast / smaller file</option>
-    <option value="balanced" selected>Balanced 720p</option>
-    <option value="high">High quality 1080p</option>
-   </select>
-  </label>
-  <label class="field">Format
-   <select id="format">
-    <option value="mp4">MP4 (H.264/AAC)</option>
-    <option value="webm">WebM</option>
-   </select>
-  </label>
-  <p class="small">FFmpeg downloads its processing engine from a CDN. Internet access is required for the first export. Processing can be slow on phones.</p>
- </div>
+<section id="photoPanel" class="card hidden">
+<h2>Photo Editor</h2>
+<label class="file primary">＋ Import Photo
+<input id="photoInput" type="file" accept="image/*">
+</label>
+<br>
+<canvas id="photo" width="1280" height="720"></canvas>
+<div class="grid2">
+<div><label>Brightness <span id="pbVal">100%</span></label><input id="pb" type="range" min="30" max="180" value="100"></div>
+<div><label>Saturation <span id="psVal">100%</span></label><input id="ps" type="range" min="0" max="200" value="100"></div>
+</div>
+<div><label>Contrast <span id="pcVal">100%</span></label><input id="pc" type="range" min="30" max="180" value="100"></div>
+<div class="row">
+<button id="photoReset">Reset</button>
+<button id="photoPng" class="primary">Download PNG</button>
+<button id="photoJpg">Download JPG</button>
 </div>
 </section>
 
-<!-- THUMBNAIL MAKER -->
-<section id="thumbTab" class="tab hidden">
-<div class="grid">
- <div class="panel s7">
-  <h2>YouTube Thumbnail Studio</h2>
-  <label class="file">Import photo
-   <input id="thumbFile" type="file" accept="image/*">
-  </label>
-  <canvas id="thumbCanvas" width="1280" height="720"></canvas>
-  <div class="row" style="margin-top:12px">
-   <button id="updateThumb">Update Preview</button>
-   <button id="pngThumb" class="green">Download PNG</button>
-   <button id="jpgThumb" class="secondary">Download JPG</button>
-  </div>
-  <p class="small">1280 × 720 pixels, 16:9 aspect ratio.</p>
- </div>
- <div class="panel s5">
-  <h2>Thumbnail Design</h2>
-  <label class="field">Main title
-   <input id="mainTitle" type="text" maxlength="80" value="MY NEW VIDEO">
-  </label>
-  <label class="field">Subtitle
-   <input id="subTitle" type="text" maxlength="100" value="WATCH NOW!">
-  </label>
-  <div class="grid">
-   <label class="field s6">Title color
-    <input id="titleColor" type="color" value="#ffffff">
-   </label>
-   <label class="field s6">Subtitle color
-    <input id="subColor" type="color" value="#ffe600">
-   </label>
-   <label class="field s6">Background
-    <input id="bgColor" type="color" value="#252050">
-   </label>
-   <label class="field s6">Outline
-    <select id="outline">
-     <option value="bold">Bold</option>
-     <option value="soft">Soft</option>
-     <option value="none">None</option>
-    </select>
-   </label>
-  </div>
-  <label class="field">Title size <span id="titleSizeLabel">88 px</span>
-   <input id="titleSize" type="range" min="32" max="150" value="88">
-  </label>
-  <label class="field">Text position
-   <select id="textPosition">
-    <option value="bottom">Bottom</option>
-    <option value="center">Center</option>
-    <option value="top">Top</option>
-    <option value="left">Left aligned</option>
-   </select>
-  </label>
-  <label class="field">Photo brightness <span id="brightLabel">100%</span>
-   <input id="thumbBright" type="range" min="50" max="160" value="100">
-  </label>
-  <label class="field">Photo saturation <span id="satLabel">100%</span>
-   <input id="thumbSat" type="range" min="0" max="200" value="100">
-  </label>
-  <label class="field"><input id="gradient" type="checkbox" checked> Dark cinematic gradient</label>
- </div>
-</div>
+<section id="projectPanel" class="card hidden">
+<h2>Project Tools</h2>
+<button id="saveSettings" class="primary" style="width:100%">Save Settings JSON</button>
+<label class="file">Load Settings JSON
+<input id="loadSettings" type="file" accept=".json,application/json">
+</label>
+<div id="projectStatus" class="status">No account or server upload is required.</div>
+<h2 style="margin-top:18px">Offline App Information</h2>
+<p class="hint">
+• This is a single-file offline browser editor.<br>
+• Video export depends on the browser's MediaRecorder and captureStream support.<br>
+• Very long videos may exceed your phone's memory.<br>
+• Advanced multitrack editing, transitions and reliable MP4/H.264 rendering require a more powerful bundled engine or native app.
+</p>
 </section>
-
-<!-- PHOTO EDITOR -->
-<section id="photoTab" class="tab hidden">
-<div class="grid">
- <div class="panel s7">
-  <h2>Photo Editor</h2>
-  <label class="file">Import image
-   <input id="photoFile" type="file" accept="image/*">
-  </label>
-  <canvas id="photoCanvas" width="1280" height="720"></canvas>
-  <div class="row" style="margin-top:12px">
-   <button id="photoPNG" class="green">Export PNG</button>
-   <button id="photoJPG" class="secondary">Export JPG</button>
-   <button id="frameToPhoto" class="secondary">Use Video Frame</button>
-  </div>
- </div>
- <div class="panel s5">
-  <h2>Image Adjustments</h2>
-  <label class="field">Brightness <span id="photoBrightLabel">100%</span>
-   <input id="photoBright" type="range" min="30" max="180" value="100">
-  </label>
-  <label class="field">Saturation <span id="photoSatLabel">100%</span>
-   <input id="photoSat" type="range" min="0" max="200" value="100">
-  </label>
-  <label class="field">Contrast <span id="photoContrastLabel">100%</span>
-   <input id="photoContrast" type="range" min="50" max="180" value="100">
-  </label>
-  <p class="small">Adjustments are applied to the exported image.</p>
- </div>
-</div>
-</section>
-
-<!-- PROJECT TOOLS -->
-<section id="projectTab" class="tab hidden">
-<div class="grid">
- <div class="panel s6">
-  <h2>📦 Project Settings</h2>
-  <p class="small">Save or restore editing settings. Video and photo files are not included.</p>
-  <div class="row">
-   <button id="saveProject">Save Settings JSON</button>
-   <button id="loadProjectBtn" class="secondary">Load Settings</button>
-   <input id="loadProject" type="file" accept=".json,application/json" class="hidden">
-  </div>
- </div>
- <div class="panel s6">
-  <h2>Share Website</h2>
-  <div class="row">
-   <button id="shareWebsite">Share</button>
-   <button id="copyWebsite" class="secondary">Copy Link</button>
-  </div>
-  <p id="shareStatus" class="status"></p>
- </div>
- <div class="panel s12">
-  <h2>Important Notes</h2>
-  <ul class="small">
-   <li>Thumbnail and photo exports run locally in your browser.</li>
-   <li>Video processing uses FFmpeg.wasm and may need substantial memory.</li>
-   <li>Keep the tab open during export.</li>
-   <li>Use only media and music you have permission to use.</li>
-   <li>This is a browser editor, not a full desktop nonlinear editor. Advanced effects and transitions are not included in this version.</li>
-  </ul>
- </div>
-</div>
-</section>
-
-<footer>Creator Studio Pro · Video Editing & YouTube Thumbnail Maker</footer>
+<div class="status wide">🔒 Offline-first: no external scripts, no CDN and no automatic media upload.</div>
 </main>
-
 <script>
-(() => {
+(function(){
 "use strict";
-const $ = id => document.getElementById(id);
-let videoURL=null,audioURL=null,thumbImage=null,photoImage=null;
+const $=id=>document.getElementById(id);
+const video=$("video");
+let videoURL=null,exportURL=null,thumbImage=null,photoImage=null,exporting=false,stopTimer=null,raf=0,recorder=null;
 
-function saveBlob(blob,name){
- if(!blob)return alert("Could not create the file.");
- const url=URL.createObjectURL(blob),a=document.createElement("a");
- a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
- setTimeout(()=>URL.revokeObjectURL(url),3000);
-}
-function exportCanvas(canvas,type,name){
- canvas.toBlob(blob=>saveBlob(blob,name),type,.94);
+document.querySelectorAll("[data-tab]").forEach(btn=>{
+ btn.addEventListener("click",()=>{
+  document.querySelectorAll("[data-tab]").forEach(b=>b.classList.toggle("primary",b===btn));
+  ["videoPanel","thumbPanel","photoPanel","projectPanel"].forEach(id=>$(id).classList.toggle("hidden",id!==btn.dataset.tab));
+ });
+});
+function setStatus(id,msg){$(id).textContent=msg}
+function downloadBlob(blob,name){
+ if(!blob||!blob.size){alert("Export failed. Please try again.");return}
+ const u=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(u),60000);
 }
 function loadImage(file,callback){
  if(!file)return;
  const url=URL.createObjectURL(file),img=new Image();
- img.onload=()=>{callback(img);URL.revokeObjectURL(url)};
- img.onerror=()=>{URL.revokeObjectURL(url);alert("Unable to load this image.")};
+ img.onload=()=>{URL.revokeObjectURL(url);callback(img)};
+ img.onerror=()=>{URL.revokeObjectURL(url);alert("Image could not be opened.")};
  img.src=url;
 }
-function setStatus(message){$("exportStatus").textContent=message}
-function showTab(id){
- document.querySelectorAll(".tab").forEach(el=>el.classList.toggle("hidden",el.id!==id));
- document.querySelectorAll("[data-tab]").forEach(el=>{
-  const active=el.dataset.tab===id;
-  el.classList.toggle("secondary",!active);
- });
- if(id==="thumbTab")drawThumbnail();
- if(id==="photoTab")drawPhoto();
-}
-document.querySelectorAll("[data-tab]").forEach(btn=>btn.onclick=()=>showTab(btn.dataset.tab));
-
-const video=$("video"),audio=$("audio");
-$("videoFile").onchange=e=>{
+$("videoInput").addEventListener("change",e=>{
  const file=e.target.files[0];if(!file)return;
  if(videoURL)URL.revokeObjectURL(videoURL);
- videoURL=URL.createObjectURL(file);video.src=videoURL;
- video.classList.remove("hidden");$("videoPlaceholder").classList.add("hidden");
- video.onloadedmetadata=()=>{
-  $("trimStart").value=0;$("trimEnd").value=video.duration;
-  $("seek").max=video.duration||100;
-  setStatus("Video loaded: "+video.duration.toFixed(1)+" seconds.");
- };
-};
-video.ontimeupdate=()=>{
- $("timeLabel").textContent=video.currentTime.toFixed(1)+" s";
- if(video.duration)$("seek").value=video.currentTime;
- if(Number($("trimEnd").value)>0&&video.currentTime>=Number($("trimEnd").value))video.pause();
-};
-$("seek").oninput=()=>{if(video.src)video.currentTime=Number($("seek").value)};
-$("play").onclick=()=>video.play().catch(()=>alert("Load a video first."));
+ videoURL=URL.createObjectURL(file);video.src=videoURL;video.load();
+ $("videoStatus").textContent="Loading "+file.name+"…";
+ $("videoDownload").classList.add("hidden");
+});
+video.addEventListener("loadedmetadata",()=>{
+ $("start").value=0;$("end").value=video.duration.toFixed(2);
+ $("seek").max=Math.max(1,Math.floor(video.duration*100));
+ updateClock();
+ setStatus("videoStatus",`Loaded · ${video.videoWidth}×${video.videoHeight} · ${video.duration.toFixed(2)} sec`);
+});
+function updateClock(){
+ const d=Number.isFinite(video.duration)?video.duration:0,t=video.currentTime||0;
+ $("clock").textContent=t.toFixed(2)+" / "+d.toFixed(2)+" s";
+ if(d)$("seek").value=Math.round(t/d*Number($("seek").max));
+}
+video.addEventListener("timeupdate",()=>{
+ updateClock();
+ if(exporting&&video.currentTime>=Number($("end").value))stopExport();
+});
+$("seek").addEventListener("input",()=>{if(video.duration)video.currentTime=Number($("seek").value)/Number($("seek").max)*video.duration});
+$("play").onclick=()=>video.play().catch(e=>setStatus("videoStatus","Playback failed: "+e.message));
 $("pause").onclick=()=>video.pause();
-$("setStart").onclick=()=>{$("trimStart").value=video.currentTime.toFixed(1)};
-$("setEnd").onclick=()=>{$("trimEnd").value=video.currentTime.toFixed(1)};
-$("goStart").onclick=()=>{if(video.src)video.currentTime=Number($("trimStart").value)||0};
-$("speed").oninput=()=>{video.playbackRate=Number($("speed").value);$("speedLabel").textContent=video.playbackRate+"×"};
-$("filter").onchange=()=>video.style.filter=$("filter").value==="none"?"none":$("filter").value;
-$("volume").oninput=()=>{video.volume=Number($("volume").value);$("volumeLabel").textContent=Math.round(video.volume*100)+"%"};
+$("markStart").onclick=()=>{$("start").value=(video.currentTime||0).toFixed(2)};
+$("markEnd").onclick=()=>{$("end").value=(video.currentTime||0).toFixed(2)};
+$("goStart").onclick=()=>{video.currentTime=Math.max(0,Number($("start").value)||0)};
+$("speed").onchange=()=>video.playbackRate=Number($("speed").value);
+$("volume").oninput=()=>{video.volume=Number($("volume").value)/100;$("vVal").textContent=$("volume").value+"%"};
 
-$("snapshot").onclick=()=>{
- if(!video.videoWidth)return alert("Import a video first.");
+function filterCSS(){
+ const f=$("filter").value;
+ return (f==="none"?"":f+" ")+"brightness("+$("bright").value+"%) saturate("+$("sat").value+"%) contrast("+$("contrast").value+"%)";
+}
+function updateFilter(){
+ video.style.filter=filterCSS();
+ $("bVal").textContent=$("bright").value+"%";
+ $("sVal").textContent=$("sat").value+"%";
+ $("cVal").textContent=$("contrast").value+"%";
+}
+["filter","bright","sat","contrast"].forEach(id=>$(id).addEventListener("input",updateFilter));
+
+function captureFrame(){
+ if(!video.videoWidth){setStatus("videoStatus","Import a video first.");return}
  const c=document.createElement("canvas");c.width=video.videoWidth;c.height=video.videoHeight;
- c.getContext("2d").drawImage(video,0,0);
- c.toBlob(b=>saveBlob(b,"video-frame.png"));
-};
-$("downloadOriginal").onclick=()=>{
- const file=$("videoFile").files[0];
- if(!file)return alert("Import a video first.");
- saveBlob(file,file.name);
-};
-
-$("audioFile").onchange=e=>{
- const file=e.target.files[0];if(!file)return;
- if(audioURL)URL.revokeObjectURL(audioURL);
- audioURL=URL.createObjectURL(file);audio.src=audioURL;
- setStatus("Music loaded: "+file.name);
-};
-$("musicVolume").oninput=()=>{
- audio.volume=Number($("musicVolume").value);
- $("musicVolumeLabel").textContent=Math.round(audio.volume*100)+"%";
-};
-$("playMusic").onclick=()=>audio.play().catch(()=>alert("Import an audio file first."));
-$("stopMusic").onclick=()=>{audio.pause();audio.currentTime=0};
-
-const thumb=$("thumbCanvas"),ctx=thumb.getContext("2d");
-function coverImage(context,img,w,h){
- const scale=Math.max(w/img.width,h/img.height);
- const sw=w/scale,sh=h/scale,sx=(img.width-sw)/2,sy=(img.height-sh)/2;
- context.drawImage(img,sx,sy,sw,sh,0,0,w,h);
+ const ctx=c.getContext("2d");ctx.filter=filterCSS();ctx.drawImage(video,0,0,c.width,c.height);
+ c.toBlob(b=>downloadBlob(b,"creator-studio-frame.png"),"image/png");
 }
-function drawWrapped(context,text,x,y,maxWidth,lineHeight){
- const words=text.split(/\s+/);let lines=[],line="";
- words.forEach(word=>{
+$("capture").onclick=captureFrame;
+
+// Local browser video export: recorded from a filtered canvas.
+function stopExport(){
+ if(stopTimer){clearTimeout(stopTimer);stopTimer=null}
+ exporting=false;
+ if(video)video.pause();
+ if(recorder&&recorder.state!=="inactive"){try{recorder.stop()}catch(e){}}
+}
+$("export").onclick=async()=>{
+ if(!video.src||!video.videoWidth){setStatus("exportStatus","Please import a video first.");return}
+ if(!window.MediaRecorder||!HTMLCanvasElement.prototype.captureStream||!video.captureStream){
+  setStatus("exportStatus","This browser does not support offline video export. Try the latest Chrome or a desktop browser.");return;
+ }
+ let start=Math.max(0,Number($("start").value)||0);
+ let end=Number($("end").value);
+ if(!Number.isFinite(end)||end>video.duration)end=video.duration;
+ if(start>=end){setStatus("exportStatus","Trim end must be greater than trim start.");return}
+ const limit=$("resolution").value;
+ const scale=limit==="original"?1:Math.min(1,Number(limit)/Math.max(video.videoWidth,video.videoHeight));
+ const canvas=document.createElement("canvas");
+ canvas.width=Math.max(2,Math.floor(video.videoWidth*scale/2)*2);
+ canvas.height=Math.max(2,Math.floor(video.videoHeight*scale/2)*2);
+ const ctx=canvas.getContext("2d");
+ let stream=canvas.captureStream(30),sourceStream=null;
+ try{
+  sourceStream=video.captureStream();
+  if($("audio").checked)sourceStream.getAudioTracks().forEach(t=>stream.addTrack(t));
+ }catch(e){setStatus("exportStatus","Audio capture unavailable; exporting without audio.");}
+ let mime="video/webm;codecs=vp9";
+ if(!MediaRecorder.isTypeSupported(mime))mime="video/webm;codecs=vp8";
+ if(!MediaRecorder.isTypeSupported(mime))mime="video/webm";
+ if(!MediaRecorder.isTypeSupported(mime)){setStatus("exportStatus","WebM encoding is not supported in this browser.");return}
+ let chunks=[];
+ try{recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:Number($("quality").value)})}
+ catch(e){stream.getTracks().forEach(t=>t.stop());setStatus("exportStatus","Could not start encoder: "+e.message);return}
+ recorder.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
+ recorder.onerror=()=>{exporting=false;$("export").disabled=false;setStatus("exportStatus","Export failed. Try a shorter clip or lower resolution.");};
+ recorder.onstop=()=>{
+  exporting=false;$("export").disabled=false;video.muted=false;
+  stream.getTracks().forEach(t=>t.stop());
+  if(sourceStream)sourceStream.getTracks().forEach(t=>t.stop());
+  cancelAnimationFrame(raf);
+  const blob=new Blob(chunks,{type:mime});
+  if(!blob.size){setStatus("exportStatus","No video data was recorded. Browser export may be blocked.");return}
+  if(exportURL)URL.revokeObjectURL(exportURL);
+  exportURL=URL.createObjectURL(blob);
+  const a=$("videoDownload");a.href=exportURL;a.download="creator-studio-edited.webm";a.classList.remove("hidden");
+  setStatus("exportStatus","Export complete · "+(blob.size/1048576).toFixed(2)+" MB · WebM");
+ };
+ video.pause();
+ try{
+  video.currentTime=start;
+  await new Promise((resolve,reject)=>{
+   if(Math.abs(video.currentTime-start)<0.04){resolve();return}
+   let timer=setTimeout(()=>reject(new Error("Seek timeout")),7000);
+   video.addEventListener("seeked",function done(){clearTimeout(timer);resolve()},{once:true});
+  });
+ }catch(e){stream.getTracks().forEach(t=>t.stop());setStatus("exportStatus","Could not seek to trim start. Please retry.");return}
+ video.playbackRate=1;
+ const wasMuted=video.muted;
+ video.muted=!$("audio").checked;
+ exporting=true;$("export").disabled=true;
+ function draw(){
+  if(!exporting)return;
+  try{ctx.filter=filterCSS();ctx.drawImage(video,0,0,canvas.width,canvas.height)}catch(e){}
+  raf=requestAnimationFrame(draw);
+ }
+ draw();
+ recorder.start(250);
+ setStatus("exportStatus","Exporting locally… keep this page open.");
+ try{await video.play()}catch(e){stopExport();$("export").disabled=false;video.muted=wasMuted;setStatus("exportStatus","Browser blocked playback. Press Play once and retry.");return}
+ stopTimer=setTimeout(stopExport,Math.max(1000,(end-start)*1000+1000));
+ video.addEventListener("ended",()=>{if(exporting)stopExport()},{once:true});
+};
+
+// Thumbnail
+const thumb=$("thumb"),tx=thumb.getContext("2d");
+function wrapText(ctx,text,maxWidth){
+ const words=(text||"").trim().split(/\s+/).filter(Boolean);if(!words.length)return [];
+ const lines=[];let line="";
+ for(const word of words){
   const test=line?line+" "+word:word;
-  if(context.measureText(test).width>maxWidth&&line){lines.push(line);line=word;}
-  else line=test;
- });
+  if(ctx.measureText(test).width>maxWidth&&line){lines.push(line);line=word}else line=test;
+ }
  if(line)lines.push(line);
- const total=lines.length*lineHeight;
- let start=y-total/2+lineHeight/2;
- start=Math.max(lineHeight/2+8,Math.min(start,720-total/2));
- lines.forEach((s,i)=>{
-  if(context.lineWidth>0)context.strokeText(s,x,start+i*lineHeight);
-  context.fillText(s,x,start+i*lineHeight);
- });
+ return lines.slice(0,3);
 }
-function drawThumbnail(){
+function drawThumb(){
  const w=thumb.width,h=thumb.height;
- ctx.clearRect(0,0,w,h);ctx.fillStyle=$("bgColor").value;ctx.fillRect(0,0,w,h);
+ tx.clearRect(0,0,w,h);tx.fillStyle=$("bgColor").value;tx.fillRect(0,0,w,h);
  if(thumbImage){
-  ctx.save();ctx.filter=`brightness(${$("thumbBright").value}%) saturate(${$("thumbSat").value}%)`;
-  coverImage(ctx,thumbImage,w,h);ctx.restore();
- }else{
-  const g=ctx.createLinearGradient(0,0,w,h);
-  g.addColorStop(0,$("bgColor").value);g.addColorStop(1,"#090b18");
-  ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
-  ctx.fillStyle="#ffffff18";
-  for(let i=0;i<12;i++){ctx.beginPath();ctx.arc((i*139)%w,(i*83)%h,40+i%4*15,0,Math.PI*2);ctx.fill();}
+  const mode=$("fit").value;
+  const s=mode==="cover"?Math.max(w/thumbImage.width,h/thumbImage.height):Math.min(w/thumbImage.width,h/thumbImage.height);
+  const dw=thumbImage.width*s,dh=thumbImage.height*s;
+  tx.drawImage(thumbImage,(w-dw)/2,(h-dh)/2,dw,dh);
+  tx.fillStyle="rgba(0,0,0,.28)";tx.fillRect(0,0,w,h);
  }
- if($("gradient").checked){
-  const g=ctx.createLinearGradient(0,0,0,h);
-  g.addColorStop(0,"#00000000");g.addColorStop(.45,"#00000020");g.addColorStop(1,"#000000d9");
-  ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
- }
- const pos=$("textPosition").value;
- const x=pos==="left"?65:w/2;
- const y=pos==="top"?145:pos==="center"?360:530;
- const title=$("mainTitle").value||"MY NEW VIDEO";
- const size=Number($("titleSize").value);
- ctx.textAlign=pos==="left"?"left":"center";ctx.textBaseline="middle";
- ctx.lineJoin="round";ctx.font=`900 ${size}px system-ui,Arial`;
- ctx.lineWidth=$("outline").value==="bold"?14:$("outline").value==="soft"?6:0;
- ctx.strokeStyle="#10101b";ctx.fillStyle=$("titleColor").value;
- drawWrapped(ctx,title,x,y,1150,size*1.08);
- ctx.font=`800 ${Math.round(size*.43)}px system-ui,Arial`;
- ctx.lineWidth=$("outline").value==="bold"?8:$("outline").value==="soft"?3:0;
- ctx.fillStyle=$("subColor").value;
- drawWrapped(ctx,$("subTitle").value,x,Math.min(660,y+size*1.1),1120,size*.55);
-}
-$("thumbFile").onchange=e=>loadImage(e.target.files[0],img=>{thumbImage=img;drawThumbnail()});
-["mainTitle","subTitle","titleColor","subColor","bgColor","outline","titleSize","textPosition","thumbBright","thumbSat","gradient"].forEach(id=>{
- $(id).addEventListener("input",()=>{
-  const pairs={titleSize:["titleSizeLabel"," px"],thumbBright:["brightLabel","%"],thumbSat:["satLabel","%"]};
-  if(pairs[id])$(pairs[id][0]).textContent=$(id).value+pairs[id][1];
-  drawThumbnail();
+ const size=Number($("titleSize").value),title=$("title").value;
+ const sub=$("subtitle").value;
+ const y=$("position").value==="top"?170:$("position").value==="middle"?365:525;
+ tx.textAlign="center";tx.textBaseline="middle";tx.lineJoin="round";
+ tx.font="900 "+size+"px system-ui, sans-serif";
+ tx.lineWidth=Number($("outline").value);tx.strokeStyle="#111111";tx.fillStyle=$("titleColor").value;
+ const lines=wrapText(tx,title,1160),lineH=size*1.08;
+ const top=y-(lines.length-1)*lineH/2-(sub?25:0);
+ lines.forEach((line,i)=>{
+  tx.strokeText(line,w/2,top+i*lineH,1160);
+  tx.fillText(line,w/2,top+i*lineH,1160);
  });
-});
-$("updateThumb").onclick=drawThumbnail;
-$("pngThumb").onclick=()=>exportCanvas(thumb,"image/png","youtube-thumbnail.png");
-$("jpgThumb").onclick=()=>exportCanvas(thumb,"image/jpeg","youtube-thumbnail.jpg");
-
-const photo=$("photoCanvas"),pctx=photo.getContext("2d");
-function drawPhoto(){
- pctx.clearRect(0,0,photo.width,photo.height);pctx.fillStyle="#101426";pctx.fillRect(0,0,photo.width,photo.height);
- if(!photoImage){
-  pctx.fillStyle="#b5bfd8";pctx.textAlign="center";pctx.font="30px system-ui";
-  pctx.fillText("Import a photo or capture a video frame",photo.width/2,photo.height/2);return;
+ if(sub){
+  tx.font="800 36px system-ui, sans-serif";tx.lineWidth=5;
+  const sy=Math.min(665,top+lines.length*lineH+35);
+  tx.strokeStyle="#111";tx.strokeText(sub.toUpperCase(),w/2,sy,1160);
+  tx.fillStyle="#ffe66d";tx.fillText(sub.toUpperCase(),w/2,sy,1160);
  }
- pctx.save();
- pctx.filter=`brightness(${$("photoBright").value}%) saturate(${$("photoSat").value}%) contrast(${$("photoContrast").value}%)`;
- coverImage(pctx,photoImage,photo.width,photo.height);pctx.restore();
 }
-$("photoFile").onchange=e=>loadImage(e.target.files[0],img=>{photoImage=img;drawPhoto()});
-[["photoBright","photoBrightLabel"],["photoSat","photoSatLabel"],["photoContrast","photoContrastLabel"]].forEach(([id,out])=>{
- $(id).oninput=()=>{$(out).textContent=$(id).value+"%";drawPhoto()};
-});
-$("photoPNG").onclick=()=>exportCanvas(photo,"image/png","edited-photo.png");
-$("photoJPG").onclick=()=>exportCanvas(photo,"image/jpeg","edited-photo.jpg",.94);
-$("frameToPhoto").onclick=()=>{
- if(!video.videoWidth)return alert(
+$("thumbInput").onchange=e=>loadImage(e.target.files[0],im=>{thumbImage=im;drawThumb()});
+["title","subtitle","titleColor","bgColor","titleSize","outline","position","fit"].forEach(id=>$(id).addEventListener("input",drawThumb));
+function saveCanvas(canvas,type,name){
+ canvas.toBlob(blob=>downloadBlob(blob,name),type,type==="image/jpeg"?.92:undefined);
+}
+$("thumbPng").onclick=()=>saveCanvas(thumb,"image/png","youtube-thumbnail.png");
+$("thumbJpg").onclick=()=>saveCanvas(thumb,"image/jpeg","youtube-thumbnail.jpg");
+$("thumbReset").onclick=()=>{
+ $("title").value="YOUR AMAZING VIDEO";$("subtitle").value="WATCH NOW";
+ $("titleColor").value="#ffffff";$("bgColor").value="#34208a";
+ $("titleSize").value=76;$("outline").value=5;$("position").value="bottom";drawThumb();
+};
+
+// Photo editor
+const photo=$("photo"),px=photo.getContext("2d");
+function drawPhoto(){
+ px.clearRect(0,0,photo.width,photo.height);
+ if(!photoImage){
+  px.fillStyle="#111a30";px.fillRect(0,0,photo.width,photo.height);
+  px.fillStyle="#d4dcf5";px.font="32px system-ui";px.textAlign="center";
+  px.fillText("Import a photo to edit",photo.width/2,photo.height/2);return;
+ }
+ px.filter="brightness("+$("pb").value+"%) saturate("+$("ps").value+"%) contrast("+$("pc").value+"%)";
+ const s=Math.min(photo.width/photoImage.width,photo.height/photoImage.height);
+ const w=photoImage.width*s,h=photoImage.height*s;
+ px.drawImage(photoImage,(photo.width-w)/2,(photo.height-h)/2,w,h);
+ px.filter="none";
+ $("pbVal").textContent=$("pb").value+"%";
+ $("psVal").textContent=$("ps").value+"%";
+ $("pcVal").textContent=$("pc").value+"%";
+}
+$("photoInput").onchange=e=>loadImage(e.target.files[0],im=>{photoImage=im;drawPhoto()});
+["pb","ps","pc"].forEach(id=>$(id).addEventListener("input",drawPhoto));
+$("photoReset").onclick=()=>{$("pb").value=100;$("ps").value=100;$("pc").value=100;drawPhoto()};
+$("photoPng").onclick=()=>saveCanvas(photo,"image/png","edited-photo.png");
+$("photoJpg").onclick=()=>saveCanvas(photo,"image/jpeg","edited-photo.jpg");
+
+// Settings export/import
+$("saveSettings").onclick=()=>{
+ const data={
+  app:"Creator Studio Offline Pro",version:1,
+  thumbnail:{title:$("title").value,subtitle:$("subtitle").value,titleColor:$("titleColor").value,bgColor:$("bgColor").value,titleSize:$("titleSize").value,outline:$("outline").value,position:$("position").value,fit:$("fit").value},
+  video:{start:$("start").value,end:$("end").value,speed:$("speed").value,filter:$("filter").value,bright:$("bright").value,sat:$("sat").value,contrast:$("contrast").value,volume:$("volume").value,resolution:$("resolution").value,quality:$("quality").value}
+ };
+ downloadBlob(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),"creator-studio-settings.json");
+};
+$("loadSettings").onchange=async e=>{
+ const file=e.target.files[0];if(!file)return;
+ try{
+  const data=JSON.parse(await file.text()),t=data.thumbnail||{},v=data.video||{};
+  const fields={title:t.title,subtitle:t.subtitle,titleColor:t.titleColor,bgColor:t.bgColor,titleSize:t.titleSize,outline:t.outline,position:t.position,fit:t.fit,start:v.start,end:v.end,speed:v.speed,filter:v.filter,bright:v.bright,sat:v.sat,contrast:v.contrast,volume:v.volume,resolution:v.resolution,quality:v.quality};
+  Object.entries(fields).forEach(([id,val])=>{if(val!==undefined&&$(id))$(id).value=val});
+  updateFilter();drawThumb();drawPhoto();
+  setStatus("projectStatus","Settings loaded.");
+ }catch(err){setStatus("projectStatus","Invalid settings JSON file.");}
+};
+drawThumb();drawPhoto();updateFilter();
+})();
+</script>
+</body>
+</html>
