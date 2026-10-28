@@ -1,0 +1,539 @@
+<!DOCTYPE html>  <html lang="or">  
+<head>  
+<meta charset="UTF-8">  
+<meta name="viewport" content="width=device-width, initial-scale=1.0">  
+<meta name="theme-color" content="#075e54">  
+<title>Smart Digital Seva | ସ୍ମାର୍ଟ ଡିଜିଟାଲ ସେବା</title>  <style>  
+* {  
+  box-sizing: border-box;  
+}  
+  
+:root {  
+  --green: #075e54;  
+  --dark: #06483f;  
+  --light: #e8f5f0;  
+  --gold: #f5bd45;  
+  --text: #202d32;  
+  --muted: #647279;  
+  --white: #ffffff;  
+}  
+  
+body {  
+  margin: 0;  
+  font-family: Arial, "Noto Sans Oriya", sans-serif;  
+  color: var(--text);  
+  background: #f3f7f6;  
+  line-height: 1.7;  
+}  
+  
+a {  
+  color: inherit;  
+  text-decoration: none;  
+}  
+  
+header {  
+  background: var(--green);  
+  color: white;  
+  padding: 22px 16px;  
+}  
+  
+.header-inner {  
+  max-width: 1000px;  
+  margin: auto;  
+  display: flex;  
+  align-items: center;  
+  justify-content: space-between;  
+  gap: 12px;  
+}  
+  
+.brand h1 {  
+  font-size: 23px;  
+  margin: 0;  
+  line-height: 1.5;  
+}  
+  
+.brand p {  
+  margin: 4px 0 0;  
+  font-size: 13px;  
+  color: #d5eee8;  
+}  
+  
+.header-tag {  
+  border: 1px solid #ffffff70;  
+  border-radius: 20px;  
+  padding: 5px 10px;  
+  font-size: 12px;  
+  white-space: nowrap;  
+}  
+  
+nav {  
+  background: var(--dark);  
+  color: white;  
+  padding: 10px 12px;  
+  text-align: center;  
+}  
+  
+nav a {  
+  display: inline-block;  
+  padding: 5px 9px;  
+  font-size: 13px;  
+}  
+  
+.hero {  
+  background: linear-gradient(135deg, #e3f5ed, #ffffff);  
+  padding: 36px 18px;  
+  text-align: center;  
+}  
+  
+.hero-inner {  
+  max-width: 760px;  
+  margin: auto;  
+}  
+  
+.hero h2 {  
+  font-size: 29px;  
+  line-height: 1.5;  
+  color: var(--dark);  
+  margin: 0 0 12px;  
+}  
+  
+.hero p {  
+  color: #4b6060;  
+  margin: 0 auto 20px;  
+}  
+  
+.button {  
+  display: inline-block;  
+  background: var(--green);  
+  color: white;  
+  padding: 11px 18px;  
+  border-radius: 8px;  
+  font-weight: bold;  
+  border: none;  
+  cursor: pointer;  
+  font-size: 14px;  
+}  
+  
+.button.secondary {  
+  background: white;  
+  color: var(--green);  
+  border: 1px solid var(--green);  
+}  
+  
+.container {  
+  max-width: 1000px;  
+  margin: auto;  
+  padding: 24px 15px;  
+}  
+  
+.section-title {  
+  text-align: center;  
+  margin: 0 0 6px;  
+  color: var(--dark);  
+  font-size: 24px;  
+}  
+  
+.section-subtitle {  
+  text-align: center;  
+  color: var(--muted);  
+  margin: 0 0 22px;  
+  font-size: 14px;  
+}  
+  
+.search-box {  
+  max-width: 600px;  
+  margin: 0 auto 16px;  
+}  
+  
+.search-box input {  
+  width: 100%;  
+  padding: 14px;  
+  border: 1px solid #d5dfdc;  
+  border-radius: 9px;  
+  font-size: 16px;  
+  outline-color: var(--green);  
+  background: white;  
+}  
+  
+.filters {  
+  display: flex;  
+  justify-content: center;  
+  flex-wrap: wrap;  
+  gap: 8px;  
+  margin-bottom: 22px;  
+}  
+  
+.filter {  
+  border: 1px solid #cddbd6;  
+  background: white;  
+  color: var(--green);  
+  border-radius: 22px;  
+  padding: 8px 13px;  
+  cursor: pointer;  
+  font-size: 13px;  
+}  
+  
+.filter.active {  
+  background: var(--green);  
+  color: white;  
+}  
+  
+.services {  
+  display: grid;  
+  grid-template-columns: repeat(3, minmax(0, 1fr));  
+  gap: 14px;  
+}  
+  
+.service-card {  
+  background: white;  
+  border: 1px solid #e4ebe8;  
+  border-radius: 12px;  
+  padding: 17px;  
+  display: flex;  
+  flex-direction: column;  
+  box-shadow: 0 3px 12px #173c3010;  
+}  
+  
+.service-card h3 {  
+  color: var(--dark);  
+  font-size: 17px;  
+  margin: 0 0 8px;  
+}  
+  
+.service-card p {  
+  color: var(--muted);  
+  font-size: 13px;  
+  margin: 0 0 16px;  
+  flex-grow: 1;  
+}  
+  
+.service-card .button {  
+  width: 100%;  
+  text-align: center;  
+  padding: 10px 6px;  
+}  
+  
+.no-results {  
+  display: none;  
+  text-align: center;  
+  color: var(--muted);  
+  padding: 25px;  
+}  
+  
+.info-grid {  
+  display: grid;  
+  grid-template-columns: repeat(3, minmax(0, 1fr));  
+  gap: 12px;  
+  margin-top: 24px;  
+}  
+  
+.info-card {  
+  background: white;  
+  border: 1px solid #e4ebe8;  
+  padding: 16px;  
+  border-radius: 10px;  
+}  
+  
+.info-card h3 {  
+  font-size: 16px;  
+  color: var(--dark);  
+  margin: 0 0 6px;  
+}  
+  
+.info-card p {  
+  margin: 0;  
+  color: var(--muted);  
+  font-size: 13px;  
+}  
+  
+.contact {  
+  background: #e7f3ef;  
+  padding: 28px 16px;  
+}  
+  
+.contact-inner {  
+  max-width: 700px;  
+  margin: auto;  
+  text-align: center;  
+}  
+  
+.contact h2 {  
+  color: var(--dark);  
+  margin: 0 0 8px;  
+}  
+  
+.contact p {  
+  font-size: 14px;  
+  overflow-wrap: anywhere;  
+}  
+  
+.contact a.email {  
+  color: var(--green);  
+  font-weight: bold;  
+  overflow-wrap: anywhere;  
+}  
+  
+.notice {  
+  background: #fff8e7;  
+  border: 1px solid #f0dfb1;  
+  color: #665321;  
+  padding: 14px;  
+  border-radius: 9px;  
+  font-size: 13px;  
+  margin-top: 20px;  
+  text-align: left;  
+}  
+  
+footer {  
+  background: #063e37;  
+  color: white;  
+  text-align: center;  
+  padding: 20px 12px;  
+  font-size: 12px;  
+}  
+  
+footer p {  
+  margin: 4px;  
+}  
+  
+@media (max-width: 700px) {  
+  .services {  
+    grid-template-columns: repeat(2, minmax(0, 1fr));  
+  }  
+  
+  .info-grid {  
+    grid-template-columns: 1fr;  
+  }  
+  
+  .hero h2 {  
+    font-size: 24px;  
+  }  
+  
+  .brand h1 {  
+    font-size: 19px;  
+  }  
+}  
+  
+@media (max-width: 360px) {  
+  .services {  
+    grid-template-columns: 1fr;  
+  }  
+  
+  .header-tag {  
+    display: none;  
+  }  
+}  
+</style>  </head>  <body>  <header id="home">  
+  <div class="header-inner">  
+    <div class="brand">  
+      <h1>Smart Digital Seva</h1>  
+      <p>ସ୍ମାର୍ଟ ଡିଜିଟାଲ ସେବା</p>  
+    </div>  
+    <div class="header-tag">ଆପଣଙ୍କ ସେବାରେ</div>  
+  </div>  
+</header>  <nav>  
+  <a href="#home">ମୁଖ୍ୟ ପୃଷ୍ଠା</a>  
+  <a href="#services">ସମସ୍ତ ସେବା</a>  
+  <a href="#process">କିପରି କାମ କରେ</a>  
+  <a href="#contact">ଯୋଗାଯୋଗ</a>  
+</nav>  <section class="hero">  
+  <div class="hero-inner">  
+    <h2>ଆପଣଙ୍କ ଅନଲାଇନ୍ ସେବା କେନ୍ଦ୍ର</h2>  
+    <p>  
+      ROR କପି, ଆୟ ପ୍ରମାଣପତ୍ର, ଜାତି ପ୍ରମାଣପତ୍ର,  
+      ବାସିନ୍ଦା ପ୍ରମାଣପତ୍ର, PAN କାର୍ଡ, ଇ-ଶ୍ରମ  
+      ଏବଂ ଅନ୍ୟାନ୍ୟ ଅନଲାଇନ୍ ସେବା ବିଷୟରେ  
+      ସୂଚନା ଓ ସହାୟତା ପାଆନ୍ତୁ।  
+    </p>  
+    <a href="#services" class="button">ସେବା ଦେଖନ୍ତୁ</a>  
+    <a href="#contact" class="button secondary">ଯୋଗାଯୋଗ କରନ୍ତୁ</a>  
+  </div>  
+</section>  <main>  
+  <section class="container" id="services">  
+    <h2 class="section-title">ଆମର ଅନଲାଇନ୍ ସେବା</h2>  
+    <p class="section-subtitle">  
+      ଆପଣଙ୍କ ଆବଶ୍ୟକ ସେବା ଖୋଜନ୍ତୁ ଏବଂ ଯୋଗାଯୋଗ କରନ୍ତୁ।  
+    </p>  <div class="search-box">  
+  <input  
+    type="search"  
+    id="search"  
+    placeholder="ସେବା ଖୋଜନ୍ତୁ..."  
+    aria-label="ସେବା ଖୋଜନ୍ତୁ"  
+  >  
+</div>  
+
+<div class="filters">  
+  <button class="filter active" data-category="all">ସମସ୍ତ ସେବା</button>  
+  <button class="filter" data-category="certificate">ପ୍ରମାଣପତ୍ର</button>  
+  <button class="filter" data-category="identity">ପରିଚୟ ପତ୍ର</button>  
+  <button class="filter" data-category="other">ଅନ୍ୟାନ୍ୟ</button>  
+</div>  
+
+<div class="services" id="serviceList">  
+
+  <article class="service-card" data-category="certificate">  
+    <h3>ROR / RoR କପି</h3>  
+    <p>ଜମିର Record of Rights (ROR) କପି ସମ୍ବନ୍ଧୀୟ ଅନଲାଇନ୍ ସହାୟତା।</p>  
+    <a class="button apply" data-service="ROR / RoR କପି" href="#contact">ସେବା ପାଇଁ ପଚାରନ୍ତୁ</a>  
+  </article>  
+
+  <article class="service-card" data-category="certificate">  
+    <h3>ଆୟ ପ୍ରମାଣପତ୍ର</h3>  
+    <p>Income Certificate ଆବେଦନ ପ୍ରକ୍ରିୟା ବିଷୟରେ ସହାୟତା।</p>  
+    <a class="button apply" data-service="ଆୟ ପ୍ରମାଣପତ୍ର" href="#contact">ସେବା ପାଇଁ ପଚାରନ୍ତୁ</a>  
+  </article>  
+
+  <article class="service-card" data-category="certificate">  
+    <h3>ଜାତି ପ୍ରମାଣପତ୍ର</h3>  
+    <p>Caste Certificate ଆବେଦନ ସମ୍ବନ୍ଧୀୟ ସହାୟତା।</p>  
+    <a class="button apply" data-service="ଜାତି ପ୍ରମାଣପତ୍ର" href="#contact">ସେବା ପାଇଁ ପଚାରନ୍ତୁ</a>  
+  </article>  
+
+  <article class="service-card" data-category="certificate">  
+    <h3>ବାସିନ୍ଦା ପ୍ରମାଣପତ୍ର</h3>  
+    <p>Resident Certificate ଆବେଦନ ସମ୍ବନ୍ଧୀୟ ସହାୟତା।</p>  
+    <a class="button apply" data-service="ବାସିନ୍ଦା ପ୍ରମାଣପତ୍ର" href="#contact">ସେବା ପାଇଁ ପଚାରନ୍ତୁ</a>  
+  </article>  
+
+  <article class="service-card" data-category="identity">  
+    <h3>PAN କାର୍ଡ</h3>  
+    <p>PAN ଆବେଦନ କିମ୍ବା ଉପଲବ୍ଧ ଅଧିକୃତ ସେବା ବିଷୟରେ ସୂଚନା।</p>  
+    <a class="button apply" data-service="PAN କାର୍ଡ" href="#contact">ସେବା ପାଇଁ ପଚାରନ୍ତୁ</a>  
+  </article>  
+
+  <article class="service-card" data-category="identity">  
+    <h3>ଇ-ଶ୍ରମ କାର୍ଡ</h3>  
+    <p>e-Shram ପଞ୍ଜୀକରଣ ଏବଂ ସମ୍ବନ୍ଧୀୟ ସହାୟତା।</p>  
+    <a class="button apply" data-service="ଇ-ଶ୍ରମ କାର୍ଡ" href="#contact">ସେବା ପାଇଁ ପଚାରନ୍ତୁ</a>  
+  </article>  
+
+  <article class="service-card" data-category="identity">  
+    <h3>ଆଧାର ସମ୍ବନ୍ଧୀୟ ସୂଚନା</h3>  
+    <p>ଆଧାର ସେବା ପାଇଁ ଅଧିକୃତ କେନ୍ଦ୍ର ଓ ଉପଲବ୍ଧ ପ୍ରକ୍ରିୟା ବିଷୟରେ ସୂଚନା।</p>  
+    <a class="button apply" data-service="ଆଧାର ସମ୍ବନ୍ଧୀୟ ସୂଚନା" href="#contact">ସେବା ପାଇଁ ପଚାରନ୍ତୁ</a>  
+  </article>  
+
+  <article class="service-card" data-category="other">  
+    <h3>ଅନଲାଇନ୍ ଫର୍ମ ପୂରଣ</h3>  
+    <p>ଉପଲବ୍ଧ ଅନଲାଇନ୍ ଫର୍ମ ପୂରଣ ପ୍ରକ୍ରିୟାରେ ସହାୟତା।</p>  
+    <a class="button apply" data-service="ଅନଲାଇନ୍ ଫର୍ମ ପୂରଣ" href="#contact">ସେବା ପାଇଁ ପଚାରନ୍ତୁ</a>  
+  </article>  
+
+  <article class="service-card" data-category="other">  
+    <h3>ଅନ୍ୟାନ୍ୟ ସରକାରୀ ସେବା</h3>  
+    <p>ଆପଣଙ୍କ ଆବଶ୍ୟକତା ଅନୁଯାୟୀ ସେବା ଉପଲବ୍ଧତା ବିଷୟରେ ପଚାରନ୍ତୁ।</p>  
+    <a class="button apply" data-service="ଅନ୍ୟାନ୍ୟ ସରକାରୀ ସେବା" href="#contact">ସେବା ପାଇଁ ପଚାରନ୍ତୁ</a>  
+  </article>  
+
+</div>  
+
+<p class="no-results" id="noResults">  
+  ଦୁଃଖିତ, ଏହି ସେବା ମିଳିଲା ନାହିଁ। ଅନ୍ୟ ଶବ୍ଦରେ ଖୋଜନ୍ତୁ।  
+</p>
+
+  </section>    <section class="container" id="process">  
+    <h2 class="section-title">ସେବା କିପରି ପାଇବେ?</h2>  
+    <p class="section-subtitle">ସହଜ ତିନୋଟି ପଦକ୍ଷେପ</p>  <div class="info-grid">  
+  <div class="info-card">  
+    <h3>୧. ସେବା ବାଛନ୍ତୁ</h3>  
+    <p>ଆପଣଙ୍କ ଆବଶ୍ୟକ ସେବା ଚୟନ କରନ୍ତୁ।</p>  
+  </div>  
+  <div class="info-card">  
+    <h3>୨. ଯୋଗାଯୋଗ କରନ୍ତୁ</h3>  
+    <p>ସେବା, ଆବଶ୍ୟକ ଦଲିଲ ଓ ଶୁଳ୍କ ବିଷୟରେ ପଚାରନ୍ତୁ।</p>  
+  </div>  
+  <div class="info-card">  
+    <h3>୩. ଆବେଦନ ସହାୟତା</h3>  
+    <p>ଉପଲବ୍ଧ ଓ ଅଧିକୃତ ପ୍ରକ୍ରିୟା ଅନୁଯାୟୀ ସହାୟତା ନିଅନ୍ତୁ।</p>  
+  </div>  
+</div>  
+
+<div class="notice">  
+  <strong>ଗୁରୁତ୍ୱପୂର୍ଣ୍ଣ ସୂଚନା:</strong>  
+  ଏହା ଏକ ସ୍ୱାଧୀନ ଡିଜିଟାଲ ସେବା କେନ୍ଦ୍ରର ସୂଚନାମୂଳକ ୱେବସାଇଟ୍।  
+  ଏହା କୌଣସି ସରକାରୀ ୱେବସାଇଟ୍ ନୁହେଁ।  
+  ସରକାରୀ ଆବେଦନ, ଯୋଗ୍ୟତା, ଶୁଳ୍କ ଓ ଅନୁମୋଦନ  
+  ସମ୍ପୃକ୍ତ ଅଧିକୃତ ପୋର୍ଟାଲ୍ ଓ କର୍ତ୍ତୃପକ୍ଷଙ୍କ ନିୟମ ଅନୁଯାୟୀ ହେବ।  
+  ନିଜର OTP, ପାସୱାର୍ଡ କିମ୍ବା ଗୁପ୍ତ ବ୍ୟାଙ୍କ ତଥ୍ୟ କାହାକୁ ଦିଅନ୍ତୁ ନାହିଁ।  
+</div>
+
+  </section>  
+</main>  <section class="contact" id="contact">  
+  <div class="contact-inner">  
+    <h2>ଯୋଗାଯୋଗ କରନ୍ତୁ</h2>  
+    <p><strong>ସେବା କେନ୍ଦ୍ର:</strong> Smart Digital Seva</p>  
+    <p><strong>ସେବା ପ୍ରଦାନକାରୀ:</strong> Hemanta Sahu</p>  
+    <p><strong>ଠିକଣା:</strong> Bhawanipatna, Odisha</p>  
+    <p>  
+      <strong>ଇମେଲ୍:</strong><br>  
+      <a class="email" href="mailto:smartdigitalseva05@gmail.com">  
+        smartdigitalseva05@gmail.com  
+      </a>  
+    </p>  
+    <a class="button" href="mailto:smartdigitalseva05@gmail.com?subject=Smart%20Digital%20Seva%20Enquiry">  
+      ଇମେଲ୍ ମାଧ୍ୟମରେ ପଚାରନ୍ତୁ  
+    </a>  
+    <p style="font-size:12px;color:#526862;margin-top:15px">  
+      ଇମେଲ୍ ପଠାଇବା ପାଇଁ ଆପଣଙ୍କ ଫୋନରେ ଏକ ଇମେଲ୍ ଆପ୍ ଆବଶ୍ୟକ।  
+    </p>  
+  </div>  
+</section>  <footer>  
+  <p><strong>Smart Digital Seva</strong></p>  
+  <p>© <span id="year"></span> Smart Digital Seva. ସମସ୍ତ ଅଧିକାର ସଂରକ୍ଷିତ।</p>  
+  <p>Bhawanipatna, Odisha</p>  
+</footer>  <script>  
+const searchInput = document.getElementById("search");  
+const cards = Array.from(document.querySelectorAll(".service-card"));  
+const filters = document.querySelectorAll(".filter");  
+const noResults = document.getElementById("noResults");  
+  
+let selectedCategory = "all";  
+  
+function updateServices() {  
+  const query = searchInput.value.trim().toLowerCase();  
+  let visibleCount = 0;  
+  
+  cards.forEach(card => {  
+    const matchesText = card.innerText.toLowerCase().includes(query);  
+    const matchesCategory =  
+      selectedCategory === "all" ||  
+      card.dataset.category === selectedCategory;  
+  
+    const visible = matchesText && matchesCategory;  
+    card.style.display = visible ? "flex" : "none";  
+  
+    if (visible) visibleCount++;  
+  });  
+  
+  noResults.style.display = visibleCount === 0 ? "block" : "none";  
+}  
+  
+searchInput.addEventListener("input", updateServices);  
+  
+filters.forEach(button => {  
+  button.addEventListener("click", () => {  
+    filters.forEach(item => item.classList.remove("active"));  
+    button.classList.add("active");  
+    selectedCategory = button.dataset.category;  
+    updateServices();  
+  });  
+});  
+  
+document.querySelectorAll(".apply").forEach(button => {  
+  const service = button.dataset.service;  
+  const subject = "ସେବା ବିଷୟରେ ପଚରାଉଚରା - " + service;  
+  const body =  
+    "ନମସ୍କାର Smart Digital Seva,\n\n" +  
+    "ମୁଁ " + service + " ସେବା ବିଷୟରେ ଜାଣିବାକୁ ଚାହୁଁଛି।\n" +  
+    "ଦୟାକରି ଆବଶ୍ୟକ ଦଲିଲ, ଶୁଳ୍କ ଏବଂ ପ୍ରକ୍ରିୟା ବିଷୟରେ ସୂଚନା ଦିଅନ୍ତୁ।\n\nଧନ୍ୟବାଦ।";  
+  
+  button.href =  
+    "mailto:smartdigitalseva05@gmail.com?subject=" +  
+    encodeURIComponent(subject) +  
+    "&body=" + encodeURIComponent(body);  
+});  
+  
+document.getElementById("year").textContent =  
+  new Date().getFullYear();  
+</script>  </body>  
+</html>  
