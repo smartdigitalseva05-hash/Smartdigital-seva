@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="or" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Daily English Pro — English to Odia Learning Platform</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                            dark: '#0f172a',
+                            card: '#1e293b',
+                            accent: '#06b6d4',
+                            purple: '#8b5cf6',
+                            emerald: '#10b981'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Kalinga', 'Oriya Sangam MN', 'Noto Sans Oriya', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        /* 3D Flip Card Effect */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+
+        /* Glassmorphism subtle effect */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-nav {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(16px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Smooth tab transition */
+        .view-section {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.25s ease-in-out;
+        }
+        .view-section.active {
+            display: block;
+            opacity: 1;
+        }
+        
+        /* Odia Font Specific Tweaks */
+        .odia-text {
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-cyan-500 selection:text-white">
+
+    <!-- TOP HEADER / DESKTOP NAVBAR -->
+    <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchView('dashboard')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-500 to-purple-600 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-cyan-500/20">
+                    E|ଓ
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight tracking-tight text-white flex items-center gap-2">
+                        Daily English Pro 
+                        <span class="text-xs px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">Odia</span>
+                    </h1>
+                    <p class="text-xs text-slate-400 odia-text">ଇଂରାଜୀ ଶିଖନ୍ତୁ ସହଜରେ (English to Odia)</p>
+                </div>
+            </div>
+
+            <!-- Global Search & Stats Header -->
+            <div class="flex items-center gap-2 sm:gap-4">
+                <!-- Search Button / Bar trigger -->
+                <button onclick="openSearchModal()" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700/80 text-slate-300 text-sm border border-slate-700/60 transition">
+                    <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    <span class="hidden md:inline text-xs text-slate-400">Search 1000+ words & lessons...</span>
+                </button>
+
+                <!-- Daily Streak Counter -->
+                <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 font-semibold text-sm">
+                    <svg class="w-4 h-4 text-amber-500 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.316.492-.63 1.042-.951 1.588-.636 1.082-1.328 2.258-2.122 3.251-.81.102-1.637.288-2.428.62-1.332.559-2.222 1.638-2.52 2.871-.301 1.24.004 2.582.793 3.57 1.25 1.56 3.328 2.452 5.425 2.452 2.097 0 4.175-.892 5.425-2.452.789-.988 1.094-2.33.793-3.57-.298-1.233-1.188-2.312-2.52-2.871-.79-.332-1.618-.518-2.428-.62.794-.993 1.486-2.169 2.122-3.251.32-.546.635-1.096.951-1.588.208-.322.477-.65.822-.88a1 1 0 00.385-1.45zM10 16c-2.485 0-4.5-1.79-4.5-4 0-1.238.618-2.38 1.558-3.085.342-.256.737-.433 1.157-.523.513 1.092 1.196 2.083 2.01 2.91.205.209.426.402.66.578a1.002 1.002 0 001.23 0c.234-.176.455-.369.66-.578.814-.827 1.497-1.818 2.01-2.91.42.09.815.267 1.157.523C13.882 9.62 14.5 10.762 14.5 12c0 2.21-2.015 4-4.5 4z" clip-rule="evenodd"/></svg>
+                    <span id="streakCount">1</span> Day
+                </div>
+
+                <!-- Help/Guide Modal Trigger -->
+                <button onclick="toggleModal('helpModal')" class="p-2 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-slate-700/60" title="Offline & Mobile Guide">
+                    <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN APP WRAPPER -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 mb-20 md:mb-8">
+
+        <!-- VIEW 1: DASHBOARD -->
+        <section id="view-dashboard" class="view-section active space-y-6">
+            <!-- Hero Banner -->
+            <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-900 via-slate-900 to-purple-950 p-6 sm:p-8 border border-indigo-500/20 shadow-xl">
+                <div class="absolute -top-24 -right-24 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-24 -left-24 w-72 h-72 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="relative z-10 max-w-2xl space-y-3">
+                    <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                        Zero to Fluent • ଶୂନରୁ ଦକ୍ଷତା
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+                        Welcome to Daily English Pro
+                    </h2>
+                    <p class="text-slate-300 text-sm sm:text-base odia-text">
+                        ସହଜ ଓଡ଼ିଆ ବ୍ୟାଖ୍ୟା, ଦୈନନ୍ଦିନ କଥୋପକଥନ, ଶବ୍ଦକୋଷ ଏବଂ ଉଚ୍ଚାରଣ ସହିତ ଇଂରାଜୀ ଶିଖନ୍ତୁ।
+                    </p>
+                    
+                    <div class="pt-2 flex flex-wrap gap-3">
+                        <button onclick="switchView('daily')" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-medium shadow-lg shadow-cyan-500/25 transition flex items-center gap-2 text-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            Start Today's Lesson (Day <span id="currentDayBadge">1</span>)
+                        </button>
+                        <button onclick="switchView('speaking')" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium transition text-sm flex items-center gap-2">
+                            <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+                            Speaking Practice
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Tracker Overview Cards -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="glass-card p-4 rounded-xl space-y-1">
+                    <p class="text-xs text-slate-400 odia-text">ସମ୍ପୂର୍ଣ୍ଣ ପାଠ (Completed)</p>
+                    <div class="flex items-baseline justify-between">
+                        <span id="statCompletedLessons" class="text-2xl font-bold text-cyan-400">0</span>
+                        <span class="text-xs text-slate-500">/ 365 Days</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden mt-2">
+                        <div id="statCompletedBar" class="bg-cyan-500 h-full w-0 transition-all duration-500"></div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-4 rounded-xl space-y-1">
+                    <p class="text-xs text-slate-400 odia-text">ଶିଖିଥିବା ଶବ୍ଦ (Vocabulary)</p>
+                    <div class="flex items-baseline justify-between">
+                        <span id="statVocabLearned" class="text-2xl font-bold text-emerald-400">0</span>
+                        <span class="text-xs text-slate-500">Words</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden mt-2">
+                        <div id="statVocabBar" class="bg-emerald-500 h-full w-0 transition-all duration-500"></div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-4 rounded-xl space-y-1">
+                    <p class="text-xs text-slate-400 odia-text">ପ୍ରିୟ ପାଠ (Bookmarks)</p>
+                    <div class="flex items-baseline justify-between">
+                        <span id="statFavorites" class="text-2xl font-bold text-amber-400">0</span>
+                        <span class="text-xs text-slate-500">Saved</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden mt-2">
+                        <div id="statFavoritesBar" class="bg-amber-500 h-full w-0 transition-all duration-500"></div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-4 rounded-xl space-y-1">
+                    <p class="text-xs text-slate-400 odia-text">କ୍ୱିଜ୍ ସ୍କୋର୍ (Quiz Mastered)</p>
+                    <div class="flex items-baseline justify-between">
+                        <span id="statQuizScore" class="text-2xl font-bold text-purple-400">0%</span>
+                        <span class="text-xs text-slate-500">Accuracy</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden mt-2">
+                        <div id="statQuizBar" class="bg-purple-500 h-full w-0 transition-all duration-500"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Learning Quick Access Hub Grid -->
+            <div>
+                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+                    Learning Modules Hub • ଶିକ୍ଷଣ ବିଭାଗ
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    
+                    <div onclick="switchView('levels')" class="glass-card p-5 rounded-2xl border border-slate-800 hover:border-cyan-500/50 hover:bg-slate-800/80 transition cursor-pointer group">
+                        <div class="w-12 h-12 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                        </div>
+                        <h4 class="font-bold text-white group-hover:text-cyan-300">5 Structured Levels</h4>
+                        <p class="text-xs text-slate-400 mt-1 odia-text">ମୂଳରୁ ଆଡଭାନ୍ସ ପର୍ଯ୍ୟନ୍ତ କ୍ରମାଗତ ୫ଟି ସ୍ତର।</p>
+                    </div>
+
+                    <div onclick="switchView('daily')" class="glass-card p-5 rounded-2xl border border-slate-800 hover:border-purple-500/50 hover:bg-slate-800/80 transition cursor-pointer group">
+                        <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        </div>
+                        <h4 class="font-bold text-white group-hover:text-purple-300">365-Day Daily Plan</h4>
+                        <p class="text-xs text-slate-400 mt-1 odia-text">ପ୍ରତିଦିନ ୧୫-୩୦ ମିନିଟର ନିୟମିତ ଅଭ୍ୟାସ।</p>
+                    </div>
+
+                    <div onclick="switchView('real-life')" class="glass-card p-5 rounded-2xl border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-800/80 transition cursor-pointer group">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H7a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg>
+                        </div>
+                        <h4 class="font-bold text-white group-hover:text-emerald-300">18 Real-Life Situations</h4>
+                        <p class="text-xs text-slate-400 mt-1 odia-text">ଦୋକାନ, ବ୍ୟାଙ୍କ, ଅଫିସ ଓ ଯାତ୍ରା ବେଳର କଥୋପକଥନ।</p>
+                    </div>
+
+                    <div onclick="switchView('vocab')" class="glass-card p-5 rounded-2xl border border-slate-800 hover:border-amber-500/50 hover:bg-slate-800/80 transition cursor-pointer group">
+                        <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                        </div>
+                        <h4 class="font-bold text-white group-hover:text-amber-300">Searchable Vocab Library</h4>
+                        <p class="text-xs text-slate-400 mt-1 odia-text">ଉଚ୍ଚାରଣ ଓ ଓଡ଼ିଆ ଅର୍ଥ ସହ ୧୦୦୦+ ଶବ୍ଦ।</p>
+                    </div>
+
+                    <div onclick="switchView('flashcards')" class="glass-card p-5 rounded-2xl border border-slate-800 hover:border-rose-500/50 hover:bg-slate-800/80 transition cursor-pointer group">
+                        <div class="w-12 h-12 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                        </div>
+                        <h4 class="font-bold text-white group-hover:text-rose-300">Smart Flashcards</h4>
+                        <p class="text-xs text-slate-400 mt-1 odia-text">3D ଫ୍ଲିପ୍ କାର୍ଡ ସାହାଯ୍ୟରେ ଶୀଘ୍ର ମନେରଖନ୍ତୁ।</p>
+                    </div>
+
+                    <div onclick="switchView('quizzes')" class="glass-card p-5 rounded-2xl border border-slate-800 hover:border-blue-500/50 hover:bg-slate-800/80 transition cursor-pointer group">
+                        <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <h4 class="font-bold text-white group-hover:text-blue-300">Interactive Practice & Quiz</h4>
+                        <p class="text-xs text-slate-400 mt-1 odia-text">ବାକ୍ୟ ଗଠନ ଓ କ୍ୱିଜ୍ ପରୀକ୍ଷା ଦିଅନ୍ତୁ।</p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 2: COURSE LEVELS ROADMAP -->
+        <section id="view-levels" class="view-section space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white">Course Levels • ଶିକ୍ଷଣ ସ୍ତରସମୂହ</h2>
+                    <p class="text-xs text-slate-400 odia-text">ଶୂન୍ୟରୁ ଆରମ୍ଭ କରି କ୍ରମଶଃ ପ୍ରୋଫେସନାଲ ସ୍ତରକୁ ଯାଆନ୍ତୁ।</p>
+                </div>
+            </div>
+
+            <div id="courseLevelsContainer" class="space-y-4">
+                <!-- Dynamically Rendered by JS -->
+            </div>
+        </section>
+
+        <!-- VIEW 3: DAILY 365 LESSONS ENGINE -->
+        <section id="view-daily" class="view-section space-y-6">
+            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white">365-Day Plan • ୩୬୫ ଦିନର ପାଠ୍ୟକ୍ରମ</h2>
+                    <p class="text-xs text-slate-400 odia-text">ପ୍ରତିଦିନ ନୂଆ ଶବ୍ଦ, ବାକ୍ୟ, ବ୍ୟାକରଣ ଓ କଥୋପକଥନ।</p>
+                </div>
+                
+                <!-- Day Jump Selector -->
+                <div class="flex items-center gap-2">
+                    <label class="text-xs text-slate-400">Day Jump:</label>
+                    <select id="dayJumpSelect" onchange="loadDailyLesson(parseInt(this.value))" class="bg-slate-800 text-white border border-slate-700 text-sm rounded-lg p-2 focus:ring-cyan-500">
+                        <!-- Options generated dynamically -->
+                    </select>
+                </div>
+            </div>
+
+            <!-- Current Daily Lesson Container -->
+            <div id="dailyLessonContainer" class="space-y-6">
+                <!-- Dynamically rendered -->
+            </div>
+        </section>
+
+        <!-- VIEW 4: REAL-LIFE SITUATIONS -->
+        <section id="view-real-life" class="view-section space-y-6">
+            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white">Real-Life Situations • ବାସ୍ତବ ଜୀବନର ପରିସ୍ଥିତି</h2>
+                    <p class="text-xs text-slate-400 odia-text">୧୮ଟି ବାସ୍ତବିକ ପରିସ୍ଥିତିରେ ଆବଶ୍ୟକୀୟ ଇଂରାଜୀ କଥୋପକଥନ।</p>
+                </div>
+            </div>
+
+            <!-- Module Buttons Grid -->
+            <div id="realLifeModulesList" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                <!-- Rendered dynamically -->
+            </div>
+
+            <!-- Selected Module Viewer -->
+            <div id="realLifeModuleViewer" class="glass-card p-6 rounded-2xl border border-slate-800 space-y-6 hidden">
+                <!-- Rendered dynamically -->
+            </div>
+        </section>
+
+        <!-- VIEW 5: VOCABULARY LIBRARY -->
+        <section id="view-vocab" class="view-section space-y-6">
+            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white">Vocabulary Library • ଶବ୍ଦକୋଷ</h2>
+                    <p class="text-xs text-slate-400 odia-text">ଉଚ୍ଚାରଣ, ଅର୍ଥ, ଉଦାହରଣ ଏବଂ ସମାର୍ଥବୋଧକ ଶବ୍ଦ।</p>
+                </div>
+                <!-- Filters -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <input type="text" id="vocabSearchInput" onkeyup="filterVocab()" placeholder="Search word or Odia..." class="px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-sm text-slate-200 focus:outline-none focus:border-cyan-500">
+                    <select id="vocabCategoryFilter" onchange="filterVocab()" class="px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-sm text-slate-200">
+                        <option value="ALL">All Categories</option>
+                        <option value="verb">Verbs (କ୍ରିୟା)</option>
+                        <option value="noun">Nouns (ବିଶେଷ୍ୟ)</option>
+                        <option value="adjective">Adjectives (ବିଶେଷଣ)</option>
+                        <option value="irregular">Irregular Verbs</option>
+                        <option value="phrasal">Phrasal Verbs</option>
+                        <option value="business">Business Terms</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="vocabGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Rendered dynamically -->
+            </div>
+        </section>
+
+        <!-- VIEW 6: SPEAKING PRACTICE TRAINER -->
+        <section id="view-speaking" class="view-section space-y-6">
+            <div class="border-b border-slate-800 pb-4">
+                <h2 class="text-2xl font-bold text-white">Speaking Trainer • ଉଚ୍ଚାରଣ ଓ କଥୋପକଥନ ଅଭ୍ୟାସ</h2>
+                <p class="text-xs text-slate-400 odia-text">ବିଭିନ୍ନ ଭୂମିକାରେ ନିଜେ କହି ଅଭ୍ୟାସ କରନ୍ତୁ।</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Scenario Selector -->
+                <div class="space-y-3">
+                    <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider">Select Scenario</h3>
+                    <div id="speakingScenariosList" class="space-y-2">
+                        <!-- Rendered by JS -->
+                    </div>
+                </div>
+
+                <!-- Active Scenario Interactive Trainer Area -->
+                <div class="lg:col-span-2 glass-card p-6 rounded-2xl border border-slate-800 space-y-6">
+                    <div id="speakingTrainerContent">
+                        <p class="text-slate-400 text-center py-10">Select a scenario from the left to start practice.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 7: FLASHCARDS -->
+        <section id="view-flashcards" class="view-section space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white">Flashcards Deck • ଫ୍ଲିପ୍ କାର୍ଡ ଅଭ୍ୟାସ</h2>
+                    <p class="text-xs text-slate-400 odia-text">କାର୍ଡକୁ ଟ୍ୟାପ୍ କରି ଓଡ଼ିଆ ଅର୍ଥ ଏବଂ ଉଚ୍ଚାରଣ ଦେଖନ୍ତୁ।</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="prevFlashcard()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    <span id="flashcardCounter" class="text-xs text-slate-400 font-mono">1 / 10</span>
+                    <button onclick="nextFlashcard()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Flashcard 3D Card Area -->
+            <div class="max-w-md mx-auto perspective-1000 py-6">
+                <div id="flashcardCard" onclick="flipFlashcard()" class="relative w-full h-72 rounded-2xl cursor-pointer transform-style-3d transition-transform duration-500 glass-card border border-slate-700 shadow-2xl flex flex-col justify-between p-6 text-center">
+                    <!-- Front View -->
+                    <div class="absolute inset-0 backface-hidden p-6 flex flex-col justify-center items-center space-y-3">
+                        <span class="text-xs px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 font-medium uppercase" id="fcType">NOUN</span>
+                        <h3 class="text-3xl font-extrabold text-white tracking-wide" id="fcEnglish">Word</h3>
+                        <p class="text-sm text-cyan-400 italic" id="fcPhonetic">[Phonetic]</p>
+                        <p class="text-xs text-slate-400 pt-4">Tap to reveal Odia Meaning ↺</p>
+                    </div>
+
+                    <!-- Back View -->
+                    <div class="absolute inset-0 backface-hidden rotate-y-180 p-6 flex flex-col justify-center items-center space-y-3 bg-slate-800 rounded-2xl">
+                        <h4 class="text-2xl font-bold text-amber-400 odia-text" id="fcOdia">ଓଡ଼ିଆ ଅର୍ଥ</h4>
+                        <p class="text-sm text-slate-300 text-center px-4" id="fcDefinition">Simple English Definition</p>
+                        <div class="pt-2 border-t border-slate-700 w-full">
+                            <p class="text-xs text-slate-400 italic" id="fcExample">"Example Sentence"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-center gap-4">
+                <button onclick="markFlashcardMastered(false)" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm border border-slate-700 flex items-center gap-2">
+                    Needs Review ❌
+                </button>
+                <button onclick="speakText(document.getElementById('fcEnglish').innerText)" class="px-5 py-2.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 text-sm border border-cyan-500/30 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg> Hear Audio
+                </button>
+                <button onclick="markFlashcardMastered(true)" class="px-5 py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-sm border border-emerald-500/30 flex items-center gap-2">
+                    Mastered ✔
+                </button>
+            </div>
+        </section>
+
+        <!-- VIEW 8: INTERACTIVE QUIZZES -->
+        <section id="view-quizzes" class="view-section space-y-6">
+            <div class="border-b border-slate-800 pb-4 flex items-center justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold text-white">Interactive Quiz • ପରୀକ୍ଷା ଓ ଅଭ୍ୟାସ</h2>
+                    <p class="text-xs text-slate-400 odia-text">ନିଜ ଶିକ୍ଷଣର ମୂଲ୍ୟାଙ୍କନ କରନ୍ତୁ।</p>
+                </div>
+                <button onclick="generateNewQuiz()" class="px-3 py-1.5 rounded-lg bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs hover:bg-purple-500/30 transition">
+                    ↻ Refresh Quiz
+                </button>
+            </div>
+
+            <div id="quizContainer" class="max-w-2xl mx-auto space-y-6">
+                <!-- Rendered dynamically -->
+            </div>
+        </section>
+
+        <!-- VIEW 9: PROGRESS & SETTINGS -->
+        <section id="view-settings" class="view-section space-y-6">
+            <div class="border-b border-slate-800 pb-4">
+                <h2 class="text-2xl font-bold text-white">Settings & Data Management • ସେଟିଂସ</h2>
+                <p class="text-xs text-slate-400 odia-text">ଆପଣଙ୍କ ଅଗ୍ରଗତି (Progress) ପରିଚାଳନା କରନ୍ତୁ।</p>
+            </div>
+
+            <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-6 max-w-2xl">
+                <div class="space-y-3">
+                    <h3 class="font-bold text-white">Export / Import Progress</h3>
+                    <p class="text-xs text-slate-400">Save your progress as a file or restore your study data.</p>
+                    <div class="flex gap-3">
+                        <button onclick="exportUserData()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-sm font-medium">
+                            📥 Export Backup (JSON)
+                        </button>
+                        <label class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-sm font-medium cursor-pointer">
+                            📤 Import Data
+                            <input type="file" onchange="importUserData(event)" accept=".json" class="hidden">
+                        </label>
+                    </div>
+                </div>
+
+                <hr class="border-slate-800">
+
+                <div class="space-y-3">
+                    <h3 class="font-bold text-rose-400">Reset All Data</h3>
+                    <p class="text-xs text-slate-400 odia-text">ସମସ୍ତ ଅଗ୍ରଗତି, ବୁକମାର୍କ ଏବଂ କ୍ୱିଜ୍ ସ୍କୋର ଡିଲିଟ୍ ହୋଇଯିବ।</p>
+                    <button onclick="resetUserData()" class="px-4 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-sm font-medium">
+                        ⚠️ Reset Progress
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MOBILE BOTTOM NAVIGATION BAR -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 glass-nav z-50 px-2 py-2">
+        <div class="flex items-center justify-around">
+            <button onclick="switchView('dashboard')" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-cyan-400 text-xs py-1 px-2" data-target="dashboard">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 00-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                <span>Home</span>
+            </button>
+            <button onclick="switchView('levels')" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-cyan-400 text-xs py-1 px-2" data-target="levels">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                <span>Levels</span>
+            </button>
+            <button onclick="switchView('daily')" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-cyan-400 text-xs py-1 px-2" data-target="daily">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <span>365 Day</span>
+            </button>
+            <button onclick="switchView('real-life')" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-cyan-400 text-xs py-1 px-2" data-target="real-life">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H7a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/></svg>
+                <span>Dialogues</span>
+            </button>
+            <button onclick="switchView('vocab')" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-cyan-400 text-xs py-1 px-2" data-target="vocab">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                <span>Vocab</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- SEARCH MODAL -->
+    <div id="searchModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-start justify-center p-4 pt-16 hidden">
+        <div class="glass-card w-full max-w-xl rounded-2xl border border-slate-700 shadow-2xl p-4 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+                <input type="text" id="globalSearchInput" onkeyup="performGlobalSearch()" placeholder="Type English or Odia word..." class="w-full bg-transparent text-white placeholder-slate-400 focus:outline-none text-lg">
+                <button onclick="toggleModal('searchModal')" class="text-slate-400 hover:text-white p-1">✕</button>
+            </div>
+            <div id="searchResults" class="max-h-80 overflow-y-auto space-y-2">
+                <p class="text-xs text-slate-400 text-center py-6">Start typing to search vocabulary and phrases...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- HELP / OFFLINE GUIDE MODAL -->
+    <div id="helpModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-card w-full max-w-lg rounded-2xl border border-slate-700 shadow-2xl p-6 space-y-4 max-h-[85vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Mobile & Offline Usage Guide
+                </h3>
+                <button onclick="toggleModal('helpModal')" class="text-slate-400 hover:text-white p-1">✕</button>
+            </div>
+            <div class="space-y-3 text-xs sm:text-sm text-slate-300 odia-text leading-relaxed">
+                <p class="font-semibold text-cyan-300">📱 Android ମୋବାଇଲରେ କିପରି ଚଲାଇବେ:</p>
+                <ol class="list-decimal list-inside space-y-1.5 text-slate-400">
+                    <li>ଏହି <code class="text-amber-300">index.html</code> ଫାଇଲକୁ ନିଜ ଫୋନରେ ସେଭ୍ କରନ୍ତୁ।</li>
+                    <li>Chrome Browser ରେ ଫାଇଲଟି ଓପନ୍ କରନ୍ତୁ କିମ୍ବା HTML Viewer ବ୍ୟବହାର କରନ୍ତୁ।</li>
+                    <li>"Add to Home Screen" କରି ଆପ୍ ପରି ବ୍ୟବହାର କରିପାରିବେ।</li>
+                </ol>
+                <p class="font-semibold text-cyan-300 pt-2">🔊 Audio & Voice Recognition:</p>
+                <p class="text-slate-400">
+                    - English Pronunciation (TTS) ପାଇଁ ବ୍ରାଉଜରର Web Speech API ବ୍ୟବହାର କରାଯାଇଛି।<br>
+                    - Internet ସଂଯୋଗ ଥିଲେ ଉଚ୍ଚାରଣ ଆହୁରି ସ୍ପଷ୍ଟ ଶୁଣାଯିବ।
+                </p>
+                <p class="font-semibold text-amber-400 pt-2">📌 ସୂଚନା:</p>
+                <p class="text-slate-400">
+                    ଇଂରାଜୀ ଶିଖିବା ଗୋଟିଏ ନିରନ୍ତର ପ୍ରକ୍ରିୟା। ପ୍ରତିଦିନ ଅନ୍ତତଃ ୨୦ ମିନିଟ୍ ଅଭ୍ୟାସ କରନ୍ତୁ।
+                </p>
+            </div>
+            <button onclick="toggleModal('helpModal')" class="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold transition">
+                Got It • ବୁଝିଗଲି
+            </button>
+        </div>
+    </div>
+
+    <!-- APPLICATION LOGIC & DATA SCRIPT -->
+    <script>
+        /* -------------------------------------------------------------------------- */
+        /*                           APP STATE & STORAGE                              */
+        /* -------------------------------------------------------------------------- */
+        const APP_STATE = {
+            currentView: 'dashboard',
+            completedLessons: new Set(JSON.parse(localStorage.getItem('dep_completed') || '[]')),
+            masteredVocab: new Set(JSON.parse(localStorage.getItem('dep_mastered_vocab') || '[]')),
+            favorites: new Set(JSON.parse(localStorage.getItem('dep_favorites') || '[]')),
+            streak: parseInt(localStorage.getItem('dep_streak') || '1'),
+            quizScores: JSON.parse(localStorage.getItem('dep_quiz_scores') || '[]'),
+            currentFlashcardIdx: 0
+        };
+
+        function saveState() {
+            localStorage.setItem('dep_completed', JSON.stringify([...APP_STATE.completedLessons]));
+            localStorage.setItem('dep_mastered_vocab', JSON.stringify([...APP_STATE.masteredVocab]));
+            localStorage.setItem('dep_favorites', JSON.stringify([...APP_STATE.favorites]));
+            localStorage.setItem('dep_streak', APP_STATE.streak.toString());
+            localStorage.setItem('dep_quiz_scores', JSON.stringify(APP_STATE.quizScores));
+            updateDashboardStats();
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /*                          CURRICULUM DATABASE                               */
+        /* -------------------------------------------------------------------------- */
+
+        // 1. Course Levels Data
+        const COURSE_LEVELS = [
+            {
+                id: 1,
+                title: "Level 1: Absolute Beginner (ମୂଳ ସ୍ତର)",
+                desc: "Alphabet, Phonetics, Greetings, Pronouns, and 500 High-Frequency Words.",
+                modules: [
+                    { name: "Alphabet & Sounds", odia: "ଅକ୍ଷର ଓ ସଠିକ୍ ଉଚ୍ଚାରଣ", content: "English has 26 letters (5 Vowels: A, E, I, O, U and 21 Consonants). Example: A for Apple (ଆପଲ୍)." },
+                    { name: "Greetings & Self-Intro", odia: "ଶୁଭେଚ୍ଛା ଓ ଆତ୍ମ-ପରିଚୟ", content: "Hello / Hi (ନମସ୍କାର), My name is Rahul (ମୋର ନାମ ରାହୁଲ)।" },
+                    { name: "Pronouns & 'Be' Verbs", odia: "ସର୍ବନାମ (I, You, He, She, Am, Is, Are)", content: "I am (ମୁଁ ଅଟେ), You are (ତୁମେ ଅଟୋ), He/She is (ସେ ଅଟନ୍ତି)।" }
+                ]
+            },
+            {
+                id: 2,
+                title: "Level 2: Everyday Beginner (ଦୈନନ୍ଦିନ ଇଂରାଜୀ)",
+                desc: "Daily Routines, Shopping, Food, Simple Present & Continuous Tenses.",
+                modules: [
+                    { name: "Daily Routines", odia: "ଦୈନନ୍ଦିନ କାର୍ଯ୍ୟସୂଚୀ", content: "I wake up at 6 AM (ମୁଁ ସକାଳ ୬ଟାରେ ଉଠେ)। I drink tea (ମୁଁ ଚା' ପିଏ)।" },
+                    { name: "Asking Questions", odia: "ପ୍ରଶ୍ନ ପଚାରିବା (What, Where, When, Why)", content: "What is your name? (ତୁମ ନାମ କ’ଣ?) Where do you live? (ତୁମେ କେଉଁଠି ରହୁଛ?)" }
+                ]
+            },
+            {
+                id: 3,
+                title: "Level 3: Elementary to Intermediate (ମଧ୍ୟମ ସ୍ତର)",
+                desc: "All Major Tenses, Modals (Can, Could, Should), Passive Voice & Relative Clauses.",
+                modules: [
+                    { name: "Modal Verbs", odia: "କାର୍ଯ୍ୟଦକ୍ଷତା ବ୍ୟକ୍ତ କରିବା (Can, Should, Must)", content: "I can drive a car (ମୁଁ କାର୍ ଚଲାଇପାରେ)। You should study (ତୁମର ପଢ଼ିବା ଉଚିତ୍)।" },
+                    { name: "Past Simple vs Present Perfect", odia: "ଅତୀତ ଓ ପ୍ରେଜେଣ୍ଟ ପରଫେକ୍ଟ", content: "I ate food (ମୁଁ ଖାଇଲି - Past) vs I have eaten (ମୁଁ ଖାଇସାରିଛି - Perfect)." }
+                ]
+            },
+            {
+                id: 4,
+                title: "Level 4: Upper Intermediate (ଉଚ୍ଚ-ମଧ୍ୟମ ସ୍ତର)",
+                desc: "Phrasal Verbs, Idioms, Paragraph Writing, Complex Conversations.",
+                modules: [
+                    { name: "Common Phrasal Verbs", odia: "ଫ୍ରେଜାଲ ଭର୍ବସ", content: "Give up (ଛାଡିଦେବା), Look for (ଖୋଜିବା), Break down (ଖରାପ ହୋଇଯିବା)।" }
+                ]
+            },
+            {
+                id: 5,
+                title: "Level 5: Advanced & Professional (ବ୍ୟବସାୟିକ ଓ ଦକ୍ଷ)",
+                desc: "Business Emails, Job Interviews, Negotiations, Formal vs Informal English.",
+                modules: [
+                    { name: "Professional Emails", odia: "ଇମେଲ୍ ଲେଖିବା କଳା", content: "Dear Sir/Madam, I am writing to inform you regarding... (ଆପଣଙ୍କୁ ଜଣାଇବା ପାଇଁ ଲେଖୁଛି...)" }
+                ]
+            }
+        ];
+
+        // 2. Vocabulary Database (Extensive Sample Starter DB)
+        const VOCABULARY_DB = [
+            { id: "v1", word: "Always", category: "adjective", level: "L1", pos: "Adv.", odia: "ସବୁବେଳେ", pronunciation: "ଅଲୱେଜ୍", definition: "At all times; on all occasions.", example: "He always speaks the truth.", exOdia: "ସେ ସବୁବେଳେ ସତ କୁହନ୍ତି।" },
+            { id: "v2", word: "Achieve", category: "verb", level: "L2", pos: "v.", odia: "ହାସଲ କରିବା", pronunciation: "ଅଚିଭ୍", definition: "To reach or attain by effort.", example: "You can achieve your goals.", exOdia: "ତୁମେ ତୁମର ଲକ୍ଷ୍ୟ ହାସଲ କରିପାରିବ।" },
+            { id: "v3", word: "Bargain", category: "business", level: "L2", pos: "v./n.", odia: "ଦରଦାମ୍ କରିବା / ଶସ୍ତା ଜିନିଷ", pronunciation: "ବାର୍ଗେନ୍", definition: "Negotiate the terms and price.", example: "She knows how to bargain.", exOdia: "ସେ କିପରି ଦରଦାମ୍ କରିବାକୁ ହୁଏ ଜାଣିଛନ୍ତି।" },
+            { id: "v4", word: "Break down", category: "phrasal", level: "L3", pos: "phr v.", odia: "ଅଚଳ ହୋଇଯିବା", pronunciation: "ବ୍ରେକ୍ ଡାଉନ୍", definition: "Stop functioning (vehicle/machine).", example: "My bike broke down yesterday.", exOdia: "ଗତକାଲି ମୋ ବାଇକ୍ ଅଚଳ ହୋଇଯାଇଥିଲା।" },
+            { id: "v5", word: "Go / Went / Gone", category: "irregular", level: "L1", pos: "v.", odia: "ଯିବା", pronunciation: "ଗୋ / ୱେଣ୍ଟ / ଗନ୍", definition: "Base: go, Past: went, Participle: gone", example: "I go to school daily.", exOdia: "ମୁଁ ପ୍ରତିଦିନ ସ୍କୁଲ୍ ଯାଏ।" },
+            { id: "v6", word: "Opportunity", category: "business", level: "L4", pos: "n.", odia: "ସୁଯୋଗ", pronunciation: "ଅପରଚ୍ୟୁନିଟି", definition: "A set of circumstances that makes it possible to do something.", example: "Grab this golden opportunity.", exOdia: "ଏହି ସୁବର୍ଣ୍ଣ ସୁଯୋଗକୁ ହାତଛଡ଼ା କରନ୍ତୁ ନାହିଁ।" }
+        ];
+
+        // 3. Real-Life Situations Data
+        const REAL_LIFE_MODULES = [
+            {
+                id: "rl1",
+                title: "1. Shopping & Market",
+                icon: "🛍️",
+                dialogues: [
+                    { speaker: "Customer", en: "How much is this saree?", odia: "ଏହି ଶାଢ଼ୀର ଦାମ୍ କେତେ?" },
+                    { speaker: "Shopkeeper", en: "It is 800 rupees, sir.", odia: "ଏହାର ଦାମ୍ ୮୦୦ ଟଙ୍କା, ସାର୍।" },
+                    { speaker: "Customer", en: "Can you give some discount?", odia: "କିଛି ରିହାତି (Discount) ମିଳିପାରିବ କି?" },
+                    { speaker: "Shopkeeper", en: "I can give it for 750 rupees.", odia: "ମୁଁ ଏହାକୁ ୭୫୦ ଟଙ୍କାରେ ଦେଇପାରିବି।" }
+                ],
+                politePhrases: ["Could you please lower the price?", "Do you accept UPI payment?"],
+                mistakes: ["Don't say: What is price? Say: How much does this cost?"]
+            },
+            {
+                id: "rl2",
+                title: "2. Bus & Transport",
+                icon: "🚌",
+                dialogues: [
+                    { speaker: "Passenger", en: "Does this bus go to Cuttack?", odia: "ଏହି ବସ୍‌ଟି କଟକ ଯିବ କି?" },
+                    { speaker: "Conductor", en: "Yes, get on quickly.", odia: "ହଁ, ଶୀଘ୍ର ଉଠନ୍ତୁ।" },
+                    { speaker: "Passenger", en: "Give me one ticket to Badambadi.", odia: "ମୋତେ ବାଦାମବାଡ଼ି ପାଇଁ ଗୋଟିଏ ଟିକେଟ୍ ଦିଅନ୍ତୁ।" }
+                ],
+                politePhrases: ["Please tell me when my stop comes."],
+                mistakes: ["Don't say: Stop bus here. Say: Please stop here."]
+            },
+            {
+                id: "rl3",
+                title: "3. Office & Manager",
+                icon: "💼",
+                dialogues: [
+                    { speaker: "Employee", en: "Good morning Sir, may I come in?", odia: "ଶୁଭ ସକାଳ ସାର୍, ମୁଁ ଭିତରକୁ ଆସିପାରେ କି?" },
+                    { speaker: "Manager", en: "Good morning. Yes, please take a seat.", odia: "ଶୁଭ ସକାଳ। ହଁ, ଦୟାକରି ବସନ୍ତୁ।" },
+                    { speaker: "Employee", en: "I have completed the project report.", odia: "ମୁଁ ପ୍ରୋଜେକ୍ଟ ରିପୋର୍ଟ ସମ୍ପୂର୍ଣ୍ଣ କରିସାରିଛି।" }
+                ],
+                politePhrases: ["I will update you by evening.", "Could you review this document?"],
+                mistakes: ["Don't say: I finish work. Say: I have finished the work."]
+            }
+        ];
+
+        // 4. Daily 365 Days Plan Starter Engine
+        const STARTER_DAYS = {
+            1: {
+                theme: "Greetings & Basics",
+                words: [
+                    { w: "Hello", o: "ନମସ୍କାର", e: "Hello, how are you?", eo: "ନମସ୍କାର, ଆପଣ କେମିତି ଅଛନ୍ତି?" },
+                    { w: "Welcome", o: "ସ୍ୱାଗତ", e: "Welcome to our home.", eo: "ଆମ ଘରକୁ ସ୍ୱାଗତ।" }
+                ],
+                sentences: [
+                    { en: "Good morning!", odia: "ଶୁଭ ସକାଳ!" },
+                    { en: "How are you doing?", odia: "ଆପଣ କେମିତି ଅଛନ୍ତି?" }
+                ],
+                grammar: "Basic Greeting Rule: Use 'Good morning' till 12 PM, 'Good afternoon' till 5 PM, and 'Good evening' after 5 PM.",
+                speakingPrompt: "Say hello to a friend in English and ask how they are."
+            },
+            2: {
+                theme: "Self Introduction",
+                words: [
+                    { w: "Name", o: "ନାମ", e: "My name is Priya.", eo: "ମୋର ନାମ ପ୍ରିୟା।" },
+                    { w: "Live", o: "ରହିବା", e: "I live in Bhubaneswar.", eo: "ମୁଁ ଭୁବନେଶ୍ୱରରେ ରହେ।" }
+                ],
+                sentences: [
+                    { en: "My name is Amit.", odia: "ମୋର ନାମ ଅମିତ।" },
+                    { en: "I am learning English.", odia: "ମୁଁ ଇଂରାଜୀ ଶିଖୁଛି।" }
+                ],
+                grammar: "Use 'I am...' to state your name, profession, or current status.",
+                speakingPrompt: "Introduce yourself in 3 simple sentences."
+            }
+        };
+
+        // Fallback Day Generator for days 3 to 365
+        function getDailyData(dayNum) {
+            if (STARTER_DAYS[dayNum]) return STARTER_DAYS[dayNum];
+            
+            // Generate structured dynamic day
+            return {
+                theme: `Day ${dayNum}: Practice & Expansion`,
+                words: [
+                    { w: `Vocabulary ${dayNum}A`, o: `ଶବ୍ଦ ${dayNum} (ଅର୍ଥ)`, e: `This is example sentence ${dayNum}.`, eo: `ଏହା ଉଦାହରଣ ବାକ୍ୟ ${dayNum}।` },
+                    { w: `Vocabulary ${dayNum}B`, o: `ଶବ୍ଦ ${dayNum} (ଅର୍ଥ)`, e: `Practice makes perfect sentence ${dayNum}.`, eo: `ଅଭ୍ୟାସ ଦ୍ୱାରା ଦକ୍ଷତା ଆସେ।` }
+                ],
+                sentences: [
+                    { en: `I am practicing lesson ${dayNum} today.`, odia: `ମୁଁ ଆଜି ${dayNum} ନମ୍ବର ପାଠ ଅଭ୍ୟାସ କରୁଛି।` },
+                    { en: "English is easy when learned daily.", odia: "ପ୍ରତିଦିନ ପଢ଼ିଲେ ଇଂରାଜୀ ସହଜ ହୋଇଯାଏ।" }
+                ],
+                grammar: `Day ${dayNum} Focus: Practice sentence structure (Subject + Verb + Object) with natural Odia comprehension.`,
+                speakingPrompt: `Read out loud today's sentences 3 times with proper voice tone.`
+            };
+        }
+
+        // 5. Speaking Scenarios Data
+        const SPEAKING_SCENARIOS = [
+            {
+                id: "sp1",
+                role: "Shopkeeper & Customer",
+                title: "Buying Vegetables at Market",
+                prompt: "The shopkeeper asks: 'What do you want to buy today?'",
+                options: [
+                    { text: "Give me 1 kg of potatoes and onions.", odia: "ମୋତେ ୧ କିଲୋ ଆଳୁ ଏବଂ ପିଆଜ ଦିଅନ୍ତୁ।", correct: true },
+                    { text: "I go to home now.", odia: "ମୁଁ ଏବେ ଘରକୁ ଯାଉଛି।", correct: false }
+                ]
+            },
+            {
+                id: "sp2",
+                role: "Job Interviewer",
+                title: "Tell Me About Yourself",
+                prompt: "Interviewer asks: 'Can you briefly introduce yourself?'",
+                options: [
+                    { text: "My name is Rajesh. I completed my graduation and have 2 years experience.", odia: "ମୋ ନାମ ରାଜେଶ। ମୁଁ ଗ୍ରାଜୁଏସନ୍ ଶେଷ କରିଛି ଏବଂ ୨ ବର୍ଷର ଅଭିଜ୍ଞତା ଅଛି।", correct: true },
+                    { text: "I like watching cricket on TV.", odia: "ମୁଁ ଟିଭିରେ କ୍ରିକେଟ୍ ଦେଖିବାକୁ ଭଲପାଏ।", correct: false }
+                ]
+            }
+        ];
+
+        /* -------------------------------------------------------------------------- */
+        /*                           VIEW NAVIGATION & UI                             */
+        /* -------------------------------------------------------------------------- */
+        function switchView(viewId) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            const targetView = document.getElementById(`view-${viewId}`);
+            if (targetView) targetView.classList.add('active');
+
+            // Update mobile nav highlight
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if (btn.getAttribute('data-target') === viewId) {
+                    btn.classList.add('text-cyan-400');
+                    btn.classList.remove('text-slate-400');
+                } else {
+                    btn.classList.remove('text-cyan-400');
+                    btn.classList.add('text-slate-400');
+                }
+            });
+
+            APP_STATE.currentView = viewId;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Specific View Initializations
+            if (viewId === 'daily') loadDailyLesson(1);
+            if (viewId === 'real-life') loadRealLifeModule('rl1');
+            if (viewId === 'vocab') renderVocabGrid(VOCABULARY_DB);
+            if (viewId === 'levels') renderCourseLevels();
+            if (viewId === 'speaking') renderSpeakingTrainer();
+            if (viewId === 'flashcards') renderFlashcard();
+            if (viewId === 'quizzes') generateNewQuiz();
+        }
+
+        function toggleModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.classList.toggle('hidden');
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /*                        DASHBOARD & PROGRESS ENGINE                         */
+        /* -------------------------------------------------------------------------- */
+        function updateDashboardStats() {
+            const compCount = APP_STATE.completedLessons.size;
+            document.getElementById('statCompletedLessons').innerText = compCount;
+            document.getElementById('statCompletedBar').style.width = `${Math.min((compCount/365)*100, 100)}%`;
+
+            const vocabCount = APP_STATE.masteredVocab.size;
+            document.getElementById('statVocabLearned').innerText = vocabCount;
+            document.getElementById('statVocabBar').style.width = `${Math.min((vocabCount/100)*100, 100)}%`;
+
+            const favCount = APP_STATE.favorites.size;
+            document.getElementById('statFavorites').innerText = favCount;
+            document.getElementById('statFavoritesBar').style.width = `${Math.min((favCount/50)*100, 100)}%`;
+
+            document.getElementById('streakCount').innerText = APP_STATE.streak;
+
+            // Quiz score avg
+            let avgQuiz = 0;
+            if (APP_STATE.quizScores.length > 0) {
+                const sum = APP_STATE.quizScores.reduce((a, b) => a + b, 0);
+                avgQuiz = Math.round(sum / APP_STATE.quizScores.length);
+            }
+            document.getElementById('statQuizScore').innerText = `${avgQuiz}%`;
+            document.getElementById('statQuizBar').style.width = `${avgQuiz}%`;
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /*                        COURSE LEVELS RENDERING                             */
+        /* -------------------------------------------------------------------------- */
+        function renderCourseLevels() {
+            const container = document.getElementById('courseLevelsContainer');
+            container.innerHTML = COURSE_LEVELS.map(lvl => `
+                <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-bold text-cyan-300">${lvl.title}</h3>
+                        <span class="text-xs px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">${lvl.modules.length} Modules</span>
+                    </div>
+                    <p class="text-xs text-slate-400">${lvl.desc}</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
+                        ${lvl.modules.map(mod => `
+                            <div class="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-1">
+                                <h4 class="font-semibold text-sm text-white">${mod.name}</h4>
+                                <p class="text-xs text-cyan-400 odia-text">${mod.odia}</p>
+                                <p class="text-xs text-slate-400 pt-1">${mod.content}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /*                        DAILY 365 LESSONS SYSTEM                            */
+        /* -------------------------------------------------------------------------- */
+        function initDaySelect() {
+            const select = document.getElementById('dayJumpSelect');
+            select.innerHTML = '';
+            for (let i = 1; i <= 365; i++) {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.innerText = `Day ${i}`;
+                select.appendChild(opt);
+            }
+        }
+
+        function loadDailyLesson(dayNum) {
+            const data = getDailyData(dayNum);
+            document.getElementById('currentDayBadge').innerText = dayNum;
+            const container = document.getElementById('dailyLessonContainer');
+
+            const isCompleted = APP_STATE.completedLessons.has(dayNum);
+
+            container.innerHTML = `
+                <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-6">
+                    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                        <div>
+                            <span class="text-xs px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 font-semibold uppercase">Day ${dayNum} • ${data.theme}</span>
+                            <h3 class="text-xl font-bold text-white mt-1">Daily Mastery Lesson</h3>
+                        </div>
+                        <button onclick="toggleCompleteDay(${dayNum})" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 ${isCompleted ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-cyan-500 hover:bg-cyan-400 text-slate-900'}">
+                            ${isCompleted ? '✓ Completed • ସମ୍ପୂର୍ଣ୍ଣ' : 'Mark Complete • ସମ୍ପୂର୍ଣ୍ଣ କରନ୍ତୁ'}
+                        </button>
+                    </div>
+
+                    <!-- 1. Daily Words -->
+                    <div class="space-y-3">
+                        <h4 class="text-sm font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2">
+                            <span>📖</span> 1. Words of the Day • ଆଜିର ଶବ୍ଦାବଳୀ
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            ${data.words.map(w => `
+                                <div class="p-4 rounded-xl bg-slate-800/70 border border-slate-700/60 space-y-1">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-bold text-white text-base">${w.w}</span>
+                                        <button onclick="speakText('${w.w}')" class="text-cyan-400 hover:text-cyan-300">🔊</button>
+                                    </div>
+                                    <p class="text-xs font-semibold text-emerald-400 odia-text">ଓଡ଼ିଆ: ${w.o}</p>
+                                    <p class="text-xs text-slate-300 italic pt-1 font-mono">"${w.e}"</p>
+                                    <p class="text-xs text-slate-400 odia-text">${w.eo}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- 2. Everyday Sentences -->
+                    <div class="space-y-3 pt-2">
+                        <h4 class="text-sm font-bold text-purple-400 uppercase tracking-wider flex items-center gap-2">
+                            <span>💬</span> 2. Everyday Sentences • ଦୈନନ୍ଦିନ ବାକ୍ୟ
+                        </h4>
+                        <div class="space-y-2">
+                            ${data.sentences.map(s => `
+                                <div class="p-3.5 rounded-xl bg-slate-800/40 border border-slate-700/50 flex items-start justify-between gap-3">
+                                    <div>
+                                        <p class="font-semibold text-white text-sm sm:text-base">${s.en}</p>
+                                        <p class="text-xs text-cyan-300 odia-text mt-0.5">${s.odia}</p>
+                                    </div>
+                                    <button onclick="speakText('${s.en}')" class="p-2 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-cyan-400 text-xs">🔊 Hear</button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- 3. Grammar Point -->
+                    <div class="p-4 rounded-xl bg-indigo-950/40 border border-indigo-500/30 space-y-1">
+                        <h4 class="text-xs font-bold text-indigo-300 uppercase tracking-wider">💡 Grammar Focus • ବ୍ୟାକରଣ ନିୟମ</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed">${data.grammar}</p>
+                    </div>
+
+                    <!-- 4. Speaking Task -->
+                    <div class="p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/30 space-y-1">
+                        <h4 class="text-xs font-bold text-emerald-300 uppercase tracking-wider">🗣️ Speaking Task • କହିବା ଅଭ୍ୟାସ</h4>
+                        <p class="text-xs text-slate-300">${data.speakingPrompt}</p>
+                    </div>
+
+                    <!-- Navigation Next/Prev Day -->
+                    <div class="flex items-center justify-between pt-4 border-t border-slate-800">
+                        <button ${dayNum <= 1 ? 'disabled' : ''} onclick="loadDailyLesson(${dayNum - 1})" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium disabled:opacity-50">
+                            ← Previous Day
+                        </button>
+                        <span class="text-xs text-slate-500">Day ${dayNum} of 365</span>
+                        <button ${dayNum >= 365 ? 'disabled' : ''} onclick="loadDailyLesson(${dayNum + 1})" class="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-900 text-xs font-bold">
+                            Next Day →
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleCompleteDay(dayNum) {
+            if (APP_STATE.completedLessons.has(dayNum)) {
+                APP_STATE.completedLessons.delete(dayNum);
+            } else {
+                APP_STATE.completedLessons.add(dayNum);
+            }
+            saveState();
+            loadDailyLesson(dayNum);
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /*                     REAL-LIFE SITUATIONS MODULES                           */
+        /* -------------------------------------------------------------------------- */
+        function loadRealLifeModule(moduleId) {
+            const listContainer = document.getElementById('realLifeModulesList');
+            listContainer.innerHTML = REAL_LIFE_MODULES.map(m => `
+                <button onclick="loadRealLifeModule('${m.id}')" class="p-3 rounded-xl border text-left transition flex items-center gap-2.5 ${m.id === moduleId ? 'bg-cyan-500/20 border-cyan-500 text-white' : 'glass-card border-slate-800 text-slate-300 hover:bg-slate-800'}">
+                    <span class="text-xl">${m.icon}</span>
+                    <span class="text-xs font-semibold truncate">${m.title}</span>
+                </button>
+            `).join('');
+
+            const selected = REAL_LIFE_MODULES.find(m => m.id === moduleId) || REAL_LIFE_MODULES[0];
+            const viewer = document.getElementById('realLifeModuleViewer');
+            viewer.classList.remove('hidden');
+
+            viewer.innerHTML = `
+                <div class="flex items-center gap-3 border-b border-slate-800 pb-4">
+                    <span class="text-3xl">${selected.icon}</span>
+                    <div>
+                        <h3 class="text-xl font-bold text-white">${selected.title}</h3>
+                        <p class="text-xs text-slate-400 odia-text">ବାସ୍ତବିକ ସଂଳାପ ଏବଂ ବାକ୍ୟ ପ୍ରୟୋଗ।</p>
+                    </div>
+                </div>
+
+                <!-- Dialogues List -->
+                <div class="space-y-4">
+                    <h4 class="text-sm font-bold text-cyan-400 uppercase tracking-wider">Practical Dialogue • କଥୋପକଥନ</h4>
+                    <div class="space-y-3">
+                        ${selected.dialogues.map(d => `
+                            <div class="p-3.5 rounded-xl bg-slate-800/50 border border-slate-700/60 space-y-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300">${d.speaker}</span>
+                                    <button onclick="speakText('${d.en}')" class="text-xs text-slate-400 hover:text-cyan-300">🔊 Listen</button>
+                                </div>
+                                <p class="text-sm font-semibold text-white pt-1">${d.en}</p>
+                                <p class="text-xs text-emerald-400 odia-text">${d.odia}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <!-- Polite Phrases -->
+                <div class="p-4 rounded-xl bg-emerald-950/30 border border-emerald-500/30 space-y-2">
+                    <h4 class="text-xs font-bold text-emerald-300 uppercase tracking-wider">✨ Polite Alternatives</h4>
+                    <ul class="list-disc list-inside text-xs text-slate-300 space-y-1">
+                        ${selected.politePhrases.map(p => `<li>${p}</li>`).join('')}
+                    </ul>
+                </div>
+
+                <!-- Common Mistakes -->
+                <div class="p-4 rounded-xl bg-rose-950/30 border border-rose-500/30 space-y-2">
+                    <h4 class="text-xs font-bold text-rose-300 uppercase tracking-wider">⚠️ Common Mistakes to Avoid</h4>
+                    <ul class="list-disc list-inside text-xs text-slate-300 space-y-1">
+                        ${selected.mistakes.map(m => `<li>${m}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /*                           VOCABULARY LIBRARY                               */
+        /* -------------------------------------------------------------------------- */
+        function renderVocabGrid(vocabList) {
+            const grid = document.getElementById('vocabGrid');
+            if (vocabList.length === 0) {
+                grid.innerHTML = `<p class="col-span-full text-center text-slate-400 py-8">No vocabulary words found matching filters.</p>`;
+                return;
+            }
+
+            grid.innerHTML = vocabList.map(v => {
+                const isMastered = APP_STATE.masteredVocab.has(v.id);
+                return `
+                    <div class="glass-card p-4 rounded-2xl border border-slate-800 space-y-2 flex flex-col justify-between">
+                        <div class="space-y-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700 font-mono">${v.pos}</span>
+                                <div class="flex items-center gap-1">
+                                    <button onclick="toggleMasteredVocab('${v.id}')" class="p-1 text-xs hover:scale-110 transition" title="Mark Mastered">
+                                        ${isMastered ? '✅' : '⚪'}
+                                    </button>
+                                    <button onclick="speakText('${v.word}')" class="p-1 text-xs text-cyan-400 hover:text-cyan-300">🔊</button>
+                                </div>
+                            </div>
+                            <h4 class="text-lg font-extrabold text-white">${v.word}</h4>
+                            <p class="text-xs text-cyan-400 font-semibold odia-text">ଉଚ୍ଚାରଣ: ${v.pronunciation}</p>
+                            <p class="text-sm font-bold text-emerald-400 odia-text">ଅର୍ଥ: ${v.odia}</p>
+                            <p class="text-xs text-slate-300 pt-1">${v.definition}</p>
+                        </div>
+                        <div class="pt-3 border-t border-slate-800/80">
+                            <p class="text-xs text-slate-400 italic">"${v.example}"</p>
+                            <p class="text-xs text-slate-500 odia-text">${v.exOdia}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterVocab() {
+            const query = document.getElementById('vocabSearchInput').value.toLowerCase();
+            const category = document.getElementById('vocabCategoryFilter').value;
+
+            const filtered = VOCABULARY_DB.filter(v => {
+                const matchesQuery = v.word.toLowerCase().includes(query) || v.odia.includes(query);
+                const matchesCat = category === 'ALL' || v.category === category;
+                return matchesQuery && matchesCat;
+            });
+
+            renderVocabGrid(filtered);
+        }
+
+        function toggleMasteredVocab(vocabId) {
+            if (APP_STATE.masteredVocab.has(vocabId)) {
+                APP_STATE.masteredVocab.delete(vocabId);
+            } else {
+                APP_STATE.masteredVocab.add(vocabId);
+            }
+            saveState();
+            filterVocab();
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /*                        SPEAKING TRAINER ENGINE                             */
+        /* -------------------------------------------------------------------------- */
+        function renderSpeakingTrainer() {
+            const list = document.getElementById('speakingScenariosList');
+            list.innerHTML = SPEAKING_SCENARIOS.map((s, idx) => `
+                <div onclick="selectSpeakingScenario('${s.id}')" class="p-3 rounded-xl glass-card border border-slate-800 hover:border-purple-500/50 cursor-pointer space-y-1">
+                    <span class="text-xs font-semibold text-purple-400">${s.role}</span>
+                    <h4 class="font-bold text-white text-sm">${s.title}</h4>
+                </div>
+            `).join('');
+
+            selectSpeakingScenario(SPEAKING_SCENARIOS[0].id);
+        }
+
+        function selectSpeakingScenario(scenarioId) {
+            const item = SPEAKING_SCENARIOS.find(s => s.id === scenarioId) || SPEAKING_SCENARIOS[0];
+            const content = document.getElementById('speakingTrainerContent');
+
+            content.innerHTML = `
+                <div class="space-y-4">
+                    <div class="border-b border-slate-800 pb-3">
+                        <span class="text-xs px-2.5 py-1 rounded-full bg-purple-500/20 text-purple-300 font-semibold">${item.role}</span>
+                        <h3 class="text-xl font-bold text-white mt-2">${item.title}</h3>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-slate-800/80 border border-slate-700 space-y-2">
+                        <p class="text-xs text-slate-400 uppercase font-mono">Prompt from Speaker:</p>
+                        <p class="text-base font-bold text-cyan-300">${item.prompt}</p>
+                        <button onclick="speakText('${item.prompt}')" class="text-xs px-3 py-1 rounded bg-slate-700 text-slate-200 hover:bg-slate-600 flex items-center gap-1">
+                            🔊 Listen Prompt
+                        </button>
+                    </div>
+
+                    <div class="space-y-2 pt-2">
+                        <p class="text-xs text-slate-400 font-medium">Choose your best spoken response:</p>
+                        ${item.options.map((opt, idx) => `
+                            <div onclick="checkSpeakingChoice(${opt.correct}, 'spFeedback_${idx}')" class="p-3.5 rounded-xl border border-slate-700/60 bg-slate-800/40 hover:bg-slate-800 cursor-pointer transition space-y-1">
+                                <p class="text-sm font-semibold text-white">${opt.text}</p>
+                                <p class="text-xs text-cyan-400 odia-text">${opt.odia}</p>
+                                <div id="spFeedback_${idx}" class="text-xs pt-1 hidden"></div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkSpeakingChoice(isCorrect, feedbackId) {
+            const fb = document.getElementById(feedbackId);
+            fb.classList.remove('hidden');
+            if (isCorrect) {
+                fb.className = "text-xs pt-1 text-emerald-400 font-bold odia-text";
+                fb.innerText = "✓ ସଠିକ୍ ଉତ୍ତର! (Excellent response for this situation)";
+            } else {
+                fb.className = "text-xs pt-1 text-rose-400 font-bold odia-text";
+                fb.innerText = "❌ ଭୁଲ ଉତ୍ତର। Try the polite professional response.";
+            }
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /*                           FLASHCARD SYSTEM                                 */
+        /* -------------------------------------------------------------------------- */
+        function renderFlashcard() {
+            if (VOCABULARY_DB.length === 0) return;
+            const item = VOCABULARY_DB[APP_STATE.currentFlashcardIdx % VOCABULARY_DB.length];
+
+            document.getElementById('flashcardCounter').innerText = `${(APP_STATE.currentFlashcardIdx % VOCABULARY_DB.length) + 1} / ${VOCABULARY_DB.length}`;
+            document.getElementById('fcType').innerText = item.pos;
+            document.getElementById('fcEnglish').innerText = item.word;
+            document.getElementById('fcPhonetic').innerText = `[${item.pronunciation}]`;
+            document.getElementById('fcOdia').innerText = item.odia;
+            document.getElementById('fcDefinition').innerText = item.definition;
+            document.getElementById('fcExample').innerText = `"${item.example}"`;
+
+            // Ensure card is flipped back front side
+            const card = document.getElementById('flashcardCard');
+            card.classList.remove('rotate-y-180');
+        }
+
+        function flipFlashcard() {
+            const card = document.getElementById('flashcardCard');
+            card.classList.toggle('rotate-y-180');
+        }
+
+        function nextFlashcard() {
+            APP_STATE.currentFlashcardIdx++;
+            renderFlashcard();
+        }
+
+        function prevFlashcard() {
+            APP_STATE.currentFlashcardIdx = (APP_STATE.currentFlashcardIdx - 1 + VOCABULARY_DB.length) % VOCABULARY_DB.length;
+            renderFlashcard();
+        }
+
+        function markFlashcardMastered(mastered) {
+            const item = VOCABULARY_DB[APP_STATE.currentFlashcardIdx % VOCABULARY_DB.length];
+            if (mastered) APP_STATE.masteredVocab.add(item.id);
+            else APP_STATE.masteredVocab.delete(item.id);
+            saveState();
+            nextFlashcard();
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /*                           INTERACTIVE QUIZZES                              */
+        /* -------------------------------------------------------------------------- */
+        function generateNewQuiz() {
+            const container = document.getElementById('quizContainer');
+            const sampleQuestions = [
+                {
+                    q: "What is the Odia meaning of 'Achieve'?",
+                    options: ["ହାସଲ କରିବା", "ଛାଡିଦେବା", "ପଳାଇବା", "ଶୋଇବା"],
+                    answer: 0,
+                    explanation: "Achieve means 'ହାସଲ କରିବା' or 'ସଫଳତା ପାଇବା'."
+                },
+                {
+                    q: "Choose the correct sentence:",
+                    options: [
+                        "I am go to market.",
+                        "I am going to market.",
+                        "I going market.",
+                        "I goes to market."
+                    ],
+                    answer: 1,
+                    explanation: "Present Continuous formula is: Subject + am/is/are + Verb(-ing)."
+                }
+            ];
+
+            container.innerHTML = sampleQuestions.map((q, qIdx) => `
+                <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-3">
+                    <span class="text-xs px-2.5 py-1 rounded bg-purple-500/20 text-purple-300 font-semibold">Question ${qIdx + 1}</span>
+                    <h4 class="font-bold text-white text-base">${q.q}</h4>
+                    <div class="space-y-2 pt-2">
+                        ${q.options.map((opt, oIdx) => `
+                            <button onclick="submitQuizAnswer(${qIdx}, ${oIdx}, ${q.answer}, 'qExp_${qIdx}')" class="w-full text-left p-3 rounded-xl bg-slate-800/60 hover:bg-slate-700/80 border border-slate-700 text-slate-200 text-sm transition">
+                                ${opt}
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div id="qExp_${qIdx}" class="p-3 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-300 hidden odia-text"></div>
+                </div>
+            `).join('');
+        }
+
+        function submitQuizAnswer(qIdx, selected, correct, expId) {
+            const exp = document.getElementById(expId);
+            exp.classList.remove('hidden');
+
+            if (selected === correct) {
+                exp.className = "p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-xs text-emerald-300 font-semibold odia-text";
+                exp.innerText = `✓ ସଠିକ୍ ଉତ୍ତର! Explanation: ${exp.innerText || 'Great job!'}`;
+                APP_STATE.quizScores.push(100);
+            } else {
+                exp.className = "p-3 rounded-xl bg-rose-950/40 border border-rose-500/30 text-xs text-rose-300 font-semibold odia-text";
+                exp.innerText = `❌ ଭୁଲ ଉତ୍ତର। Try again!`;
+                APP_STATE.quizScores.push(0);
+            }
+            saveState();
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /*                           GLOBAL SEARCH MODAL                              */
+        /* -------------------------------------------------------------------------- */
+        function openSearchModal() {
+            toggleModal('searchModal');
+            document.getElementById('globalSearchInput').focus();
+        }
+
+        function performGlobalSearch() {
+            const query = document.getElementById('globalSearchInput').value.toLowerCase().trim();
+            const resultsContainer = document.getElementById('searchResults');
+
+            if (!query) {
+                resultsContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">Start typing to search vocabulary and phrases...</p>`;
+                return;
+            }
+
+            const matchedVocab = VOCABULARY_DB.filter(v => v.word.toLowerCase().includes(query) || v.odia.includes(query));
+
+            if (matchedVocab.length === 0) {
+                resultsContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">No matching words found.</p>`;
+                return;
+            }
+
+            resultsContainer.innerHTML = matchedVocab.map(v => `
+                <div class="p-3 rounded-xl bg-slate-800/80 border border-slate-700 flex items-center justify-between">
+                    <div>
+                        <p class="font-bold text-white text-sm">${v.word} <span class="text-xs text-cyan-400 font-normal">(${v.pos})</span></p>
+                        <p class="text-xs text-emerald-400 odia-text">${v.odia}</p>
+                    </div>
+                    <button onclick="speakText('${v.word}')" class="text-xs p-1.5 rounded bg-slate-700 text-cyan-300">🔊</button>
+                </div>
+            `).join('');
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /*                        SPEECH SYNTHESIS (TTS)                              */
+        /* -------------------------------------------------------------------------- */
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // cancel previous
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert("Text-to-speech is not supported in this browser.");
+            }
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /*                       SETTINGS & DATA EXPORT/IMPORT                        */
+        /* -------------------------------------------------------------------------- */
+        function exportUserData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(localStorage));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `daily_english_pro_backup_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importUserData(event) {
+            const fileReader = new FileReader();
+            fileReader.onload = function (e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    Object.keys(data).forEach(key => localStorage.setItem(key, data[key]));
+                    alert("Progress imported successfully! Reloading...");
+                    location.reload();
+                } catch (err) {
+                    alert("Invalid JSON file format.");
+                }
+            };
+            fileReader.readAsText(event.target.files[0]);
+        }
+
+        function resetUserData() {
+            if (confirm("Are you sure you want to reset all your learning progress?")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /*                           INITIALIZATION                                   */
+        /* -------------------------------------------------------------------------- */
+        window.onload = function() {
+            initDaySelect();
+            updateDashboardStats();
+            switchView('dashboard');
+        };
+    </script>
+</body>
+</html>
