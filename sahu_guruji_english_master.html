@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="or-IN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sahu Guruji — English Master: Zero to Hero</title>
+    <style>
+        /* Modern Dark Blue & Purple Palette */
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            --primary: #8b5cf6;
+            --primary-hover: #7c3aed;
+            --accent: #ec4899;
+            --accent-hover: #db2777;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --text-odia: #f0abfc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Odia Sangam MN', 'Kalinga', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 70px; /* Space for fixed bottom navbar */
+        }
+
+        /* Header & Gamification Bar */
+        header {
+            background: linear-gradient(135deg, #1e1b4b, #311042);
+            padding: 12px 16px;
+            border-bottom: 2px solid var(--primary);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .app-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #c084fc, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .rank-badge {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background-color: var(--card-border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: width 0.4s ease;
+        }
+
+        /* Section Container */
+        .container {
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 16px;
+            flex: 1;
+        }
+
+        .app-section {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .app-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Generic Card Styling */
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .odia-sub {
+            color: var(--text-odia);
+            font-size: 0.95rem;
+            margin-top: 2px;
+        }
+
+        /* Buttons */
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: transform 0.1s, opacity 0.2s;
+            box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3);
+            user-select: none;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-accent {
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            box-shadow: 0 4px 10px rgba(236, 72, 153, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: #d8b4fe;
+            box-shadow: none;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            border-radius: 8px;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        /* Fixed Navigation Bar */
+        .navbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #0f172a;
+            border-top: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 100;
+            box-shadow: 0 -4px 16px rgba(0,0,0,0.5);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-sub);
+            font-size: 0.7rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 11%;
+            padding: 4px 0;
+            border-radius: 8px;
+            transition: color 0.2s;
+        }
+
+        .nav-item.active {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+            margin-bottom: 2px;
+        }
+
+        /* Alphabet Grid */
+        .alphabet-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
+            gap: 10px;
+        }
+
+        .letter-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 12px 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .letter-card:hover, .letter-card.active {
+            border-color: var(--accent);
+            background-color: #2e1065;
+            transform: translateY(-2px);
+        }
+
+        .letter-main {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        /* Inputs & Textareas */
+        input[type="text"], textarea, select {
+            width: 100%;
+            background-color: #0f172a;
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+            outline: none;
+        }
+
+        input[type="text"]:focus, textarea:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3);
+        }
+
+        /* Quiz / Grammar MCQs */
+        .mcq-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .option-btn {
+            background-color: #0f172a;
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 12px;
+            border-radius: 10px;
+            text-align: left;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .option-btn.correct {
+            background-color: #065f46 !important;
+            border-color: var(--success) !important;
+            color: white;
+        }
+
+        .option-btn.incorrect {
+            background-color: #831843 !important;
+            border-color: var(--accent) !important;
+            color: white;
+        }
+
+        /* Feedback Boxes */
+        .feedback-box {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            display: none;
+        }
+
+        .feedback-box.show {
+            display: block;
+        }
+
+        .feedback-success {
+            background-color: rgba(16, 185, 129, 0.2);
+            border: 1px solid var(--success);
+            color: #6ee7b7;
+        }
+
+        .feedback-error {
+            background-color: rgba(236, 72, 153, 0.2);
+            border: 1px solid var(--accent);
+            color: #f472b6;
+        }
+
+        /* Level Filter Tabs */
+        .tab-filter {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            scrollbar-width: none;
+        }
+
+        .tab-filter::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-btn {
+            background-color: #0f172a;
+            border: 1px solid var(--card-border);
+            color: var(--text-sub);
+            padding: 6px 12px;
+            border-radius: 20px;
+            white-space: nowrap;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .tab-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Lists */
+        .roadmap-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .roadmap-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #0f172a;
+            padding: 12px;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .day-badge {
+            background-color: var(--primary);
+            color: white;
+            font-weight: bold;
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 6px;
+            min-width: 55px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- GAMIFIED HEADER -->
+    <header>
+        <div class="header-top">
+            <div class="app-title">
+                <span>🎓</span> Sahu Guruji
+            </div>
+            <div class="rank-badge" id="user-rank">Beginner (ଆରମ୍ଭକାରୀ)</div>
+        </div>
+        <div class="stats-bar">
+            <div class="stat-item">⭐ <span id="xp-display">0</span> XP</div>
+            <div class="stat-item">📚 <span id="lessons-completed-display">0</span>/60 Learned</div>
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar" id="overall-progress"></div>
+        </div>
+    </header>
+
+    <!-- MAIN APP CONTENT AREA -->
+    <div class="container">
+
+        <!-- 1. HOME SECTION -->
+        <section id="sec-home" class="app-section active">
+            <div class="card" style="text-align: center; background: linear-gradient(135deg, #1e293b, #2e1065);">
+                <h1 style="font-size: 1.6rem; color: #d8b4fe; margin-bottom: 6px;">ସ୍ଵାଗତ (Welcome) Guruji Chatra!</h1>
+                <p class="odia-sub" style="margin-bottom: 12px;">ଇଂରାଜୀ ଶିଖନ୍ତୁ ସହଜରେ - Zero level ରୁ Hero level ପର୍ଯ୍ୟନ୍ତ!</p>
+                <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 16px;">
+                    Master English naturally through interactive Odia guidance, speech practice, interactive grammar, and translation exercises.
+                </p>
+                <button class="btn btn-accent btn-full" onclick="switchTab('lessons')">🚀 Start Learning Lessons</button>
+            </div>
+
+            <div class="section-title">Select Stage (ସ୍ତର ବାଛନ୍ତୁ)</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div class="card" style="cursor: pointer;" onclick="loadStageLessons('Beginner')">
+                    <h3 style="color: #6ee7b7;">🌱 Beginner</h3>
+                    <p class="odia-sub">ପ୍ରାରମ୍ଭିକ ସ୍ତର</p>
+                    <p style="font-size: 0.75rem; color: var(--text-sub); margin-top: 6px;">15 Basic Daily Phrases</p>
+                </div>
+                <div class="card" style="cursor: pointer;" onclick="loadStageLessons('Elementary')">
+                    <h3 style="color: #93c5fd;">🌿 Elementary</h3>
+                    <p class="odia-sub">ପ୍ରାଥମିକ ସ୍ତର</p>
+                    <p style="font-size: 0.75rem; color: var(--text-sub); margin-top: 6px;">15 Everyday Sentences</p>
+                </div>
+                <div class="card" style="cursor: pointer;" onclick="loadStageLessons('Intermediate')">
+                    <h3 style="color: #fde047;">🌳 Intermediate</h3>
+                    <p class="odia-sub">ମଧ୍ୟମ ସ୍ତର</p>
+                    <p style="font-size: 0.75rem; color: var(--text-sub); margin-top: 6px;">15 Complex Sentences</p>
+                </div>
+                <div class="card" style="cursor: pointer;" onclick="loadStageLessons('Advanced')">
+                    <h3 style="color: #f472b6;">👑 Advanced</h3>
+                    <p class="odia-sub">ଉଚ୍ଚ ସ୍ତର</p>
+                    <p style="font-size: 0.75rem; color: var(--text-sub); margin-top: 6px;">15 Fluent/Pro Tones</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. ALPHABET SECTION -->
+        <section id="sec-alphabet" class="app-section">
+            <div class="section-title">Alphabet A-Z (ବର୍ଣ୍ଣମାଳା)</div>
+            <div class="alphabet-grid" id="alphabet-grid"></div>
+
+            <div class="card" id="alphabet-detail-card" style="margin-top: 16px;">
+                <h2 id="alpha-letter" style="font-size: 2.5rem; color: var(--primary);">A a</h2>
+                <p id="alpha-word" style="font-size: 1.2rem; font-weight: bold;">Apple</p>
+                <p id="alpha-odia" class="odia-sub" style="font-size: 1.1rem;">ସେଓ</p>
+                <button class="btn btn-small" style="margin-top: 12px;" onclick="speakText(document.getElementById('alpha-word').textContent)">🔊 Pronounce Word</button>
+            </div>
+        </section>
+
+        <!-- 3. LESSONS SECTION -->
+        <section id="sec-lessons" class="app-section">
+            <div class="section-title">Interactive Lessons (ପାଠ୍ୟକ୍ରମ)</div>
+            
+            <div class="tab-filter" id="lesson-stage-tabs">
+                <button class="tab-btn active" onclick="filterLessons('All', this)">All (60)</button>
+                <button class="tab-btn" onclick="filterLessons('Beginner', this)">Beginner</button>
+                <button class="tab-btn" onclick="filterLessons('Elementary', this)">Elementary</button>
+                <button class="tab-btn" onclick="filterLessons('Intermediate', this)">Intermediate</button>
+                <button class="tab-btn" onclick="filterLessons('Advanced', this)">Advanced</button>
+            </div>
+
+            <div class="card" id="lesson-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span id="lesson-category-tag" class="rank-badge">Beginner</span>
+                    <span id="lesson-number-tag" style="font-size: 0.8rem; color: var(--text-sub);">Lesson 1/60</span>
+                </div>
+
+                <h2 id="lesson-english" style="color: var(--text-main); font-size: 1.3rem; margin-bottom: 4px;">Hello!</h2>
+                <p id="lesson-odia" class="odia-sub" style="font-size: 1.1rem; margin-bottom: 12px;">ନମସ୍କାର!</p>
+
+                <div id="lesson-explanation-box" style="display: none; background: #0f172a; padding: 10px; border-radius: 8px; margin-bottom: 12px;">
+                    <p id="lesson-explanation" style="font-size: 0.85rem; color: #cbd5e1;"></p>
+                    <p id="lesson-example" style="font-size: 0.85rem; color: #a7f3d0; margin-top: 4px;"></p>
+                </div>
+
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button class="btn btn-small" onclick="speakLesson()">🔊 Listen Audio</button>
+                    <button class="btn btn-small btn-outline" onclick="toggleLessonExplanation()">💡 Explanation</button>
+                    <button id="btn-mark-learned" class="btn btn-small btn-accent" onclick="markCurrentLessonLearned()">✔️ Mark Learned (+10 XP)</button>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; margin-top: 16px;">
+                    <button class="btn btn-outline" onclick="prevLesson()">⬅️ Prev</button>
+                    <button class="btn btn-outline" onclick="randomLesson()">🎲 Random</button>
+                    <button class="btn" onclick="nextLesson()">Next ➡️</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. GRAMMAR ACADEMY -->
+        <section id="sec-grammar" class="app-section">
+            <div class="section-title">Grammar Academy (ବ୍ୟାକରଣ)</div>
+            
+            <select id="grammar-topic-select" onchange="loadGrammarTopic(this.value)">
+                <!-- Options injected dynamically -->
+            </select>
+
+            <div class="card" id="grammar-display-card">
+                <h3 id="grammar-title" style="color: var(--primary); margin-bottom: 6px;">Nouns (ବିଶେଷ୍ୟ)</h3>
+                <p id="grammar-rule" style="font-size: 0.9rem; margin-bottom: 8px; line-height: 1.4;"></p>
+                <div style="background: #0f172a; padding: 10px; border-radius: 8px; margin-bottom: 12px;">
+                    <strong>Examples:</strong>
+                    <p id="grammar-examples" style="font-size: 0.85rem; color: #a7f3d0; margin-top: 4px;"></p>
+                </div>
+
+                <hr style="border-color: var(--card-border); margin: 12px 0;">
+
+                <h4 style="font-size: 0.95rem; margin-bottom: 8px;">Practice Question (ଅଭ୍ୟାସ ପ୍ରଶ୍ନ):</h4>
+                <p id="grammar-quiz-q" style="font-weight: 600; margin-bottom: 8px;"></p>
+                <div class="mcq-options" id="grammar-quiz-options"></div>
+                <div id="grammar-quiz-feedback" class="feedback-box"></div>
+            </div>
+        </section>
+
+        <!-- 5. TRANSLATION TRAINER -->
+        <section id="sec-translation" class="app-section">
+            <div class="section-title">Translation Trainer (ଅନୁବାଦ)</div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <span id="trans-mode-label" style="font-size: 0.85rem; color: var(--text-sub);">Direction: English ➔ Odia</span>
+                <button class="btn btn-small btn-outline" onclick="toggleTranslationMode()">🔄 Switch Mode</button>
+            </div>
+
+            <div class="card">
+                <p style="font-size: 0.8rem; color: var(--text-sub);">Translate the following sentence:</p>
+                <h3 id="trans-prompt" style="font-size: 1.2rem; color: #38bdf8; margin: 8px 0;">How are you?</h3>
+                
+                <input type="text" id="trans-input" placeholder="Type your translation here..." autocomplete="off">
+                
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-accent btn-full" onclick="checkTranslation()">Check Answer</button>
+                    <button class="btn btn-outline" onclick="speakText(document.getElementById('trans-prompt').textContent)">🔊 Listen</button>
+                </div>
+
+                <div id="trans-feedback" class="feedback-box"></div>
+                
+                <button class="btn btn-full" style="margin-top: 12px;" onclick="nextTranslation()">Next Sentence ➡️</button>
+            </div>
+        </section>
+
+        <!-- 6. QUIZ GAME -->
+        <section id="sec-quiz" class="app-section">
+            <div class="section-title">Quiz Game (ପରୀକ୍ଷା ଆହ୍ୱାନ)</div>
+
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <span id="quiz-progress-text" style="font-size: 0.85rem; color: var(--text-sub);">Question 1/20</span>
+                    <span style="font-size: 0.85rem; color: #fde047;">Current Score: <strong id="quiz-score">0</strong></span>
+                </div>
+
+                <h3 id="quiz-question-text" style="font-size: 1.1rem; margin-bottom: 12px;">Loading question...</h3>
+                <div class="mcq-options" id="quiz-options-container"></div>
+                <div id="quiz-feedback" class="feedback-box"></div>
+
+                <button id="quiz-next-btn" class="btn btn-full" style="margin-top: 12px; display: none;" onclick="nextQuizQuestion()">Next Question ➡️</button>
+            </div>
+        </section>
+
+        <!-- 7. SPEAKING PRACTICE -->
+        <section id="sec-speaking" class="app-section">
+            <div class="section-title">Speaking Practice (କଥୋପକଥନ)</div>
+
+            <div class="card">
+                <span class="rank-badge" id="speaking-scenario-num">Scenario 1/10</span>
+                <h3 id="speaking-situation" style="font-size: 1.1rem; color: var(--primary); margin: 8px 0;">Ordering Food</h3>
+                <p id="speaking-instruction" class="odia-sub" style="margin-bottom: 12px;">ରେଷ୍ଟୋରାଣ୍ଟରେ ଖାଦ୍ୟ ମାଗିବା ପାଇଁ ଏହି ବାକ୍ୟ କୁହନ୍ତୁ:</p>
+
+                <div style="background: #0f172a; padding: 12px; border-radius: 8px; margin-bottom: 12px; text-align: center;">
+                    <p id="speaking-target" style="font-size: 1.2rem; font-weight: bold; color: #a7f3d0;">"I would like to order a cup of tea, please."</p>
+                </div>
+
+                <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                    <button class="btn btn-full" onclick="speakText(document.getElementById('speaking-target').textContent)">🔊 Listen Model Answer</button>
+                    <button class="btn btn-accent btn-full" onclick="startSpeechRecognition()">🎙️ Practice Mic</button>
+                </div>
+
+                <div id="speaking-feedback" class="feedback-box"></div>
+
+                <button class="btn btn-outline btn-full" style="margin-top: 8px;" onclick="nextSpeakingScenario()">Next Scenario ➡️</button>
+            </div>
+        </section>
+
+        <!-- 8. STUDY ROADMAP -->
+        <section id="sec-roadmap" class="app-section">
+            <div class="section-title">30-Day Study Roadmap (୩୦ ଦିନର ଯୋଜନା)</div>
+            <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 12px;">
+                Follow this daily step-by-step master roadmap to guarantee fluency.
+            </p>
+            <div class="roadmap-list" id="roadmap-container"></div>
+        </section>
+
+        <!-- 9. PROGRESS & SETTINGS -->
+        <section id="sec-progress" class="app-section">
+            <div class="section-title">Progress & Settings (ପ୍ରଗତି)</div>
+
+            <div class="card">
+                <h3>Overall Achievements</h3>
+                <br>
+                <p>Total XP Earned: <strong id="stat-total-xp" style="color: var(--accent);">0</strong></p>
+                <p>Completed Lessons: <strong id="stat-lessons-count">0</strong> / 60</p>
+                <p>Current Rank: <strong id="stat-rank-text" style="color: var(--primary);">Beginner</strong></p>
+                
+                <hr style="border-color: var(--card-border); margin: 16px 0;">
+
+                <h3>Reset Progress</h3>
+                <p class="odia-sub" style="margin-bottom: 12px;">ଆପଣଙ୍କର ସମସ୍ତ XP ଏବଂ ଶିଖିଥିବା ପାଠକୁ ରିସେଟ୍ କରନ୍ତୁ।</p>
+                <button class="btn btn-accent" onclick="confirmResetProgress()">⚠️ Reset All Data</button>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- BOTTOM NAVBAR -->
+    <nav class="navbar">
+        <button class="nav-item active" onclick="switchTab('home')">
+            <div class="nav-icon">🏠</div>
+            <span>Home</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('alphabet')">
+            <div class="nav-icon">🔤</div>
+            <span>ABC</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('lessons')">
+            <div class="nav-icon">📚</div>
+            <span>Lessons</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('grammar')">
+            <div class="nav-icon">📝</div>
+            <span>Grammar</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('translation')">
+            <div class="nav-icon">🌐</div>
+            <span>Translate</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('quiz')">
+            <div class="nav-icon">🎯</div>
+            <span>Quiz</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('speaking')">
+            <div class="nav-icon">🎙️</div>
+            <span>Speak</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('roadmap')">
+            <div class="nav-icon">🗺️</div>
+            <span>Plan</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('progress')">
+            <div class="nav-icon">⚙️</div>
+            <span>Stats</span>
+        </button>
+    </nav>
+
+    <!-- JAVASCRIPT APPLICATION ENGINE -->
+    <script>
+        /* -------------------------------------------------------------------------- */
+        /* 1. STATE & LOCALSTORAGE STORAGE MANAGEMENT                                 */
+        /* -------------------------------------------------------------------------- */
+        const APP_STORAGE_KEY = 'SahuGuruji_AppData_v1';
+
+        let appState = {
+            xp: 0,
+            completedLessons: [], // Array of lesson IDs
+            currentLessonIdx: 0,
+            currentStageFilter: 'All',
+            transMode: 'EN_TO_OD', // OR 'OD_TO_EN'
+            transIndex: 0,
+            quizIndex: 0,
+            quizScore: 0,
+            speakingIndex: 0
+        };
+
+        function loadSavedProgress() {
+            try {
+                const data = localStorage.getItem(APP_STORAGE_KEY);
+                if (data) {
+                    const parsed = JSON.parse(data);
+                    appState.xp = parsed.xp || 0;
+                    appState.completedLessons = parsed.completedLessons || [];
+                }
+            } catch (e) {
+                console.error("Failed to load state from localStorage:", e);
+            }
+            updateGamificationUI();
+        }
+
+        function saveProgress() {
+            try {
+                localStorage.setItem(APP_STORAGE_KEY, JSON.stringify({
+                    xp: appState.xp,
+                    completedLessons: appState.completedLessons
+                }));
+            } catch (e) {
+                console.error("Failed to save state to localStorage:", e);
+            }
+            updateGamificationUI();
+        }
+
+        function addXP(points) {
+            appState.xp += points;
+            saveProgress();
+        }
+
+        function confirmResetProgress() {
+            if (confirm("Are you sure you want to reset all your progress? (ଆପଣ ନିଶ୍ଚିତ କି?)")) {
+                appState.xp = 0;
+                appState.completedLessons = [];
+                saveProgress();
+                alert("Progress successfully reset!");
+                location.reload();
+            }
+        }
+
+        function updateGamificationUI() {
+            document.getElementById('xp-display').textContent = appState.xp;
+            document.getElementById('stat-total-xp').textContent = appState.xp;
+
+            const completedCount = appState.completedLessons.length;
+            document.getElementById('lessons-completed-display').textContent = completedCount;
+            document.getElementById('stat-lessons-count').textContent = completedCount;
+
+            // Calculate Rank
+            let rank = "Beginner (ଆରମ୍ଭକାରୀ)";
+            if (appState.xp >= 500) rank = "Master (ଗୁରୁ)";
+            else if (appState.xp >= 300) rank = "Advanced (ଉଚ୍ଚ ସ୍ତର)";
+            else if (appState.xp >= 150) rank = "Intermediate (ମଧ୍ୟମ)";
+            else if (appState.xp >= 50) rank = "Elementary (ପ୍ରାଥମିକ)";
+
+            document.getElementById('user-rank').textContent = rank;
+            document.getElementById('stat-rank-text').textContent = rank;
+
+            // Progress Bar %
+            const progressPct = Math.min(100, Math.round((completedCount / 60) * 100));
+            document.getElementById('overall-progress').style.width = progressPct + '%';
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* 2. NAVIGATION & TABS                                                      */
+        /* -------------------------------------------------------------------------- */
+        function switchTab(tabId) {
+            const sections = document.querySelectorAll('.app-section');
+            sections.forEach(sec => sec.classList.remove('active'));
+
+            const target = document.getElementById('sec-' + tabId);
+            if (target) target.classList.add('active');
+
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+
+            const activeBtn = Array.from(navItems).find(b => b.getAttribute('onclick').includes(tabId));
+            if (activeBtn) activeBtn.classList.add('active');
+
+            window.scrollTo(0, 0);
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* 3. ALPHABET MODULE                                                         */
+        /* -------------------------------------------------------------------------- */
+        const alphabetData = [
+            { l: 'A', w: 'Apple', o: 'ସେଓ' }, { l: 'B', w: 'Ball', o: 'ଫୁଟବଲ/ଗେନ୍ଦ' },
+            { l: 'C', w: 'Cat', o: 'ବିଲେଇ' }, { l: 'D', w: 'Dog', o: 'କୁକୁର' },
+            { l: 'E', w: 'Elephant', o: 'ହାତୀ' }, { l: 'F', w: 'Fish', o: 'ମାଛ' },
+            { l: 'G', w: 'Goat', o: 'ଛେଳି' }, { l: 'H', w: 'Horse', o: 'ଘୋଡ଼ା' },
+            { l: 'I', w: 'Ice Cream', o: 'ଆଇସକ୍ରିମ' }, { l: 'J', w: 'Jug', o: 'ଜଗ' },
+            { l: 'K', w: 'Kite', o: 'ଗୁଡ଼ି' }, { l: 'L', w: 'Lion', o: 'ସିଂହ' },
+            { l: 'M', w: 'Mango', o: 'ଆମ୍ବ' }, { l: 'N', w: 'Nest', o: 'ବସା' },
+            { l: 'O', w: 'Owl', o: 'ପେଚା' }, { l: 'P', w: 'Peacock', o: 'ମୟୂର' },
+            { l: 'Q', w: 'Queen', o: 'ରାଣୀ' }, { l: 'R', w: 'Rose', o: 'ଗୋଲାପ' },
+            { l: 'S', w: 'Sun', o: 'ସୂର୍ଯ୍ୟ' }, { l: 'T', w: 'Tiger', o: 'ବାଘ' },
+            { l: 'U', w: 'Umbrella', o: 'ଛତା' }, { l: 'V', w: 'Van', o: 'ଗାଡ଼ି' },
+            { l: 'W', w: 'Watch', o: 'ଘଣ୍ଟା' }, { l: 'X', w: 'Xylophone', o: 'ଜାଇଲୋଫୋନ' },
+            { l: 'Y', w: 'Yak', o: 'ଚମରୀ ଗାଈ' }, { l: 'Z', w: 'Zebra', o: 'ଜେବ୍ରା' }
+        ];
+
+        function initAlphabet() {
+            const grid = document.getElementById('alphabet-grid');
+            grid.innerHTML = '';
+
+            alphabetData.forEach((item, idx) => {
+                const card = document.createElement('div');
+                card.className = 'letter-card' + (idx === 0 ? ' active' : '');
+                card.innerHTML = `<div class="letter-main">${item.l}</div><div style="font-size: 0.75rem;">${item.w}</div>`;
+                card.onclick = () => selectLetter(idx, card);
+                grid.appendChild(card);
+            });
+            selectLetter(0);
+        }
+
+        function selectLetter(idx, element) {
+            if (element) {
+                document.querySelectorAll('.letter-card').forEach(c => c.classList.remove('active'));
+                element.classList.add('active');
+            }
+            const item = alphabetData[idx];
+            document.getElementById('alpha-letter').textContent = `${item.l} ${item.l.toLowerCase()}`;
+            document.getElementById('alpha-word').textContent = item.w;
+            document.getElementById('alpha-odia').textContent = item.o;
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* 4. LESSONS MODULE (60 LESSONS)                                             */
+        /* -------------------------------------------------------------------------- */
+        const lessonsData = [
+            // Beginner (1-15)
+            { id: 1, stage: 'Beginner', en: 'Hello!', od: 'ନମସ୍କାର!', exp: 'A standard universal greeting.', ex: 'Hello! How are you?' },
+            { id: 2, stage: 'Beginner', en: 'Good morning', od: 'ସୁପ୍ରଭାତ', exp: 'Used to greet someone in the morning.', ex: 'Good morning, Teacher!' },
+            { id: 3, stage: 'Beginner', en: 'Thank you', od: 'ଧନ୍ୟବାଦ', exp: 'Expressing gratitude.', ex: 'Thank you for your help.' },
+            { id: 4, stage: 'Beginner', en: 'Please', od: 'ଦୟାକରି', exp: 'Polite request word.', ex: 'Please sit down.' },
+            { id: 5, stage: 'Beginner', en: 'Yes / No', od: 'ହଁ / ନା', exp: 'Affirmation and negation.', ex: 'Yes, I understand.' },
+            { id: 6, stage: 'Beginner', en: 'What is your name?', od: 'ଆପଣଙ୍କ ନାମ କ’ଣ?', exp: 'Asking someone their name.', ex: 'What is your name, friend?' },
+            { id: 7, stage: 'Beginner', en: 'My name is Sahu.', od: 'ମୋର ନାମ ସାହୁ।', exp: 'Introducing yourself.', ex: 'My name is Sahu Guruji.' },
+            { id: 8, stage: 'Beginner', en: 'How are you?', od: 'ଆପଣ କେମିତି ଅଛନ୍ତି?', exp: 'Asking about someone\'s well-being.', ex: 'Hello Rahul, how are you?' },
+            { id: 9, stage: 'Beginner', en: 'I am fine.', od: 'ମୁଁ ଭଲ ଅଛି।', exp: 'Replying to how are you.', ex: 'I am fine, thank you.' },
+            { id: 10, stage: 'Beginner', en: 'Goodbye', od: 'ଆସୁଛି / ବିଦାୟ', exp: 'Farewell expression.', ex: 'Goodbye, see you tomorrow.' },
+            { id: 11, stage: 'Beginner', en: 'Excuse me', od: 'କ୍ଷମା କରିବେ', exp: 'Polite way to get attention.', ex: 'Excuse me, where is the shop?' },
+            { id: 12, stage: 'Beginner', en: 'Sorry', od: 'ଦୁଃଖିତ', exp: 'Apologizing for a mistake.', ex: 'I am sorry for being late.' },
+            { id: 13, stage: 'Beginner', en: 'Welcome', od: 'ସ୍ଵାଗତ', exp: 'Greeting someone arriving.', ex: 'Welcome to Odisha!' },
+            { id: 14, stage: 'Beginner', en: 'See you later', od: 'ପରେ ଦେଖା ହେବା', exp: 'Casual farewell.', ex: 'Bye, see you later!' },
+            { id: 15, stage: 'Beginner', en: 'I don\'t know', od: 'ମୁଁ ଜାଣିନାହିଁ', exp: 'Expressing lack of knowledge.', ex: 'Sorry, I don\'t know the answer.' },
+
+            // Elementary (16-30)
+            { id: 16, stage: 'Elementary', en: 'Where are you going?', od: 'ଆପଣ କେଉଁଆଡେ ଯାଉଛନ୍ତି?', exp: 'Asking about destination.', ex: 'Where are you going now?' },
+            { id: 17, stage: 'Elementary', en: 'I am going home.', od: 'ମୁଁ ଘରକୁ ଯାଉଛି।', exp: 'Stating action destination.', ex: 'I am going home after work.' },
+            { id: 18, stage: 'Elementary', en: 'What time is it?', od: 'କେତେ ଟା ବାଜିଛି?', exp: 'Asking for current time.', ex: 'Excuse me, what time is it?' },
+            { id: 19, stage: 'Elementary', en: 'I am hungry.', od: 'ମୋତେ ଭୋକ ଲାଗୁଛି।', exp: 'Expressing hunger.', ex: 'Let us eat, I am hungry.' },
+            { id: 20, stage: 'Elementary', en: 'I need water.', od: 'ମୋତେ ପାଣି ଦରକାର।', exp: 'Expressing a basic need.', ex: 'Please give me water, I need water.' },
+            { id: 21, stage: 'Elementary', en: 'How much is this?', od: 'ଏହାର ଦାମ୍ କେତେ?', exp: 'Asking the price in shopping.', ex: 'How much is this book?' },
+            { id: 22, stage: 'Elementary', en: 'Where is the bathroom?', od: 'ଶୌଚାଳୟ କେଉଁଠି ଅଛି?', exp: 'Asking location of facility.', ex: 'Excuse me, where is the bathroom?' },
+            { id: 23, stage: 'Elementary', en: 'I love learning English.', od: 'ମୁଁ ଇଂରାଜୀ ଶିଖିବାକୁ ଭଲପାଏ।', exp: 'Expressing personal interest.', ex: 'I love learning English with Sahu Guruji.' },
+            { id: 24, stage: 'Elementary', en: 'Can you help me?', od: 'ଆପଣ ମୋତେ ସାହାଯ୍ୟ କରିପାରିବେ କି?', exp: 'Requesting assistance.', ex: 'Can you help me carry this box?' },
+            { id: 25, stage: 'Elementary', en: 'Speak slowly, please.', od: 'ଦୟାକରି ଧୀରେ କୁହନ୍ତୁ।', exp: 'Asking someone to slow down speaking.', ex: 'I am learning, speak slowly please.' },
+            { id: 26, stage: 'Elementary', en: 'I understand.', od: 'ମୁଁ ବୁଝିପାରୁଛି।', exp: 'Showing comprehension.', ex: 'Yes, I understand the lesson.' },
+            { id: 27, stage: 'Elementary', en: 'What are you doing?', od: 'ଆପଣ କ’ଣ କରୁଛନ୍ତି?', exp: 'Asking about ongoing activity.', ex: 'What are you doing right now?' },
+            { id: 28, stage: 'Elementary', en: 'I am reading a book.', od: 'ମୁଁ ଗୋଟିଏ ବହି ପଢୁଛି।', exp: 'Describing active task.', ex: 'I am reading a book in English.' },
+            { id: 29, stage: 'Elementary', en: 'Where do you live?', od: 'ଆପଣ କେଉଁଠି ରହୁଛନ୍ତି?', exp: 'Asking place of residence.', ex: 'Where do you live in Odisha?' },
+            { id: 30, stage: 'Elementary', en: 'I live in Bhubaneswar.', od: 'ମୁଁ ଭୁବନେଶ୍ୱରରେ ରହେ।', exp: 'Stating residence.', ex: 'I live in Bhubaneswar with family.' },
+
+            // Intermediate (31-45)
+            { id: 31, stage: 'Intermediate', en: 'Could you please repeat that?', od: 'ଆପଣ ଦୟାକରି ତାହା ଆଉଥରେ ଦୋହରାଇ ପାରିବେ କି?', exp: 'Polite clarification request.', ex: 'I missed that word. Could you please repeat that?' },
+            { id: 32, stage: 'Intermediate', en: 'What does this word mean?', od: 'ଏହି ଶବ୍ଦର ଅର୍ଥ କ’ଣ?', exp: 'Asking vocabulary meaning.', ex: 'What does this word mean in Odia?' },
+            { id: 33, stage: 'Intermediate', en: 'I am looking for a job.', od: 'ମୁଁ ଗୋଟିଏ ଚାକିରି ଖୋଜୁଛି।', exp: 'Describing job search state.', ex: 'I am looking for a job in IT.' },
+            { id: 34, stage: 'Intermediate', en: 'It is raining outside.', od: 'ବାହାରେ ବର୍ଷା ହେଉଛି।', exp: 'Weather description.', ex: 'Take an umbrella, it is raining outside.' },
+            { id: 35, stage: 'Intermediate', en: 'I will call you later.', od: 'ମୁଁ ଆପଣଙ୍କୁ ପରେ ଫୋନ୍ କରିବି।', exp: 'Future commitment.', ex: 'I am busy now, I will call you later.' },
+            { id: 36, stage: 'Intermediate', en: 'How long does it take?', od: 'ଏଥିପାଇଁ କେତେ ସମୟ ଲାଗିବ?', exp: 'Asking about duration.', ex: 'How long does it take to reach Cuttack?' },
+            { id: 37, stage: 'Intermediate', en: 'I have completed my work.', od: 'ମୁଁ ମୋ କାମ ଶେଷ କରିସାରିଛି।', exp: 'Present perfect accomplishment.', ex: 'I have completed my work for today.' },
+            { id: 38, stage: 'Intermediate', en: 'You should practice daily.', od: 'ଆପଣ ପ୍ରତିଦିନ ଅଭ୍ୟାସ କରିବା ଉଚିତ୍।', exp: 'Giving advice using "should".', ex: 'To speak well, you should practice daily.' },
+            { id: 39, stage: 'Intermediate', en: 'What is your opinion?', od: 'ଆପଣଙ୍କ ମତାମତ କ’ଣ?', exp: 'Asking for thoughts.', ex: 'What is your opinion on this topic?' },
+            { id: 40, stage: 'Intermediate', en: 'I agree with you.', od: 'ମୁଁ ଆପଣଙ୍କ ସହ ସହମତ।', exp: 'Expressing agreement.', ex: 'I agree with you completely.' },
+            { id: 41, stage: 'Intermediate', en: 'I disagree with this decision.', od: 'ମୁଁ ଏହି ନିଷ୍ପତ୍ତି ସହ ଅସହମତ।', exp: 'Expressing polite disagreement.', ex: 'I disagree with this decision because it takes time.' },
+            { id: 42, stage: 'Intermediate', en: 'Please let me know.', od: 'ଦୟାକରି ମୋତେ ଜଣାନ୍ତୁ।', exp: 'Requesting communication.', ex: 'When you arrive, please let me know.' },
+            { id: 43, stage: 'Intermediate', en: 'I am looking forward to meeting you.', od: 'ମୁଁ ଆପଣଙ୍କୁ ଭେଟିବାକୁ ଆଗ୍ରହୀ।', exp: 'Expressing positive anticipation.', ex: 'I am looking forward to meeting you tomorrow.' },
+            { id: 44, stage: 'Intermediate', en: 'Sorry to bother you.', od: 'ଆପଣଙ୍କୁ ବିରକ୍ତ କରିଥିବାରୁ ଦୁଃଖିତ।', exp: 'Polite interruption opener.', ex: 'Sorry to bother you, but do you have a pen?' },
+            { id: 45, stage: 'Intermediate', en: 'That sounds like a great idea!', od: 'ତାହା ଗୋଟିଏ ବହୁତ ଭଲ ବିଚାର ପରି ମନେହେଉଛି!', exp: 'Enthusiastic approval.', ex: 'Let us go for a walk. That sounds like a great idea!' },
+
+            // Advanced (46-60)
+            { id: 46, stage: 'Advanced', en: 'Notwithstanding the challenges, we succeeded.', od: 'ଆହ୍ୱାନ ସତ୍ତ୍ୱେ, ଆମେ ସଫଳ ହେଲୁ।', exp: 'Formal concession structure.', ex: 'Notwithstanding the challenges, we completed the project.' },
+            { id: 47, stage: 'Advanced', en: 'It is vital to maintain consistency.', od: 'ନିରନ୍ତରତା ବଜାୟ ରଖିବା ଅତ୍ୟନ୍ତ ଜରୁରୀ।', exp: 'Formal importance phrasing.', ex: 'In learning English, it is vital to maintain consistency.' },
+            { id: 48, stage: 'Advanced', en: 'Could you elaborate on that point?', od: 'ଆପଣ ଏହି ବିନ୍ଦୁକୁ ଅଧିକ ସ୍ପଷ୍ଟ କରିପାରିବେ କି?', exp: 'Professional request for detail.', ex: 'Your plan is interesting. Could you elaborate on that point?' },
+            { id: 49, stage: 'Advanced', en: 'I would appreciate your feedback.', od: 'ମୁଁ ଆପଣଙ୍କ ମତାମତକୁ ପ୍ରଶଂସା କରିବି।', exp: 'Professional feedback request.', ex: 'Please read my draft, I would appreciate your feedback.' },
+            { id: 50, stage: 'Advanced', en: 'Let us touch base next week.', od: 'ଆସନ୍ତା ସପ୍ତାହରେ ପୁଣି ଆଲୋଚନା କରିବା।', exp: 'Business idiom for reconnecting.', ex: 'I will prepare the report and let us touch base next week.' },
+            { id: 51, stage: 'Advanced', en: 'Actions speak louder than words.', od: 'କାମ କଥାଠାରୁ ଅଧିକ ବଳବାନ୍।', exp: 'Proverb meaning deeds matter most.', ex: 'Don\'t just promise, actions speak louder than words.' },
+            { id: 52, stage: 'Advanced', en: 'Every cloud has a silver lining.', od: 'ପ୍ରତ୍ୟେକ ବିପଦ ପଛରେ ଆଶାର କିରଣ ଥାଏ।', exp: 'Idiom for optimism in hardship.', ex: 'Stay positive! Every cloud has a silver lining.' },
+            { id: 53, stage: 'Advanced', en: 'It goes without saying.', od: 'ଏହା କହିବା ନିଷ୍ପ୍ରୟୋଜନ / ସ୍ପଷ୍ଟ।', exp: 'Idiom meaning obvious truth.', ex: 'It goes without saying that hard work brings success.' },
+            { id: 54, stage: 'Advanced', en: 'To kill two birds with one stone.', od: 'ଏକ ଢେଲାରେ ଦୁଇଟି ପକ୍ଷୀ ମାରିବା।', exp: 'Accomplishing two things at once.', ex: 'By visiting Cuttack, I bought books and met my friend—killing two birds with one stone.' },
+            { id: 55, stage: 'Advanced', en: 'I am writing to express my interest.', od: 'ମୁଁ ମୋର ଆଗ୍ରହ ପ୍ରକାଶ କରିବାକୁ ଲେଖୁଛି।', exp: 'Formal professional email opening.', ex: 'Dear Sir, I am writing to express my interest in the position.' },
+            { id: 56, stage: 'Advanced', en: 'Please find attached the requested document.', od: 'ଦୟାକରି ମଗାଯାଇଥିବା ଦଲିଲ ସଂଲଗ୍ନ ଦେଖନ୍ତୁ।', exp: 'Standard business attachment text.', ex: 'Dear Manager, please find attached the requested document.' },
+            { id: 57, stage: 'Advanced', en: 'Thank you for your prompt response.', od: 'ଆପଣଙ୍କ ଶୀଘ୍ର ଉତ୍ତର ପାଇଁ ଧନ୍ୟବାଦ।', exp: 'Formal appreciation for quick reply.', ex: 'I got your email. Thank you for your prompt response.' },
+            { id: 58, stage: 'Advanced', en: 'We need to streamline our workflow.', od: 'ଆମକୁ ଆମ କାର୍ଯ୍ୟପ୍ରଣାଳୀକୁ ସରଳୀକୃତ କରିବାକୁ ହେବ।', exp: 'Professional efficiency terminology.', ex: 'To finish on time, we need to streamline our workflow.' },
+            { id: 59, stage: 'Advanced', en: 'In spite of the delay, everything is ready.', od: 'ବିଳମ୍ବ ସତ୍ତ୍ୱେ, ସବୁକିଛି ପ୍ରସ୍ତୁତ।', exp: 'Prepositional phrase usage.', ex: 'In spite of the delay, everything is ready now.' },
+            { id: 60, stage: 'Advanced', en: 'Continuous learning leads to mastery.', od: 'ନିରନ୍ତର ଶିକ୍ଷା ଦକ୍ଷତାର ପଥ ସୁଗମ କରେ।', exp: 'Concluding master philosophy.', ex: 'Keep practicing daily! Continuous learning leads to mastery.' }
+        ];
+
+        let filteredLessons = [...lessonsData];
+
+        function displayCurrentLesson() {
+            if (filteredLessons.length === 0) return;
+            const item = filteredLessons[appState.currentLessonIdx];
+
+            document.getElementById('lesson-category-tag').textContent = item.stage;
+            document.getElementById('lesson-number-tag').textContent = `Lesson ${appState.currentLessonIdx + 1}/${filteredLessons.length}`;
+            document.getElementById('lesson-english').textContent = item.en;
+            document.getElementById('lesson-odia').textContent = item.od;
+            document.getElementById('lesson-explanation').textContent = "💡 Rule/Meaning: " + item.exp;
+            document.getElementById('lesson-example').textContent = "📌 Example: " + item.ex;
+
+            document.getElementById('lesson-explanation-box').style.display = 'none';
+
+            // Mark Learned Button state
+            const isLearned = appState.completedLessons.includes(item.id);
+            const btnMark = document.getElementById('btn-mark-learned');
+            if (isLearned) {
+                btnMark.textContent = "✓ Learned (ଅଧ୍ୟୟନ ସମାପ୍ତ)";
+                btnMark.style.background = "#059669";
+            } else {
+                btnMark.textContent = "✔️ Mark Learned (+10 XP)";
+                btnMark.style.background = "";
+            }
+        }
+
+        function filterLessons(stage, btnElement) {
+            appState.currentStageFilter = stage;
+            if (btnElement) {
+                document.querySelectorAll('#lesson-stage-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+                btnElement.classList.add('active');
+            }
+
+            if (stage === 'All') {
+                filteredLessons = [...lessonsData];
+            } else {
+                filteredLessons = lessonsData.filter(l => l.stage === stage);
+            }
+            appState.currentLessonIdx = 0;
+            displayCurrentLesson();
+        }
+
+        function loadStageLessons(stageName) {
+            switchTab('lessons');
+            const tabs = document.querySelectorAll('#lesson-stage-tabs .tab-btn');
+            tabs.forEach(t => {
+                if (t.textContent.includes(stageName)) {
+                    filterLessons(stageName, t);
+                }
+            });
+        }
+
+        function nextLesson() {
+            if (appState.currentLessonIdx < filteredLessons.length - 1) {
+                appState.currentLessonIdx++;
+                displayCurrentLesson();
+            } else {
+                appState.currentLessonIdx = 0; // Wrap around
+                displayCurrentLesson();
+            }
+        }
+
+        function prevLesson() {
+            if (appState.currentLessonIdx > 0) {
+                appState.currentLessonIdx--;
+                displayCurrentLesson();
+            }
+        }
+
+        function randomLesson() {
+            appState.currentLessonIdx = Math.floor(Math.random() * filteredLessons.length);
+            displayCurrentLesson();
+        }
+
+        function toggleLessonExplanation() {
+            const box = document.getElementById('lesson-explanation-box');
+            box.style.display = (box.style.display === 'none' || box.style.display === '') ? 'block' : 'none';
+        }
+
+        function markCurrentLessonLearned() {
+            const item = filteredLessons[appState.currentLessonIdx];
+            if (!appState.completedLessons.includes(item.id)) {
+                appState.completedLessons.push(item.id);
+                addXP(10);
+                displayCurrentLesson();
+                alert(`🎉 Awesome! You learned "${item.en}" and earned +10 XP!`);
+            } else {
+                alert("You have already marked this lesson as learned! (ପୂର୍ବରୁ ଅଧ୍ୟୟନ ସରିଛି)");
+            }
+        }
+
+        function speakLesson() {
+            const item = filteredLessons[appState.currentLessonIdx];
+            speakText(item.en);
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* 5. GRAMMAR ACADEMY MODULE (18 TOPICS)                                      */
+        /* -------------------------------------------------------------------------- */
+        const grammarData = [
+            { id: 'nouns', title: '1. Nouns (ବିଶେଷ୍ୟ)', rule: 'Nouns are names of persons, places, things, or ideas. (କୌଣସି ବ୍ୟକ୍ତି, ସ୍ଥାନ, ଜିନିଷ କିମ୍ବା ଭାବନାର ନାମକୁ Noun କୁହାଯାଏ।)', ex: 'Ram, Bhubaneswar, Book, Happiness', q: 'Identify the noun in: "The dog is barking."', opts: ['barking', 'dog', 'is'], ans: 1 },
+            { id: 'pronouns', title: '2. Pronouns (ସର୍ବନାମ)', rule: 'Words used instead of nouns to avoid repetition. (Noun ବଦଳରେ ବ୍ୟବହୃତ ହେଉଥିବା ଶବ୍ଦ।)', ex: 'He, She, It, They, We', q: 'Which word is a pronoun in: "She is reading."', opts: ['reading', 'She', 'is'], ans: 1 },
+            { id: 'verbs', title: '3. Verbs (କ୍ରିୟା)', rule: 'Action words showing what someone or something is doing. (କାର୍ଯ୍ୟ କିମ୍ବା କ୍ରିୟା ସୂଚାଉଥିବା ଶବ୍ଦ।)', ex: 'Run, Eat, Sleep, Write', q: 'Find the verb: "Birds fly in the sky."', opts: ['sky', 'Birds', 'fly'], ans: 2 },
+            { id: 'adjectives', title: '4. Adjectives (ବିଶେଷଣ)', rule: 'Words describing qualities of nouns or pronouns. (Noun ର ଗୁଣ ବା ବିଶେଷତା ସୂଚାଉଥିବା ଶବ୍ଦ।)', ex: 'Good, Big, Red, Beautiful', q: 'Find the adjective: "He bought a red car."', opts: ['car', 'red', 'bought'], ans: 1 },
+            { id: 'articles', title: '5. Articles (A, An, The)', rule: 'A/An used for non-specific singular countable nouns (An before vowel sounds). The used for specific nouns.', ex: 'A book, An apple, The Sun', q: 'Which article fits: "I ate ___ orange."', opts: ['a', 'an', 'the'], ans: 1 },
+            { id: 'prepositions', title: '6. Prepositions (ଅବ୍ୟୟ)', rule: 'Words showing relationship between noun/pronoun and other words. (ସ୍ଥାନ, ସମୟ ବା ଦିଗ ଦର୍ଶାଉଥିବା ଶବ୍ଦ।)', ex: 'In, On, At, Under, By', q: 'Fill in: "The book is ___ the table."', opts: ['on', 'in', 'at'], ans: 0 },
+            { id: 'amisare', title: '7. Am / Is / Are (ବର୍ତ୍ତମାନ ସ୍ଥିତି)', rule: 'Am with "I". Is with singular subjects (He/She/It). Are with plural subjects (We/You/They).', ex: 'I am ready. He is happy. They are playing.', q: 'Complete: "They ___ my friends."', opts: ['is', 'am', 'are'], ans: 2 },
+            { id: 'waswere', title: '8. Was / Were (ଅତୀତ ସ୍ଥିତି)', rule: 'Was with singular past (I, He, She, It). Were with plural past (We, You, They).', ex: 'I was busy. They were present.', q: 'Complete: "She ___ absent yesterday."', opts: ['was', 'were', 'is'], ans: 0 },
+            { id: 'p_simple', title: '9. Present Simple Tense', rule: 'Used for daily habits, routines, and universal truths. S + V1 (s/es).', ex: 'I play football. Sun rises in the East.', q: 'Choose correct: "He ___ to school daily."', opts: ['go', 'goes', 'going'], ans: 1 },
+            { id: 'p_cont', title: '10. Present Continuous Tense', rule: 'Used for actions happening right now. S + am/is/are + V-ing.', ex: 'I am writing. It is raining.', q: 'Choose correct: "Look! The baby is ___."', opts: ['crying', 'cry', 'cried'], ans: 0 },
+            { id: 'past_simple', title: '11. Past Simple Tense', rule: 'Used for completed actions in the past. S + V2.', ex: 'I watched a movie yesterday. He went home.', q: 'Choose correct: "I ___ him yesterday."', opts: ['see', 'saw', 'seen'], ans: 1 },
+            { id: 'past_cont', title: '12. Past Continuous Tense', rule: 'Used for ongoing actions in the past. S + was/were + V-ing.', ex: 'I was studying at 8 PM.', q: 'Complete: "We ___ playing cricket."', opts: ['was', 'were', 'are'], ans: 1 },
+            { id: 'present_perf', title: '13. Present Perfect Tense', rule: 'Used for recently completed actions. S + have/has + V3.', ex: 'I have eaten lunch. She has left.', q: 'Complete: "I have ___ my homework."', opts: ['finish', 'finished', 'finishing'], ans: 1 },
+            { id: 'future_simple', title: '14. Future Simple Tense', rule: 'Used for future promises or decisions. S + will + V1.', ex: 'I will meet you tomorrow.', q: 'Complete: "They will ___ tomorrow."', opts: ['come', 'came', 'coming'], ans: 0 },
+            { id: 'modals', title: '15. Modals (Can, Could, Should, Must)', rule: 'Can = Ability, Should = Advice, Must = Obligation.', ex: 'I can speak English. You should rest.', q: 'Which means advice? "You ___ eat healthy."', opts: ['can', 'should', 'must'], ans: 1 },
+            { id: 'conditionals', title: '16. Conditionals (If Clauses)', rule: 'Expresses cause and effect condition. If + Present Simple, Will + V1.', ex: 'If you study hard, you will pass.', q: 'Complete: "If it rains, we ___ stay home."', opts: ['will', 'would', 'did'], ans: 0 },
+            { id: 'passive', title: '17. Passive Voice (କର୍ମବାଚ୍ୟ)', rule: 'Focuses on the object receiving the action. Object + Be-verb + V3.', ex: 'The English language is spoken globally.', q: 'Identify V3 passive form: "The food was ___."', opts: ['cook', 'cooking', 'cooked'], ans: 2 },
+            { id: 'reported', title: '18. Reported Speech (ପରୋକ୍ଷ ଉକ୍ତି)', rule: 'Reporting what someone said without exact words.', ex: 'He said that he was happy.', q: 'Direct: "I am ready." Reported: He said he ___ ready.', opts: ['is', 'was', 'will'], ans: 1 }
+        ];
+
+        let currentGrammarTopicIdx = 0;
+
+        function initGrammar() {
+            const select = document.getElementById('grammar-topic-select');
+            select.innerHTML = '';
+
+            grammarData.forEach((g, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.textContent = g.title;
+                select.appendChild(opt);
+            });
+            loadGrammarTopic(0);
+        }
+
+        function loadGrammarTopic(idx) {
+            currentGrammarTopicIdx = parseInt(idx);
+            const g = grammarData[currentGrammarTopicIdx];
+
+            document.getElementById('grammar-title').textContent = g.title;
+            document.getElementById('grammar-rule').textContent = g.rule;
+            document.getElementById('grammar-examples').textContent = g.ex;
+            document.getElementById('grammar-quiz-q').textContent = g.q;
+
+            const optsDiv = document.getElementById('grammar-quiz-options');
+            optsDiv.innerHTML = '';
+            document.getElementById('grammar-quiz-feedback').className = 'feedback-box';
+
+            g.opts.forEach((optText, oIdx) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = `${oIdx + 1}. ${optText}`;
+                btn.onclick = () => checkGrammarAnswer(oIdx, btn);
+                optsDiv.appendChild(btn);
+            });
+        }
+
+        function checkGrammarAnswer(selectedIdx, btnElement) {
+            const g = grammarData[currentGrammarTopicIdx];
+            const feedback = document.getElementById('grammar-quiz-feedback');
+            const allBtns = document.querySelectorAll('#grammar-quiz-options .option-btn');
+
+            allBtns.forEach(b => b.disabled = true);
+
+            if (selectedIdx === g.ans) {
+                btnElement.classList.add('correct');
+                feedback.className = 'feedback-box show feedback-success';
+                feedback.textContent = '🎉 Correct Answer! (+5 XP)';
+                addXP(5);
+            } else {
+                btnElement.classList.add('incorrect');
+                allBtns[g.ans].classList.add('correct');
+                feedback.className = 'feedback-box show feedback-error';
+                feedback.textContent = '❌ Incorrect. Correct answer highlighted above.';
+            }
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* 6. TRANSLATION TRAINER (20 SENTENCES)                                      */
+        /* -------------------------------------------------------------------------- */
+        const translationPairs = [
+            { en: "Good morning", od: "ସୁପ୍ରଭାତ" },
+            { en: "How are you?", od: "ଆପଣ କେମିତି ଅଛନ୍ତି?" },
+            { en: "I am fine", od: "ମୁଁ ଭଲ ଅଛି" },
+            { en: "What is your name?", od: "ଆପଣଙ୍କ ନାମ କ’ଣ?" },
+            { en: "My name is Sahu", od: "ମୋର ନାମ ସାହୁ" },
+            { en: "Thank you very much", od: "ଆପଣଙ୍କୁ ବହୁତ ଧନ୍ୟବାଦ" },
+            { en: "Where do you live?", od: "ଆପଣ କେଉଁଠି ରହୁଛନ୍ତି?" },
+            { en: "I live in Odisha", od: "ମୁଁ ଓଡ଼ିଶାରେ ରହେ" },
+            { en: "I am learning English", od: "ମୁଁ ଇଂରାଜୀ ଶିଖୁଛି" },
+            { en: "Please help me", od: "ଦୟାକରି ମୋତେ ସାହାଯ୍ୟ କରନ୍ତୁ" },
+            { en: "What time is it?", od: "କେତେ ଟା ବାଜିଛି?" },
+            { en: "I am hungry", od: "ମୋତେ ଭୋକ ଲାଗୁଛି" },
+            { en: "Where are you going?", od: "ଆପଣ କେଉଁଆଡେ ଯାଉଛନ୍ତି?" },
+            { en: "I am going to market", od: "ମୁଁ ବଜାରକୁ ଯାଉଛି" },
+            { en: "See you tomorrow", od: "କାଲି ଦେଖା ହେବା" },
+            { en: "It is raining", od: "ବର୍ଷା ହେଉଛି" },
+            { en: "I love my Odisha", od: "ମୁଁ ମୋ ଓଡ଼ିଶାକୁ ଭଲପାଏ" },
+            { en: "Speak slowly", od: "ଧୀରେ କୁହନ୍ତୁ" },
+            { en: "I understand everything", od: "ମୁଁ ସବୁକିଛି ବୁଝିପାରୁଛି" },
+            { en: "Have a nice day", od: "ଆପଣଙ୍କ ଦିନଟି ଶୁଭ ହେଉ" }
+        ];
+
+        function displayTranslationPrompt() {
+            const current = translationPairs[appState.transIndex];
+            const label = document.getElementById('trans-mode-label');
+            const prompt = document.getElementById('trans-prompt');
+            document.getElementById('trans-input').value = '';
+            document.getElementById('trans-feedback').className = 'feedback-box';
+
+            if (appState.transMode === 'EN_TO_OD') {
+                label.textContent = "Direction: English ➔ Odia";
+                prompt.textContent = current.en;
+            } else {
+                label.textContent = "Direction: Odia ➔ English";
+                prompt.textContent = current.od;
+            }
+        }
+
+        function toggleTranslationMode() {
+            appState.transMode = (appState.transMode === 'EN_TO_OD') ? 'OD_TO_EN' : 'EN_TO_OD';
+            displayTranslationPrompt();
+        }
+
+        function cleanString(str) {
+            return str.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g, "").trim();
+        }
+
+        function checkTranslation() {
+            const inputVal = document.getElementById('trans-input').value;
+            const current = translationPairs[appState.transIndex];
+            const feedback = document.getElementById('trans-feedback');
+
+            if (!inputVal.trim()) {
+                alert("Please type an answer first! (ଦୟାକରି ଉତ୍ତର ଲେଖନ୍ତୁ)");
+                return;
+            }
+
+            const targetVal = (appState.transMode === 'EN_TO_OD') ? current.od : current.en;
+            const userClean = cleanString(inputVal);
+            const targetClean = cleanString(targetVal);
+
+            if (userClean === targetClean || targetClean.includes(userClean)) {
+                feedback.className = 'feedback-box show feedback-success';
+                feedback.textContent = `🎉 Spot on! Target Answer: "${targetVal}" (+10 XP)`;
+                addXP(10);
+            } else {
+                feedback.className = 'feedback-box show feedback-error';
+                feedback.textContent = `❌ Almost! Expected Answer: "${targetVal}". Note: Translations can have multiple valid forms.`;
+            }
+        }
+
+        function nextTranslation() {
+            appState.transIndex = (appState.transIndex + 1) % translationPairs.length;
+            displayTranslationPrompt();
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* 7. QUIZ GAME MODULE (20 QUESTIONS)                                        */
+        /* -------------------------------------------------------------------------- */
+        const quizQuestions = [
+            { q: 'Opposite of "Hot" (ଉତ୍ତପ୍ତ ର ବିପରୀତ శବ୍ଦ):', opts: ['Cold', 'Warm', 'Ice'], ans: 0 },
+            { q: 'Choose correct spelling (ସଠିକ୍ ବାନାନ ବାଛନ୍ତୁ):', opts: ['Beautifull', 'Beautiful', 'Beatiful'], ans: 1 },
+            { q: 'Plural of "Child" (Child ର ବହୁବଚନ):', opts: ['Childs', 'Children', 'Childrens'], ans: 1 },
+            { q: 'Past tense of "Go" (Go ର ଅତୀତ କାଳ):', opts: ['Gone', 'Going', 'Went'], ans: 2 },
+            { q: 'She ___ reading a book right now.', opts: ['is', 'are', 'am'], ans: 0 },
+            { q: 'Opposite of "Always" (Always ର ବିପରୀତ):', opts: ['Often', 'Never', 'Sometimes'], ans: 1 },
+            { q: 'Synonym of "Happy" (Happy ର ସମାନାର୍ଥକ):', opts: ['Sad', 'Joyful', 'Angry'], ans: 1 },
+            { q: 'Look ___ the picture on the wall.', opts: ['at', 'on', 'in'], ans: 0 },
+            { q: 'I have been living here ___ 2010.', opts: ['for', 'since', 'from'], ans: 1 },
+            { q: 'Which is a Vowel?', opts: ['B', 'E', 'G'], ans: 1 },
+            { q: 'Choose the correct sentence:', opts: ['He don\'t know.', 'He doesn\'t know.', 'He not know.'], ans: 1 },
+            { q: 'Past participle (V3) of "Eat":', opts: ['Ate', 'Eating', 'Eaten'], ans: 2 },
+            { q: 'Opposite of "Buy":', opts: ['Sell', 'Bring', 'Take'], ans: 0 },
+            { q: 'Which one is a Pronoun?', opts: ['Kolkata', 'They', 'Running'], ans: 1 },
+            { q: 'What is the capital of Odisha in English?', opts: ['Cuttack', 'Bhubaneswar', 'Puri'], ans: 1 },
+            { q: 'Fill in: "An ___ a day keeps the doctor away."', opts: ['Banana', 'Apple', 'Orange'], ans: 1 },
+            { q: 'Which modal expresses strong obligation?', opts: ['Must', 'Can', 'May'], ans: 0 },
+            { q: 'Comparative form of "Good":', opts: ['Gooder', 'Better', 'Best'], ans: 1 },
+            { q: 'Meaning of "Honest" in Odia:', opts: ['ଦୟାଳୁ', 'ସାଧୁ / ସତ୍ୟବାଦୀ', 'ବୁଦ୍ଧିମାନ'], ans: 1 },
+            { q: 'Translate: "ମୁଁ ସମର୍ଥ" ➔ I am ___', opts: ['Able', 'Disable', 'Weak'], ans: 0 }
+        ];
+
+        function displayQuizQuestion() {
+            const q = quizQuestions[appState.quizIndex];
+            document.getElementById('quiz-progress-text').textContent = `Question ${appState.quizIndex + 1}/${quizQuestions.length}`;
+            document.getElementById('quiz-score').textContent = appState.quizScore;
+            document.getElementById('quiz-question-text').textContent = q.q;
+
+            const optsDiv = document.getElementById('quiz-options-container');
+            optsDiv.innerHTML = '';
+            document.getElementById('quiz-feedback').className = 'feedback-box';
+            document.getElementById('quiz-next-btn').style.display = 'none';
+
+            q.opts.forEach((optText, oIdx) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = `${oIdx + 1}. ${optText}`;
+                btn.onclick = () => checkQuizAnswer(oIdx, btn);
+                optsDiv.appendChild(btn);
+            });
+        }
+
+        function checkQuizAnswer(selectedIdx, btnElement) {
+            const q = quizQuestions[appState.quizIndex];
+            const feedback = document.getElementById('quiz-feedback');
+            const allBtns = document.querySelectorAll('#quiz-options-container .option-btn');
+
+            allBtns.forEach(b => b.disabled = true);
+
+            if (selectedIdx === q.ans) {
+                btnElement.classList.add('correct');
+                feedback.className = 'feedback-box show feedback-success';
+                feedback.textContent = '🎉 Correct Answer! (+10 XP)';
+                appState.quizScore += 10;
+                addXP(10);
+            } else {
+                btnElement.classList.add('incorrect');
+                allBtns[q.ans].classList.add('correct');
+                feedback.className = 'feedback-box show feedback-error';
+                feedback.textContent = '❌ Incorrect answer.';
+            }
+
+            document.getElementById('quiz-score').textContent = appState.quizScore;
+            document.getElementById('quiz-next-btn').style.display = 'block';
+        }
+
+        function nextQuizQuestion() {
+            if (appState.quizIndex < quizQuestions.length - 1) {
+                appState.quizIndex++;
+                displayQuizQuestion();
+            } else {
+                alert(`🎊 Quiz Complete! Your Total Score: ${appState.quizScore}`);
+                appState.quizIndex = 0;
+                appState.quizScore = 0;
+                displayQuizQuestion();
+            }
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* 8. SPEAKING PRACTICE MODULE (10 SCENARIOS)                                 */
+        /* -------------------------------------------------------------------------- */
+        const speakingScenarios = [
+            { num: "Scenario 1/10", sit: "Self Introduction", inst: "ନିଜର ପରିଚୟ ଦେବା ପାଇଁ ଏହି ବାକ୍ୟ କୁହନ୍ତୁ:", target: "Hello, my name is Sahu and I am from Odisha." },
+            { num: "Scenario 2/10", sit: "Asking for Help", inst: "ସାହାଯ୍ୟ ମାଗିବା ପାଇଁ କୁହନ୍ତୁ:", target: "Excuse me, could you please help me with this?" },
+            { num: "Scenario 3/10", sit: "At a Restaurant", inst: "ରେଷ୍ଟୋରାଣ୍ଟରେ ଚା’ ଅର୍ଡର କରନ୍ତୁ:", target: "I would like to order a cup of tea, please." },
+            { num: "Scenario 4/10", sit: "Asking Directions", inst: "ଷ୍ଟେସନ କେଉଁଠି ପଚାରନ୍ତୁ:", target: "Where is the nearest railway station?" },
+            { num: "Scenario 5/10", sit: "Shopping & Price", inst: "ଜିନିଷର ଦାମ୍ ପଚାରନ୍ତୁ:", target: "How much does this item cost?" },
+            { num: "Scenario 6/10", sit: "Expressing Time", inst: "ସମୟ ପଚାରନ୍ତୁ:", target: "Could you tell me what time it is?" },
+            { num: "Scenario 7/10", sit: "Job Interview", inst: "ନିଜର ଦକ୍ଷତା ପ୍ରକାଶ କରନ୍ତୁ:", target: "I have good skills and I am eager to learn." },
+            { num: "Scenario 8/10", sit: "Phone Conversation", inst: "ଫୋନରେ ସମ୍ପର୍କିତ କଥା ହୁଅନ୍ତୁ:", target: "Hello, can I speak to Mr. Das, please?" },
+            { num: "Scenario 9/10", sit: "Making Plans", inst: "ସାଙ୍ଗ ସହ ପ୍ଲାନ କରନ୍ତୁ:", target: "Shall we meet tomorrow afternoon?" },
+            { num: "Scenario 10/10", sit: "Giving Appreciation", inst: "ଧନ୍ୟବାଦ ଜଣାନ୍ତୁ:", target: "Thank you for your wonderful support." }
+        ];
+
+        function displaySpeakingScenario() {
+            const sc = speakingScenarios[appState.speakingIndex];
+            document.getElementById('speaking-scenario-num').textContent = sc.num;
+            document.getElementById('speaking-situation').textContent = sc.sit;
+            document.getElementById('speaking-instruction').textContent = sc.inst;
+            document.getElementById('speaking-target').textContent = `"${sc.target}"`;
+            document.getElementById('speaking-feedback').className = 'feedback-box';
+        }
+
+        function nextSpeakingScenario() {
+            appState.speakingIndex = (appState.speakingIndex + 1) % speakingScenarios.length;
+            displaySpeakingScenario();
+        }
+
+        function startSpeechRecognition() {
+            const feedback = document.getElementById('speaking-feedback');
+            const targetText = speakingScenarios[appState.speakingIndex].target;
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+            if (!SpeechRecognition) {
+                feedback.className = 'feedback-box show feedback-error';
+                feedback.textContent = "ℹ️ Browser Speech Recognition is not supported on this device/browser. Try practicing aloud by listening to the model audio!";
+                return;
+            }
+
+            try {
+                const recognition = new SpeechRecognition();
+                recognition.lang = 'en-US';
+                recognition.interimResults = false;
+
+                feedback.className = 'feedback-box show feedback-success';
+                feedback.textContent = "🎙️ Listening... Speak now clearly into your microphone!";
+
+                recognition.start();
+
+                recognition.onresult = function(event) {
+                    const spokenText = event.results[0][0].transcript;
+                    feedback.className = 'feedback-box show feedback-success';
+                    feedback.textContent = `🗣️ Recognized: "${spokenText}". Great effort! (+10 XP)`;
+                    addXP(10);
+                };
+
+                recognition.onerror = function(event) {
+                    feedback.className = 'feedback-box show feedback-error';
+                    feedback.textContent = "⚠️ Could not hear clearly or microphone access denied. Try listening to the audio model again.";
+                };
+            } catch (e) {
+                feedback.className = 'feedback-box show feedback-error';
+                feedback.textContent = "⚠️ Speech Recognition error: " + e.message;
+            }
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* 9. WEB SPEECH API SYNTHESIS UTILITY                                        */
+        /* -------------------------------------------------------------------------- */
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Stop any active playback
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.9; // Slightly slower for clarity
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert("Speech Synthesis is not supported in this browser. (ଅଡିଓ ସମର୍ଥିତ ନୁହେଁ)");
+            }
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* 10. STUDY ROADMAP MODULE                                                   */
+        /* -------------------------------------------------------------------------- */
+        function initRoadmap() {
+            const container = document.getElementById('roadmap-container');
+            container.innerHTML = '';
+
+            const plans = [
+                { day: "Day 1-5", title: "Master Alphabet & Basic Phonics", desc: "Learn letters A-Z, pronunciations, and 15 Beginner vocabulary items." },
+                { day: "Day 6-10", title: "Daily Greetings & Self Intro", desc: "Practice greeting people, introducing your name, and home city." },
+                { day: "Day 11-15", title: "Nouns, Verbs & Present Tense", desc: "Complete Grammar Academy topics 1 through 10." },
+                { day: "Day 16-20", title: "Translation Trainer Drills", desc: "Practice 20 sentences daily between English and Odia." },
+                { day: "Day 21-25", title: "Speaking Practice Scenarios", desc: "Listen to model answers and practice aloud daily." },
+                { day: "Day 26-30", title: "Advanced Grammar & Fluency Quiz", desc: "Master Modals, Passive Voice, and complete Quiz Game challenges." }
+            ];
+
+            plans.forEach(p => {
+                const item = document.createElement('div');
+                item.className = 'roadmap-item';
+                item.innerHTML = `
+                    <div class="day-badge">${p.day}</div>
+                    <div>
+                        <h4 style="font-size: 0.95rem; color: #f8fafc;">${p.title}</h4>
+                        <p style="font-size: 0.8rem; color: var(--text-sub); margin-top: 2px;">${p.desc}</p>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* INITIALIZATION ON WINDOW LOAD                                              */
+        /* -------------------------------------------------------------------------- */
+        window.onload = function() {
+            loadSavedProgress();
+            initAlphabet();
+            displayCurrentLesson();
+            initGrammar();
+            displayTranslationPrompt();
+            displayQuizQuestion();
+            displaySpeakingScenario();
+            initRoadmap();
+        };
+    </script>
+</body>
+</html>
