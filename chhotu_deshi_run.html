@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Chhotu Deshi Run</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;overflow:hidden;font-family:Arial,sans-serif;background:#83d5ed;touch-action:manipulation}
+canvas{display:block;width:100vw;height:100dvh}
+#hud{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;gap:5px;pointer-events:none}
+.badge{background:#fff3c8;border:2px solid #593b20;border-radius:12px;padding:8px;font-weight:bold}
+#menu{position:absolute;inset:0;background:#182a22bb;display:flex;align-items:center;justify-content:center;padding:18px}
+.panel{background:#fff2ce;border:4px solid #56391f;border-radius:22px;padding:22px;text-align:center;width:min(390px,100%);box-shadow:0 7px #422c1a}
+h1{color:#bd371e;font-size:36px;margin:0 0 10px}
+button{border:3px solid #56391f;border-radius:14px;background:#f8ad16;padding:12px 18px;font-weight:bold;font-size:18px;touch-action:manipulation}
+#play{background:#419544;color:white;width:100%}
+#controls{position:absolute;bottom:20px;left:0;right:0;display:flex;justify-content:space-between;padding:0 18px;pointer-events:none}
+.ctrl{pointer-events:auto;width:76px;height:65px;background:#fff0ccdd;font-size:24px}
+small{display:block;font-size:10px}
+.hidden{display:none!important}
+#message{font-size:14px;line-height:1.5}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="hud">
+ <div class="badge">🏃 <span id="score">0</span></div>
+ <div class="badge">🪙 <span id="coins">0</span></div>
+ <div class="badge">🏆 <span id="best">0</span></div>
+</div>
+
+<div id="menu">
+ <div class="panel">
+  <h1>CHHOTU<br>DESHI RUN 🇮🇳</h1>
+  <p id="message">गाँव की सड़क पर दौड़ो!<br>बाधाओं से बचो, सिक्के जमा करो।</p>
+  <p>⬆️ कूदो &nbsp; ⬇️ फिसलो</p>
+  <p>🛡️ Shield &nbsp; 🧲 Magnet &nbsp; ⚡ Boost</p>
+  <button id="play">▶ PLAY GAME</button>
+ </div>
+</div>
+
+<div id="controls">
+ <button class="ctrl" id="jump">⬆️<small>JUMP</small></button>
+ <button class="ctrl" id="slide">⬇️<small>SLIDE</small></button>
+</div>
+
+<script>
+(() => {
+"use strict";
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+const $=id=>document.getElementById(id);
+
+let W=0,H=0,ground=0,last=0;
+let running=false,score=0,coins=0,best=0;
+let distance=0,speed=300,spawn=0,coinSpawn=0,powerSpawn=5;
+let obstacles=[],items=[],particles=[];
+let skyTime=0;
+const player={x:60,y:0,w:40,h:58,vy:0,grounded:true,slide:0,shield:0,magnet:0};
+
+try{best=Number(localStorage.getItem("chhotu_best"))||0}catch(e){}
+$("best").textContent=best;
+
+function resize(){
+ const d=Math.min(devicePixelRatio||1,2);
+ W=innerWidth;H=innerHeight;
+ canvas.width=W*d;canvas.height=H*d;
+ ctx.setTransform(d,0,0,d,0,0);
+ ground=H-Math.max(100,H*.17);
+ player.x=Math.max(42,W*.15);
+ if(!running)player.y=ground-player.h;
+}
+addEventListener("resize",resize);
+resize();
+
+function roundRect(x,y,w,h,r,color){
+ ctx.fillStyle=color;
+ ctx.beginPath();
+ ctx.roundRect(x,y,w,h,r);
+ ctx.fill();
+}
+
+function start(){
+ score=0;coins=0;distance=0;speed=300;
+ spawn=.8;coinSpawn=1;powerSpawn=5;
+ obstacles=[];items=[];particles=[];
+ player.y=ground-player.h;player.vy=0;
+ player.grounded=true;player.slide=0;
+ player.shield=0;player.magnet=0;
+ running=true;
+ $("menu").classList.add("hidden");
+ $("score").textContent="0";
+ $("coins").textContent="0";
+ last=performance.now();
+ requestAnimationFrame(loop);
+}
+
+function jump(){
+ if(running&&player.grounded&&player.slide<=0){
+  player.vy=-Math.max(590,H*.95);
+  player.grounded=false;
+ }
+}
+function slide(){
+ if(running)player.slide=.65;
+}
+
+$("play").addEventListener("click",start);
+$("jump").addEventListener("pointerdown",e=>{e.preventDefault();jump()});
+$("slide").addEventListener("pointerdown",e=>{e.preventDefault();slide()});
+
+canvas.addEventListener("pointerdown",e=>{
+ if(!running)return;
+ if(e.clientY>H*.55)jump();
+ else if(e.clientX>W*.55)slide();
+ else jump();
+});
+
+addEventListener("keydown",e=>{
+ if(e.code==="Space"||e.code==="ArrowUp")jump();
+ if(e.code==="ArrowDown")slide();
+});
+
+function addObstacle(){
+ const r=Math.random();
+ if(r<.36){
+  obstacles.push({type:"cow",x:W+30,y:ground-43,w:54,h:43});
+ }else if(r<.65){
+  obstacles.push({type:"cart",x:W+30,y:ground-48,w:61,h:48});
+ }else if(r<.83){
+  obstacles.push({type:"bar",x:W+30,y:ground-88,w:72,h:16});
+ }else{
+  obstacles.push({type:"pit",x:W+30,y:ground-5,w:75,h:10});
+ }
+}
+
+function addCoins(){
+ const n=4+Math.floor(Math.random()*3);
+ const y=ground-100-Math.random()*100;
+ for(let i=0;i<n;i++){
+  items.push({type:"coin",x:W+20+i*30,y:y-Math.sin(i/(n-1)*Math.PI)*20,r:10});
+ }
+}
+
+function addPower(){
+ const kinds=["shield","magnet","boost"];
+ items.push({
+  type:kinds[Math.floor(Math.random()*3)],
+  x:W+30,y:ground-130-Math.random()*45,r:16
+ });
+}
+
+function overlap(a,b){
+ return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
+}
+
+function finish(){
+ running=false;
+ const final=Math.floor(score);
+ if(final>best){
+  best=final;
+  try{localStorage.setItem("chhotu_best",best)}catch(e){}
+ }
+ $("best").textContent=best;
+ $("message").innerHTML=
+  "GAME OVER!<br>Score: "+final+
+  "<br>Coins: "+coins+
+  "<br>Best: "+best;
+ $("play").textContent="🔄 PLAY AGAIN";
+ $("menu").classList.remove("hidden");
+}
+
+function update(dt){
+ distance+=dt;
+ speed=Math.min(650,300+distance*4);
+ score+=dt*speed/12;
+
+ player.vy+=1700*dt;
+ player.y+=player.vy*dt;
+ if(player.y>=ground-player.h){
+  player.y=ground-player.h;
+  player.vy=0;player.grounded=true;
+ }
+ player.slide=Math.max(0,player.slide-dt);
+ player.shield=Math.max(0,player.shield-dt);
+ player.magnet=Math.max(0,player.magnet-dt);
+
+ spawn-=dt;
+ if(spawn<=0){
+  addObstacle();
+  spawn=Math.max(.7,1.4-distance*.003)+Math.random()*.45;
+ }
+ coinSpawn-=dt;
+ if(coinSpawn<=0){addCoins();coinSpawn=1.6+Math.random()}
+ powerSpawn-=dt;
+ if(powerSpawn<=0){addPower();powerSpawn=8+Math.random()*6}
+
+ obstacles.forEach(o=>o.x-=speed*dt);
+ items.forEach(p=>{
+  p.x-=speed*dt;
+  if(p.type==="coin"&&player.magnet>0){
+   const dx=player.x+20-p.x,dy=player.y+25-p.y;
+   if(Math.hypot(dx,dy)<180){
+    p.x+=dx*dt*4;p.y+=dy*dt*4;
+   }
+  }
+ });
+ obstacles=obstacles.filter(o=>o.x+o.w>-10);
+ items=items.filter(p=>p.x+p.r>-10);
+
+ const sliding=player.slide>0;
+ const box={
+  x:player.x+7,
+  y:player.y+(sliding?27:5),
+  w:player.w-12,
+  h:sliding?28:player.h-8
+ };
+
+ for(const o of obstacles){
+  if(o.type==="pit"){
+   if(box.x+box.w>o.x+8&&box.x<o.x+o.w-8&&
+      player.y+player.h>=ground-8&&player.shield<=0){
+    finish();return;
+   }
+  }else{
+   const b={x:o.x+5,y:o.y+3,w:o.w-10,h:o.h-4};
+   if(overlap(box,b)){
+    if(player.shield>0){
+     o.x=-1000;
+     score+=10;
+    }else{finish();return}
+   }
+  }
+ }
+
+ items.forEach(p=>{
+  if(p.got)return;
+  if(Math.hypot(player.x+20-p.x,player.y+25-p.y)<p.r+25){
+   p.got=true;
+   if(p.type==="coin"){coins++;score+=25}
+   if(p.type==="shield")player.shield=5;
+   if(p.type==="magnet")player.magnet=7;
+   if(p.type==="boost"){player.shield=2.5;score+=100}
+  }
+ });
+ items=items.filter(p=>!p.got);
+ $("score").textContent=Math.floor(score);
+ $("coins").textContent=coins;
+}
+
+function background(){
+ const g=ctx.createLinearGradient(0,0,0,H);
+ g.addColorStop(0,"#63c6ef");
+ g.addColorStop(.65,"#d8f3db");
+ g.addColorStop(1,"#ffdf91");
+ ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+
+ // Sun
+ ctx.fillStyle="#ffdb58";
+ ctx.beginPath();ctx.arc(W*.82,H*.15,30,0,Math.PI*2);ctx.fill();
+
+ // Distant hills
+ ctx.fillStyle="#92c777";
+ ctx.beginPath();ctx.moveTo(0,ground-60);
+ for(let x=0;x<=W;x+=20){
+  ctx.lineTo(x,ground-55-Math.sin((x+distance*30)/80)*20);
+ }
+ ctx.lineTo(W,ground);ctx.lineTo(0,ground);ctx.fill();
+
+ // Village houses
+ for(let x=-120;x<W+120;x+=150){
+  const hx=x-(distance*speed*.18%150);
+  const hy=ground-82;
+  ctx.fillStyle="#f4bc73";ctx.fillRect(hx,hy,48,42);
+  ctx.fillStyle="#b83e28";
+  ctx.beginPath();ctx.moveTo(hx-6,hy);ctx.lineTo(hx+24,hy-22);
+  ctx.lineTo(hx+54,hy);ctx.fill();
+  ctx.fillStyle="#70442b";ctx.fillRect(hx+18,hy+20,12,22);
+  ctx.fillStyle="#398743";
+  ctx.beginPath();ctx.arc(hx+88,ground-62,23,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#85532e";ctx.fillRect(hx+84,ground-48,8,25);
+ }
+
+ ctx.fillStyle="#4a9845";ctx.fillRect(0,ground-10,W,14);
+ ctx.fillStyle="#d6a153";ctx.fillRect(0,ground,W,H-ground);
+ ctx.fillStyle="#fff0b0";
+ const offset=distance*speed%75;
+ for(let x=-75;x<W+75;x+=75)ctx.fillRect(x-offset,ground+35,35,5);
+}
+
+function drawPlayer(){
+ const x=player.x,y=player.y;
+ const sliding=player.slide>0;
+
+ // Shadow
+ ctx.fillStyle="#513a2850";
+ ctx.beginPath();ctx.ellipse(x+20,ground+2,22,5,0,0,Math.PI*2);ctx.fill();
+
+ if(sliding){
+  roundRect(x,y+29,48,26,12,"#287b3d");
+  roundRect(x+6,y+48,18,8,4,"#302319");
+  roundRect(x+29,y+48,18,8,4,"#302319");
+  ctx.fillStyle="#d9925a";
+  ctx.beginPath();ctx.arc(x+42,y+27,12,0,Math.PI*2);ctx.fill();
+  return;
+ }
+
+ const run=Math.sin(distance*speed*.035)*6;
+ // Legs and shoes
+ roundRect(x+8,y+39,12,20,4,"#286b37");
+ roundRect(x+25,y+39,12,20,4,"#286b37");
+ roundRect(x+5+run,y+54,18,7,3,"#33241a");
+ roundRect(x+24-run,y+54,18,7,3,"#33241a");
+
+ // Body
+ roundRect(x+5,y+20,32,27,7,"#e44b2c");
+ ctx.fillStyle="#ffd14a";ctx.fillRect(x+6,y+29,30,5);
+
+ // Arms
+ ctx.strokeStyle="#d9925a";ctx.lineWidth=7;ctx.lineCap="round";
+ ctx.beginPath();
+ ctx.moveTo(x+7,y+26);ctx.lineTo(x+1,y+39+run*.4);
+ ctx.moveTo(x+35,y+26);ctx.lineTo(x+43,y+38-run*.4);
+ ctx.stroke();
+
+ // Face
+ ctx.fillStyle="#d9925a";
+ ctx.beginPath();ctx.arc(x+22,y+14,14,0,Math.PI*2);ctx.fill();
+
+ // Hair and turban
+ ctx.fillStyle="#332116";
+ ctx.beginPath();ctx.arc(x+22,y+10,13,Math.PI,Math.PI*2);ctx.fill();
+ roundRect(x+9,y,27,8,5,"#f5ae1b");
+ ctx.fillStyle="#c63822";ctx.fillRect(x+12,y+3,21,3);
+
+ // Eye and smile
+ ctx.fillStyle="#21160e";
+ ctx.beginPath();ctx.arc(x+27,y+13,2,0,Math.PI*2);ctx.fill();
+ ctx.strokeStyle="#70351e";ctx.lineWidth=2;
+ ctx.beginPath();ctx.arc(x+26,y+18,5,.1,1.3);ctx.stroke();
+
+ if(player.shield>0){
+  ctx.strokeStyle="#4aaaff";ctx.lineWidth=3;
+  ctx.beginPath();ctx.arc(x+22,y+29,33,0,Math.PI*2);ctx.stroke();
+ }
+}
+
+function drawObstacle(o){
+ if(o.type==="cow"){
+  roundRect(o.x+3,o.y+9,o.w-6,o.h-12,10,"#f3e9d6");
+  ctx.fillStyle="#6a4b34";
+  ctx.beginPath();ctx.ellipse(o.x+24,o.y+23,10,7,-.4,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#d99b78";
+  ctx.beginPath();ctx.ellipse(o.x+o.w-7,o.y+23,11,9,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#39271a";
+  ctx.fillRect(o.x+13,o.y+o.h-10,6,10);
+  ctx.fillRect(o.x+38,o.y+o.h-10,6,10);
+  ctx.fillStyle="#20170f";
+  ctx.beginPath();ctx.arc(o.x+o.w-10,o.y+20,2,0,Math.PI*2);ctx.fill();
+ }else if(o.type==="cart"){
+  roundRect(o.x+3,o.y+7,o.w-6,31,4,"#a54c25");
+  ctx.fillStyle="#f4cd62";ctx.fillRect(o.x+10,o.y+14,o.w-20,5);
+  ctx.fillStyle="#39281a";
+  [o.x+15,o.x+o.w-16].forEach(x=>{
+   ctx.beginPath();ctx.arc(x,o.y+o.h-2,9,0,Math.PI*2);ctx.fill();
+  });
+ }else if(o.type==="bar"){
+  ctx.fillStyle="#7b4c2b";
+  ctx.fillRect(o.x+5,o.y,7,ground-o.y);
+  ctx.fillRect(o.x+o.w-12,o.y,7,ground-o.y);
+  roundRect(o.x,o.y,o.w,16,4,"#c84328");
+  ctx.fillStyle="#f4d16a";ctx.fillRect(o.x+8,o.y+5,o.w-16,4);
+ }else{
+  ctx.fillStyle="#533b27";ctx.fillRect(o.x,ground-4,o.w,8);
+  ctx.fillStyle="#211c17";ctx.fillRect(o.x+5,ground-2,o.w-10,5);
+ }
+}
+
+function drawItem(p){
+ if(p.type==="coin"){
+  ctx.fillStyle="#a96712";
+  ctx.beginPath();ctx.arc(p.x,p.y,12,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#ffd32f";
+  ctx.beginPath();ctx.arc(p.x,p.y,9,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#a96712";ctx.font="bold 12px Arial";ctx.textAlign="center";
+  ctx.fillText("₹",p.x,p.y+4);
+ }else{
+  const color=p.type==="shield"?"#3389dd":p.type==="magnet"?"#df5275":"#8749ce";
+  ctx.fillStyle=color;
+  ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle="#fff";ctx.lineWidth=3;ctx.stroke();
+  ctx.fillStyle="#fff";ctx.font="bold 15px Arial";ctx.textAlign="center";
+  ctx.fillText(p.type==="shield"?"S":p.type==="magnet"?"M":"⚡",p.x,p.y+5);
+ }
+}
+
+function draw(){
+ background();
+ obstacles.forEach(drawObstacle);
+ items.forEach(drawItem);
+ drawPlayer();
+ if(player.magnet>0||player.shield>0){
+  ctx.fillStyle="#173c29";
+  ctx.font="bold 14px Arial";ctx.textAlign="center";
+  ctx.fillText(player.shield>0?"🛡️ SHIELD "+Math.ceil(player.shield):"🧲 MAGNET "+Math.ceil(player.magnet),W/2,85);
+ }
+}
+
+function loop(now){
+ if(!running)return;
+ const dt=Math.min((now-last)/1000,.035)||0;
+ last=now;
+ update(dt);
+ draw();
+ if(running)requestAnimationFrame(loop);
+}
+draw();
+})();
+</script>
+</body>
+  </html>
+  
