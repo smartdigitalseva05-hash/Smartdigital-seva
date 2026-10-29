@@ -1,0 +1,327 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#10152c">
+<title>English Master Game</title>
+<style>
+:root{--bg:#10152c;--card:#1b2341;--blue:#78a7ff;--green:#69e6b1;--text:#f5f7ff;--muted:#b8c2dc}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+header{padding:22px 16px;background:linear-gradient(135deg,#263c78,#632c87)}
+header h1{margin:0 0 8px;font-size:26px}
+header p{margin:0;color:#e5eaff}
+main{max-width:800px;margin:auto;padding:15px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:15px}
+.stat,.panel,.lesson{background:var(--card);padding:15px;border-radius:14px}
+.stat{text-align:center}.stat strong{display:block;font-size:22px;color:var(--green)}
+nav{display:flex;gap:7px;overflow:auto;margin:12px 0}
+button,select,input{font:inherit}
+button{border:0;border-radius:10px;padding:12px;cursor:pointer}
+nav button{background:#293354;color:white;white-space:nowrap}
+nav button.active,.primary{background:#4f79ed;color:white}
+.panel{margin-bottom:14px}
+h2{font-size:21px;margin-top:0}
+h3{margin-bottom:7px}
+.muted{color:var(--muted);line-height:1.6}
+.word{font-size:26px;font-weight:bold;margin:15px 0 8px}
+.odia{font-size:19px;color:var(--green);margin:8px 0}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.actions button{background:#344266;color:white}
+.actions .primary{background:#4f79ed}
+input,select{width:100%;padding:12px;border-radius:9px;border:1px solid #536185;background:#111a32;color:white;margin:8px 0}
+.option{display:block;width:100%;text-align:left;margin:8px 0;background:#2b3556;color:white}
+.option:disabled{opacity:.9}
+.good{color:var(--green)}.bad{color:#ff9caa}
+.progress{height:9px;background:#303a58;border-radius:20px;overflow:hidden}
+.progress div{height:100%;background:var(--green);width:0;transition:width .3s}
+.small{font-size:13px;color:var(--muted)}
+.hidden{display:none!important}
+footer{text-align:center;padding:20px;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<header>
+<h1>🎮 English Master</h1>
+<p>Learn English through Odia • Play • Practice • Improve</p>
+</header>
+<main>
+<div class="stats">
+ <div class="stat"><strong id="xp">0</strong><span>⭐ XP Points</span></div>
+ <div class="stat"><strong id="day">1</strong><span>📅 Day / 30</span></div>
+ <div class="stat"><strong id="done">0</strong><span>✅ Correct</span></div>
+</div>
+<div class="panel">
+<div style="display:flex;justify-content:space-between;gap:10px">
+<b>Your learning journey</b><span id="percent">0%</span>
+</div>
+<div class="progress" style="margin-top:10px"><div id="bar"></div></div>
+<p class="small">Practice every day. Repeating lessons helps you remember.</p>
+</div>
+
+<nav>
+<button class="active" data-tab="learn">📚 Lessons</button>
+<button data-tab="quiz">🧠 Quiz</button>
+<button data-tab="type">⌨️ Typing</button>
+<button data-tab="talk">💬 Conversation</button>
+<button data-tab="plan">🏆 30 Days</button>
+</nav>
+
+<section id="learn" class="panel">
+<h2>📚 English–Odia Lessons</h2>
+<p class="muted">Choose a level and learn one sentence at a time.</p>
+<select id="level">
+<option value="0">Level 1 — Beginner</option>
+<option value="1">Level 2 — Everyday English</option>
+<option value="2">Level 3 — Grammar & Questions</option>
+<option value="3">Level 4 — Advanced English</option>
+</select>
+<div class="lesson">
+<div id="counter" class="small">Lesson 1</div>
+<div class="word" id="en">Hello</div>
+<div class="odia" id="or">ନମସ୍କାର</div>
+<p id="meaning" class="muted">A greeting used when meeting someone.</p>
+<p id="example" class="muted"></p>
+<div class="actions">
+<button class="primary" onclick="speak()">🔊 Listen</button>
+<button onclick="reveal()">👁 Show meaning</button>
+<button onclick="nextLesson()">➡ Next lesson</button>
+</div>
+<div id="extra" class="odia hidden"></div>
+</div>
+</section>
+
+<section id="quiz" class="panel hidden">
+<h2>🧠 Challenge Quiz</h2>
+<p class="muted">Choose the correct English meaning.</p>
+<div id="qnum" class="small"></div>
+<h3 id="question"></h3>
+<div id="options"></div>
+<p id="feedback" aria-live="polite"></p>
+<button class="primary" onclick="nextQuestion()">Next question ➜</button>
+</section>
+
+<section id="type" class="panel hidden">
+<h2>⌨️ Sentence Builder</h2>
+<p class="muted">Translate the Odia meaning into English. Spelling and word order matter.</p>
+<div class="odia" id="typePrompt"></div>
+<input id="answer" placeholder="Type your English sentence..." autocomplete="off">
+<div class="actions">
+<button class="primary" onclick="checkTyping()">Check answer</button>
+<button onclick="newTyping()">New sentence</button>
+</div>
+<p id="typeFeedback" aria-live="polite"></p>
+<p class="small" id="hint"></p>
+</section>
+
+<section id="talk" class="panel hidden">
+<h2>💬 Conversation Mission</h2>
+<p class="muted">Read the situation and reply in English. Compare your answer with the example.</p>
+<h3 id="situation"></h3>
+<div class="odia" id="talkOdia"></div>
+<input id="reply" placeholder="Write your English reply...">
+<div class="actions">
+<button class="primary" onclick="showReply()">Check example</button>
+<button onclick="speakReply()">🔊 Listen to example</button>
+<button onclick="newTalk()">Next mission</button>
+</div>
+<div id="replyFeedback" class="muted"></div>
+</section>
+
+<section id="plan" class="panel hidden">
+<h2>🏆 Your 30-Day Roadmap</h2>
+<p class="muted">This is a suggested study plan, not a fluency guarantee.</p>
+<div id="roadmap"></div>
+</section>
+
+<section class="panel">
+<h3>💡 Daily practice rule</h3>
+<p class="muted">Spend 20 minutes learning words, 20 minutes studying grammar, 20 minutes making sentences, and 20 minutes speaking aloud. If you have more time, revise yesterday's lessons.</p>
+<button onclick="resetProgress()" style="background:#573344;color:white">Reset all progress</button>
+<p class="small">Reset permanently clears the saved progress on this browser.</p>
+</section>
+</main>
+<footer>English Master Game • Offline learning edition<br>English improves through regular listening, speaking, reading and correction.</footer>
+
+<script>
+const lessons=[
+{en:"Hello",or:"ନମସ୍କାର",m:"A greeting",e:"Hello, how are you?"},
+{en:"Thank you",or:"ଧନ୍ୟବାଦ",m:"To express gratitude",e:"Thank you for your help."},
+{en:"Please help me",or:"ଦୟାକରି ମୋତେ ସାହାଯ୍ୟ କରନ୍ତୁ",m:"A polite request",e:"Please help me learn English."},
+{en:"I am learning English",or:"ମୁଁ ଇଂରାଜୀ ଶିଖୁଛି",m:"An action happening now",e:"I am learning English every day."},
+{en:"What is your name?",or:"ତୁମର ନାମ କଣ?",m:"Ask someone's name",e:"What is your name? My name is Ravi."},
+{en:"I don't understand",or:"ମୁଁ ବୁଝିପାରୁନାହିଁ",m:"Say this when something is unclear",e:"Sorry, I don't understand."},
+{en:"Where are you going?",or:"ତୁମେ କେଉଁଠାକୁ ଯାଉଛ?",m:"Ask about someone's destination",e:"Where are you going today?"},
+{en:"I need some water",or:"ମୋତେ ଟିକେ ପାଣି ଦରକାର",m:"Express a need",e:"I need some water, please."},
+{en:"I went to the market",or:"ମୁଁ ବଜାରକୁ ଯାଇଥିଲି",m:"Past simple",e:"I went to the market yesterday."},
+{en:"I will try again",or:"ମୁଁ ପୁଣି ଚେଷ୍ଟା କରିବି",m:"Future intention",e:"I will try again tomorrow."},
+{en:"Can you speak slowly?",or:"ଆପଣ ଧୀରେ କଥା କହିପାରିବେ କି?",m:"Ask someone to slow down",e:"Could you please speak slowly?"},
+{en:"I have finished my work",or:"ମୁଁ ମୋ କାମ ଶେଷ କରିଛି",m:"Present perfect",e:"I have finished my work."},
+{en:"What do you mean?",or:"ତୁମର ଅର୍ଥ କଣ?",m:"Ask for clarification",e:"What do you mean by that?"},
+{en:"If I have time, I will come",or:"ମୋ ପାଖରେ ସମୟ ଥିଲେ ମୁଁ ଆସିବି",m:"First conditional",e:"If I have time, I will come."},
+{en:"I would like to improve my English",or:"ମୁଁ ମୋ ଇଂରାଜୀ ଉନ୍ନତ କରିବାକୁ ଚାହେଁ",m:"A polite way to express a goal",e:"I would like to improve my English."},
+{en:"Could you explain that again?",or:"ଆପଣ ତାହା ପୁଣି ବୁଝାଇପାରିବେ କି?",m:"Polite request",e:"Could you explain that again, please?"},
+{en:"I agree with your point",or:"ମୁଁ ଆପଣଙ୍କ କଥାରେ ସହମତ",m:"Express agreement",e:"I agree with your point."},
+{en:"I need more time to decide",or:"ନିଷ୍ପତ୍ତି ନେବାକୁ ମୋତେ ଅଧିକ ସମୟ ଦରକାର",m:"Explain that you need time",e:"I need more time to decide."},
+{en:"Although it was difficult, I succeeded",or:"ଏହା କଷ୍ଟକର ଥିଲେ ମଧ୍ୟ ମୁଁ ସଫଳ ହେଲି",m:"Use although to show contrast",e:"Although it was difficult, I succeeded."},
+{en:"I am looking forward to meeting you",or:"ମୁଁ ଆପଣଙ୍କୁ ଭେଟିବାକୁ ଉତ୍ସୁକ",m:"A natural expression of anticipation",e:"I am looking forward to meeting you."}
+];
+const quizzes=[
+{q:"'ମୁଁ ଭଲ ଅଛି' in English?",a:["I am fine.","I fine am.","I was fine tomorrow."],c:0},
+{q:"Choose the correct sentence.",a:["She go to school.","She goes to school.","She going school."],c:1},
+{q:"'ମୁଁ ଗତକାଲି ଗଲି' means:",a:["I go tomorrow.","I am going now.","I went yesterday."],c:2},
+{q:"Choose the correct question.",a:["Where you live?","Where do you live?","Where does you live?"],c:1},
+{q:"Complete: He ___ playing now.",a:["is","are","am"],c:0},
+{q:"'ମୁଁ କରିପାରିବି' means:",a:["I can do it.","I did it yesterday.","I have doing it."],c:0},
+{q:"Choose the polite request.",a:["Give me water now!","Water me!","Could I have some water, please?"],c:2},
+{q:"Complete: If it rains, I ___ at home.",a:["stayed yesterday","will stay","am stay"],c:1},
+{q:"Choose the correct phrase.",a:["I am interested in learning.","I am interested to learnings.","I interested learning."],c:0},
+{q:"'Despite the difficulty' expresses:",a:["A contrast","A person's name","A future time only"],c:0}
+];
+const talks=[
+{s:"You meet someone for the first time.",o:"ଆପଣ ପ୍ରଥମଥର ପାଇଁ କାହାକୁ ଭେଟୁଛନ୍ତି।",r:"Hello, nice to meet you. My name is ..."},
+{s:"You want to buy something in a shop.",o:"ଆପଣ ଦୋକାନରୁ କିଛି କିଣିବାକୁ ଚାହୁଁଛନ୍ତି।",r:"Excuse me, how much does this cost?"},
+{s:"Someone asks how you are.",o:"କେହି ଆପଣଙ୍କୁ ପଚାରୁଛନ୍ତି ଆପଣ କେମିତି ଅଛନ୍ତି।",r:"I'm fine, thank you. How about you?"},
+{s:"You did not understand a sentence.",o:"ଆପଣ ଗୋଟିଏ ବାକ୍ୟ ବୁଝିପାରିଲେ ନାହିଁ।",r:"Sorry, could you please repeat that?"},
+{s:"You are explaining your goal.",o:"ଆପଣ ନିଜ ଲକ୍ଷ୍ୟ ବିଷୟରେ କହୁଛନ୍ତି।",r:"I want to improve my English and speak confidently."},
+{s:"You are at a job interview.",o:"ଆପଣ ଏକ ଚାକିରି ସାକ୍ଷାତକାରରେ ଅଛନ୍ତି।",r:"Thank you for this opportunity. I am eager to learn and contribute."}
+];
+const plans=[
+"Greetings, alphabet and common words","Pronouns and simple sentences","am / is / are","Daily routine sentences","Questions with what and where",
+"Present simple","Present continuous","Past simple","Future with will","Revision and speaking",
+"Do / does / did","Can / could / should","Negative sentences","Prepositions","Question practice",
+"Everyday shopping conversation","Directions and travel","Telephone conversation","Polite requests","Listening and revision",
+"Present perfect","Because / although / however","Longer sentences","Explain your opinions","Tell a short story",
+"Describe a person or place","Talk about your goals","Interview practice","Five-minute speaking challenge","Review and record your progress"
+];
+let state={xp:0,done:0,index:0,qi:0,ti:0,correctToday:0,day:1,seen:[],date:""};
+try{
+const saved=JSON.parse(localStorage.getItem("englishMasterSave")||"null");
+if(saved)state={...state,...saved};
+}catch(e){}
+function save(){
+try{localStorage.setItem("englishMasterSave",JSON.stringify(state));}catch(e){}
+updateStats();
+}
+function updateStats(){
+document.getElementById("xp").textContent=state.xp;
+document.getElementById("done").textContent=state.done;
+let pct=Math.min(100,Math.round(state.seen.length/lessons.length*100));
+document.getElementById("percent").textContent=pct+"%";
+document.getElementById("bar").style.width=pct+"%";
+let today=new Date().toDateString();
+if(state.date!==today){state.date=today;state.correctToday=0;saveQuiet();}
+let start=Number(localStorage.getItem("englishMasterStart")||Date.now());
+try{localStorage.setItem("englishMasterStart",String(start));}catch(e){}
+state.day=Math.min(30,Math.floor((Date.now()-start)/86400000)+1);
+document.getElementById("day").textContent=state.day;
+}
+function saveQuiet(){try{localStorage.setItem("englishMasterSave",JSON.stringify(state));}catch(e){}}
+function showLesson(){
+let level=Number(document.getElementById("level").value);
+let start=[0,5,10,15][level],end=[5,10,15,lessons.length][level];
+state.index=Math.max(start,Math.min(state.index,end-1));
+let x=lessons[state.index];
+document.getElementById("counter").textContent="Lesson "+(state.index+1)+" / "+lessons.length;
+document.getElementById("en").textContent=x.en;
+document.getElementById("or").textContent=x.or;
+document.getElementById("meaning").textContent="Meaning: "+x.m;
+document.getElementById("example").textContent="Example: "+x.e;
+document.getElementById("extra").classList.add("hidden");
+}
+function nextLesson(){
+let level=Number(document.getElementById("level").value);
+let start=[0,5,10,15][level],end=[5,10,15,lessons.length][level];
+state.index=state.index+1>=end?start:state.index+1;
+showLesson();
+}
+function reveal(){document.getElementById("extra").textContent="Odia: "+lessons[state.index].or+" | English: "+lessons[state.index].en;document.getElementById("extra").classList.remove("hidden");markSeen();}
+function markSeen(){if(!state.seen.includes(state.index)){state.seen.push(state.index);state.xp+=5;}save();}
+function speakText(t){
+if(!("speechSynthesis" in window)){alert("Speech is not supported in this browser. Try your phone's browser.");return;}
+speechSynthesis.cancel();
+let u=new SpeechSynthesisUtterance(t);u.lang="en-IN";u.rate=.85;speechSynthesis.speak(u);
+}
+function speak(){speakText(lessons[state.index].en);}
+document.getElementById("level").addEventListener("change",()=>{let v=Number(document.getElementById("level").value);state.index=[0,5,10,15][v];showLesson();});
+document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>{
+document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
+b.classList.add("active");
+document.querySelectorAll("main section").forEach(x=>x.classList.add("hidden"));
+document.getElementById(b.dataset.tab).classList.remove("hidden");
+if(b.dataset.tab==="quiz")renderQuiz();
+if(b.dataset.tab==="type")newTyping();
+if(b.dataset.tab==="talk")renderTalk();
+if(b.dataset.tab==="plan")renderPlan();
+}));
+function renderQuiz(){
+let q=quizzes[state.qi%quizzes.length];
+document.getElementById("qnum").textContent="Question "+(state.qi%quizzes.length+1)+" of "+quizzes.length;
+document.getElementById("question").textContent=q.q;
+document.getElementById("feedback").textContent="";
+let box=document.getElementById("options");box.innerHTML="";
+q.a.forEach((a,i)=>{
+let b=document.createElement("button");b.className="option";b.textContent=a;
+b.onclick=()=>{
+box.querySelectorAll("button").forEach(z=>z.disabled=true);
+if(i===q.c){document.getElementById("feedback").textContent="Correct! +10 XP 🎉";document.getElementById("feedback").className="good";state.xp+=10;state.done++;state.correctToday++;}
+else{document.getElementById("feedback").textContent="Not quite. Correct answer: "+q.a[q.c];document.getElementById("feedback").className="bad";}
+save();
+};box.appendChild(b);
+});
+}
+function nextQuestion(){state.qi++;renderQuiz();}
+let typeIndex=0;
+function newTyping(){
+typeIndex=Math.floor(Math.random()*lessons.length);
+document.getElementById("typePrompt").textContent=lessons[typeIndex].or;
+document.getElementById("answer").value="";
+document.getElementById("typeFeedback").textContent="";
+document.getElementById("hint").textContent="Hint: "+lessons[typeIndex].en.length+" characters, including spaces.";
+}
+function normalize(s){return s.toLowerCase().replace(/[.,!?'"’]/g,"").replace(/\s+/g," ").trim();}
+function checkTyping(){
+let a=normalize(document.getElementById("answer").value);
+let target=normalize(lessons[typeIndex].en);
+let f=document.getElementById("typeFeedback");
+if(a&&a===target){f.textContent="Excellent! Correct sentence. +10 XP";f.className="good";state.xp+=10;state.done++;state.correctToday++;save();}
+else{f.textContent="Try again. Suggested answer: "+lessons[typeIndex].en;f.className="bad";}
+}
+function renderTalk(){
+let t=talks[state.ti%talks.length];
+document.getElementById("situation").textContent=t.s;
+document.getElementById("talkOdia").textContent=t.o;
+document.getElementById("reply").value="";
+document.getElementById("replyFeedback").textContent="";
+}
+function showReply(){
+let t=talks[state.ti%talks.length];
+let reply=document.getElementById("reply").value.trim();
+if(!reply){document.getElementById("replyFeedback").textContent="First, try writing your own reply. Example: "+t.r;return;}
+document.getElementById("replyFeedback").textContent="Example answer: "+t.r+" Remember: your answer may also be correct if it communicates the same meaning.";
+state.xp+=3;save();
+}
+function speakReply(){speakText(talks[state.ti%talks.length].r);}
+function newTalk(){state.ti++;renderTalk();}
+function renderPlan(){
+let box=document.getElementById("roadmap");box.innerHTML="";
+plans.forEach((p,i)=>{
+let d=document.createElement("div");d.className="lesson";d.style.marginBottom="8px";
+let b=document.createElement("button");b.className="option";
+b.textContent=(i+1<=state.day?"📍 ":"🔒 ")+"Day "+(i+1)+": "+p;
+b.onclick=()=>{if(i+1>state.day){alert("Focus on today's practice first. You can still study any lesson from the Lessons tab.");return;}alert("Today's mission: "+p+"\nStudy for 20 minutes, make 5 sentences and speak aloud.");};
+d.appendChild(b);box.appendChild(d);
+});
+}
+function resetProgress(){
+if(!confirm("Are you sure you want to delete all saved progress?"))return;
+try{localStorage.removeItem("englishMasterSave");localStorage.removeItem("englishMasterStart");}catch(e){}
+state={xp:0,done:0,index:0,qi:0,ti:0,correctToday:0,day:1,seen:[],date:""};
+save();showLesson();renderQuiz();newTyping();renderTalk();renderPlan();
+}
+updateStats();showLesson();renderQuiz();newTyping();renderTalk();
+</script>
+</body>
+</html>
