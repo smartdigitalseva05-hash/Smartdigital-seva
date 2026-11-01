@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="or">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#082f35">
+<meta name="description" content="Smart Digital Seva Bhawanipatna - ଡିଜିଟାଲ୍ ସେବା ପାଇଁ ପ୍ରାରମ୍ଭିକ ଅନୁରୋଧ।">
+<title>ସେବା ଅନୁରୋଧ | Smart Digital Seva</title>
+<style>
+:root{--navy:#082f35;--teal:#087e78;--paper:#f3f8f6;--ink:#17343a;--muted:#617777;--line:#dce9e5}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,"Noto Sans Oriya","Noto Sans",Arial,sans-serif;line-height:1.65}
+header{background:linear-gradient(120deg,#082f35,#0b625b);color:white;padding:20px 16px}
+.head{max-width:760px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{font-weight:900;letter-spacing:.3px}.brand small{display:block;color:#c9e9df;font-weight:500;letter-spacing:0}
+.back{color:white;text-decoration:none;border:1px solid #ffffff66;border-radius:30px;padding:7px 12px;font-size:13px}
+main{max-width:760px;margin:28px auto;padding:0 15px 35px}
+.intro,.panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 10px 28px #082f3509}
+.intro{margin-bottom:15px}.eyebrow{color:var(--teal);font-size:12px;font-weight:900;letter-spacing:.7px}
+h1{font-size:clamp(23px,5vw,32px);line-height:1.35;color:var(--navy);margin:7px 0}
+p{margin:7px 0;color:var(--muted);font-size:14px}
+label{display:block;font-size:14px;font-weight:800;color:var(--navy);margin:15px 0 6px}
+input,select,textarea{width:100%;font:inherit;font-size:15px;border:1px solid #cbded8;border-radius:11px;padding:12px;background:#fff;color:var(--ink);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px #087e7818}
+textarea{min-height:95px;resize:vertical}
+.hint{font-size:12px;color:#718481;margin-top:5px}
+button{width:100%;border:0;border-radius:12px;background:#087e78;color:#fff;font:inherit;font-weight:900;padding:14px;margin-top:20px;cursor:pointer}
+button:active{transform:scale(.99)}
+.notice{background:#fff8e8;border:1px solid #f0dfb5;color:#67572e;border-radius:12px;padding:13px;font-size:12px;margin-top:16px}
+.success{display:none;background:#e7f7ee;border:1px solid #bfe6ce;border-radius:12px;padding:13px;margin-top:14px;color:#205c3a;font-size:13px}
+footer{text-align:center;color:#6a807d;font-size:12px;padding:0 15px 25px}
+</style>
+</head>
+<body>
+<header><div class="head"><div class="brand">SMART DIGITAL SEVA<small>ସ୍ମାର୍ଟ ଡିଜିଟାଲ୍ ସେବା • ଭବାନୀପାଟଣା</small></div><a class="back" href="./index.html">← ମୁଖ୍ୟ ପୃଷ୍ଠା</a></div></header>
+<main>
+<section class="intro">
+<div class="eyebrow">CUSTOMER ENQUIRY</div>
+<h1>ସେବା ପାଇଁ ଅନୁରୋଧ ପଠାନ୍ତୁ</h1>
+<p>ନିମ୍ନରେ ପ୍ରାରମ୍ଭିକ ବିବରଣୀ ଦିଅନ୍ତୁ। ତାପରେ WhatsApp ଖୋଲିବ; ଆପଣ ନିଜେ ମେସେଜ୍ ଯାଞ୍ଚ କରି Send କରିପାରିବେ।</p>
+</section>
+<section class="panel">
+<form id="requestForm">
+<label for="customerName">ଆପଣଙ୍କ ନାମ *</label>
+<input id="customerName" name="customerName" autocomplete="name" maxlength="70" required placeholder="ନାମ ଲେଖନ୍ତୁ">
+<label for="mobile">ମୋବାଇଲ୍ ନମ୍ବର *</label>
+<input id="mobile" name="mobile" inputmode="numeric" autocomplete="tel" maxlength="10" pattern="[6-9][0-9]{9}" required placeholder="10 ଅଙ୍କର ମୋବାଇଲ୍ ନମ୍ବର">
+<label for="service">କେଉଁ ସେବା ଦରକାର? *</label>
+<select id="service" name="service" required>
+<option value="">ସେବା ବାଛନ୍ତୁ</option>
+<option>ROR / ଜମି ରେକର୍ଡ କପି</option><option>ଆୟ ପ୍ରମାଣପତ୍ର</option><option>ଜାତି ପ୍ରମାଣପତ୍ର</option><option>ବାସିନ୍ଦା ପ୍ରମାଣପତ୍ର</option><option>PAN କାର୍ଡ</option><option>ଇ-ଶ୍ରମ କାର୍ଡ</option><option>ଆଧାର ସମ୍ବନ୍ଧୀୟ ସୂଚନା</option><option>ଚରିତ୍ର ପ୍ରମାଣପତ୍ର</option><option>ଇ-ପାଉତି / ମାଲଗୁଜାରି ପାଉତି</option><option>ଅନଲାଇନ୍ ଫର୍ମ ପୂରଣ</option><option>ଅନ୍ୟାନ୍ୟ</option>
+</select>
+<label for="details">ଅଧିକ କିଛି କହିବାକୁ ଅଛି କି? (ଇଚ୍ଛାଧୀନ)</label>
+<textarea id="details" name="details" maxlength="500" placeholder="ସମସ୍ୟାଟି ସଂକ୍ଷେପରେ ଲେଖନ୍ତୁ। ଏଠାରେ ଗୋପନୀୟ ନମ୍ବର ଲେଖନ୍ତୁ ନାହିଁ।"></textarea>
+<p class="hint">ଏହି ପ୍ରାରମ୍ଭିକ ଫର୍ମରେ କୌଣସି ଡକ୍ୟୁମେଣ୍ଟ upload ହୁଏ ନାହିଁ ଏବଂ ତଥ୍ୟ ଏହି website ରେ save ହୁଏ ନାହିଁ।</p>
+<button type="submit">WhatsApp ରେ ଅନୁରୋଧ ପଠାନ୍ତୁ →</button>
+<div class="success" id="successMsg" role="status">WhatsApp ଖୋଲୁଛି। ମେସେଜ୍ ଯାଞ୍ଚ କରି ନିଜେ Send କରନ୍ତୁ।</div>
+</form>
+<div class="notice"><strong>ଗୋପନୀୟତା ଓ ସୁରକ୍ଷା:</strong> ଏଠାରେ Aadhaar ନମ୍ବର, OTP, password, UPI PIN, ATM/card PIN, bank login କିମ୍ବା ଅନ୍ୟ ଗୋପନୀୟ ତଥ୍ୟ ଦିଅନ୍ତୁ ନାହିଁ। ଆବଶ୍ୟକ ହେଲେ ପରବର୍ତ୍ତୀ ପଦକ୍ଷେପ ଓ ଦଲିଲ ବିଷୟରେ ଆମେ ଅଲଗା ଭାବେ ବୁଝାଇବୁ।</div>
+<div class="notice"><strong>ଜରୁରୀ ସୂଚନା:</strong> Smart Digital Seva ଏକ ସ୍ୱତନ୍ତ୍ର digital assistance service; ଏହା କୌଣସି ସରକାରୀ ବିଭାଗ କିମ୍ବା official portal ନୁହେଁ। ସେବା ଉପଲବ୍ଧତା, ଫିସ୍ ଓ ସମୟ ପ୍ରଥମେ ନିଶ୍ଚିତ କରାଯିବ। ସରକାରୀ ଅନୁମୋଦନ/ପ୍ରମାଣପତ୍ର ଜାରି କରିବା ସମ୍ପୃକ୍ତ କର୍ତ୍ତୃପକ୍ଷଙ୍କ ନିଷ୍ପତ୍ତି।</div>
+</section>
+</main>
+<footer>Smart Digital Seva • ଭବାନୀପାଟଣା, ଓଡ଼ିଶା<br>ସହାୟତା: +91 8458023492</footer>
+<script>
+document.getElementById('requestForm').addEventListener('submit',function(e){
+ e.preventDefault();
+ const name=document.getElementById('customerName').value.trim();
+ const mobile=document.getElementById('mobile').value.trim();
+ const service=document.getElementById('service').value;
+ const details=document.getElementById('details').value.trim();
+ if(!this.reportValidity()) return;
+ const message=['ନମସ୍କାର Smart Digital Seva,','ମୋତେ ଏହି ସେବା ପାଇଁ ସହାୟତା ଦରକାର।','ନାମ: '+name,'ମୋବାଇଲ୍: '+mobile,'ସେବା: '+service,details?'ଅଧିକ ବିବରଣୀ: '+details:'','ଦୟାକରି ସେବା ଉପଲବ୍ଧତା, ଆବଶ୍ୟକ ଦଲିଲ, ଫିସ୍ ଓ ସମ୍ଭାବ୍ୟ ସମୟ ଜଣାନ୍ତୁ।'].filter(Boolean).join('\n');
+ document.getElementById('successMsg').style.display='block';
+ const url='https://wa.me/918458023492?text='+encodeURIComponent(message);
+ window.location.href=url;
+});
+</script>
+</body>
+</html>
