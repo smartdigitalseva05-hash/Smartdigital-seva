@@ -1,0 +1,33 @@
+name: Clear stale GitHub Pages deployment
+
+on:
+  push:
+    paths:
+      - ".github/workflows/clear-stuck-pages.yml"
+
+permissions:
+  pages: write
+
+jobs:
+  clear-stale-deployment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel the stale Pages deployment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const staleSha = "e15273f49695eebdee62bba3ea290cfe7d502bb9";
+            try {
+              await github.rest.repos.cancelPagesDeployment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pages_deployment_id: staleSha
+              });
+              core.info("Cancelled stale GitHub Pages deployment " + staleSha);
+            } catch (error) {
+              if (error.status === 404) {
+                core.info("The stale deployment is already cleared or no longer exists.");
+              } else {
+                throw error;
+              }
+            }
