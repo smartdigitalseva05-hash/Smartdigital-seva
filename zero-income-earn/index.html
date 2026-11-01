@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#101827"><title>Zero Income Earn — Paid Work & Verified Rewards</title>
+<meta name="theme-color" content="#101827"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0"><title>Zero Income Earn — Paid Work & Verified Rewards</title>
 <style>
 :root{--bg:#0b1220;--panel:#121e30;--panel2:#18263b;--line:#263850;--text:#edf4ff;--muted:#9db0c9;--green:#35d39a;--blue:#79a9ff;--yellow:#ffd166;--red:#ff7b85}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(900px 500px at 10% -10%,#193858 0%,transparent 60%),var(--bg);color:var(--text);font:15px system-ui,-apple-system,Segoe UI,sans-serif}
@@ -30,7 +30,7 @@
  <div class="notice warn">Important: A platform's own payment claim is not independent proof of every user's withdrawal. Never pay a joining fee, share OTPs, or deposit money to unlock a task. We will add more options only after checking their UPI payout terms and India availability.</div>
  <div class="tabs" style="margin:12px 0"><button class="secondary" data-earn-filter="all">All</button><button class="secondary" data-earn-filter="zero">Zero investment</button><button class="secondary" data-earn-filter="research">Research</button></div>
  <div id="earningDirectory" class="grid"></div>
- <p id="earningCount" class="muted small">3 options are listed for initial review. Check each provider's latest terms before joining.</p>
+ <p id="earningCount" class="muted small">3 external options are currently listed. Check each provider's latest terms before joining.</p>
 </section>
 <section id="app" class="hidden">
 <div class="hero"><div class="row"><div><span class="tag">PAID WORK PLATFORM</span><h2>Find work. Complete it. Get paid.</h2></div><button id="logout" class="secondary">Sign out</button></div><p>Find approved surveys and sponsor-funded tasks. Submit proof, track verified rewards, and request payout to your UPI ID after funds are cleared.</p></div>
@@ -54,7 +54,7 @@ const earningOptions = [
 function renderEarningDirectory(filter="all"){
  const items=earningOptions.filter(x=>filter==="all"||x.kind===filter);
  $("earningDirectory").innerHTML=items.map(x=>'<article class="card"><div class="row"><span class="tag">'+(x.kind==="zero"?"ZERO INVESTMENT":"RESEARCH")+'</span><span class="small status">'+esc(x.status)+'</span></div><h3>'+esc(x.name)+'</h3><p><strong>Work:</strong> '+esc(x.work)+'</p><p><strong>Payout:</strong> '+esc(x.payout)+'</p><p><strong>Risk:</strong> '+esc(x.risk)+'</p><p class="small muted">Source: '+esc(x.source)+'</p><a class="btn" style="display:inline-block;text-decoration:none" href="'+x.url+'" target="_blank" rel="noopener noreferrer">Open official listing ↗</a></article>').join("")||'<div class="card">No verified option in this filter yet.</div>';
- $("earningCount").textContent=items.length+" option(s) currently shown. We will add more only after checking.";
+ $("earningCount").textContent=items.length+" option(s) shown in this filter · 3 total listings. We will add more only after checking.";
 }
 document.querySelectorAll("[data-earn-filter]").forEach(b=>b.addEventListener("click",()=>renderEarningDirectory(b.dataset.earnFilter)));
 
@@ -86,7 +86,7 @@ renderEarningDirectory();
 function showPage(page){["tasks","wallet","profile","admin"].forEach(p=>$("page-"+p).classList.toggle("hidden",p!==page));document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("secondary",b.dataset.page!==page));if(page==="wallet")loadWallet();if(page==="admin")loadAdmin();}
 document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
 $("signupTab").onclick=()=>setMode("signup");$("loginTab").onclick=()=>setMode("login");
-function setMode(m){mode=m;$("nameWrap").classList.toggle("hidden",m==="login");$("authBtn").textContent=m==="signup"?"Create free account":"Sign in";$("authMsg").textContent="";}
+function setMode(m){mode=m;$("nameWrap").classList.toggle("hidden",m==="login");$("authBtn").textContent=m==="signup"?"Create free account":"Sign in";$("password").setAttribute("autocomplete",m==="signup"?"new-password":"current-password");$("authMsg").textContent="";}
 $("authBtn").onclick=async()=>{
  const btn=$("authBtn"); if(btn.disabled) return;
  const email=$("email").value.trim(),password=$("password").value,name=$("name").value.trim();
@@ -106,7 +106,7 @@ $("authBtn").onclick=async()=>{
  }catch(error){console.error("Authentication error:",error);msg("authMsg",error.message||"Something went wrong. Please try again.");}
  finally{btn.disabled=false;btn.textContent=mode==="signup"?"Create free account":"Sign in";}
 };
-$("logout").onclick=async()=>{await db.auth.signOut();user=null;$("app").classList.add("hidden");$("auth").classList.remove("hidden");};
+$("logout").onclick=async()=>{try{const r=await db.auth.signOut();if(r.error)throw r.error;user=null;profile=null;$("app").classList.add("hidden");$("auth").classList.remove("hidden");msg("authMsg","You have signed out.");}catch(error){alert("Could not sign out: "+(error.message||"Please try again."));}};
 async function boot(u){
  const [p,a]=await Promise.all([
   db.from("profiles").select("*").eq("id",u.id).single(),
