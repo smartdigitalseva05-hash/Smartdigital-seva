@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#082f35">
+<link rel="manifest" href="./manifest.webmanifest">
 <meta name="description" content="Smart Digital Seva, Bhawanipatna — ଅନଲାଇନ୍ ଫର୍ମ, ପ୍ରମାଣପତ୍ର ଓ ଡିଜିଟାଲ୍ ସେବା ସମ୍ବନ୍ଧୀୟ ସୂଚନା ଓ ସହାୟତା।">
 <link rel="canonical" href="https://smartdigitalseva05-hash.github.io/Smartdigital-seva/">
 <meta property="og:type" content="website">
@@ -217,5 +218,6 @@ document.querySelectorAll(".apply").forEach(link=>{
 });
 document.getElementById("year").textContent=new Date().getFullYear();
 </script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));}</script>
 </body>
 </html>
