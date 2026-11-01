@@ -1,4 +1,4 @@
-const CACHE_NAME = "smart-digital-seva-v2";
+const CACHE_NAME = "smart-digital-seva-v3";
 const BASE = new URL("./", self.location.href).pathname;
 const APP_FILES = [
   BASE, BASE + "index.html", BASE + "customer_request.html", BASE + "track.html", BASE + "admin.html",
