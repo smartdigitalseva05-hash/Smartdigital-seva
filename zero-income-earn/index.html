@@ -23,6 +23,15 @@
 <button id="authBtn" style="width:100%">Create free account</button><p id="authMsg" class="muted small"></p>
 <div class="notice">No joining fee. Never pay anyone to unlock tasks. Earnings are credited only after a task is verified and its reward is funded.</div>
 </section>
+
+<section id="earning-directory" class="card" style="margin:16px 0">
+ <div class="row"><div><span class="tag">EXTERNAL EARNING OPTIONS</span><h2 style="margin:10px 0 4px">Earning Apps & Websites</h2></div><span class="pill">UPI focus</span></div>
+ <p class="muted">These are third-party platforms, not tasks operated or paid by Zero Income Earn. Check the provider's current eligibility and payout rules before joining. Earnings are not guaranteed.</p>
+ <div class="notice warn">Important: A platform's own payment claim is not independent proof of every user's withdrawal. Never pay a joining fee, share OTPs, or deposit money to unlock a task. We will add more options only after checking their UPI payout terms and India availability.</div>
+ <div class="tabs" style="margin:12px 0"><button class="secondary" data-earn-filter="all">All</button><button class="secondary" data-earn-filter="zero">Zero investment</button><button class="secondary" data-earn-filter="research">Research</button></div>
+ <div id="earningDirectory" class="grid"></div>
+ <p id="earningCount" class="muted small">1 option currently meets the initial checks. More will be added only after verification.</p>
+</section>
 <section id="app" class="hidden">
 <div class="hero"><div class="row"><div><span class="tag">PAID WORK PLATFORM</span><h2>Find work. Complete it. Get paid.</h2></div><button id="logout" class="secondary">Sign out</button></div><p>Find approved surveys and sponsor-funded tasks. Submit proof, track verified rewards, and request payout to your UPI ID after funds are cleared.</p></div>
 <div class="stats"><div class="stat"><small>Available balance</small><strong id="balance">₹0.00</strong></div><div class="stat"><small>Tasks completed</small><strong id="completed">0</strong></div><div class="stat"><small>Referral code</small><strong id="refcode" style="font-size:17px">—</strong></div></div>
@@ -35,6 +44,18 @@
 <footer>Zero Income Earn · Paid work and rewards are shown only when genuine opportunities and funding are verified. No guaranteed income. Never pay to unlock work or share your password or OTP.</footer>
 </main>
 <script>
+
+const earningOptions = [
+ {name:"PollPe",kind:"zero",work:"Paid surveys and daily polls",payout:"UPI / IMPS; minimum ₹50 (as stated on its Google Play listing)",status:"B · app-store payout claim; not independently audited here",risk:"Survey availability and screening vary. Do not expect fixed daily income.",url:"https://play.google.com/store/apps/details?id=com.ai.pollpe",source:"Google Play listing"}
+];
+function renderEarningDirectory(filter="all"){
+ const items=earningOptions.filter(x=>filter==="all"||x.kind===filter);
+ $("earningDirectory").innerHTML=items.map(x=>'<article class="card"><div class="row"><span class="tag">'+(x.kind==="zero"?"ZERO INVESTMENT":"RESEARCH")+'</span><span class="small status">'+esc(x.status)+'</span></div><h3>'+esc(x.name)+'</h3><p><strong>Work:</strong> '+esc(x.work)+'</p><p><strong>Payout:</strong> '+esc(x.payout)+'</p><p><strong>Risk:</strong> '+esc(x.risk)+'</p><p class="small muted">Source: '+esc(x.source)+'</p><a class="btn" style="display:inline-block;text-decoration:none" href="'+x.url+'" target="_blank" rel="noopener noreferrer">Open official listing ↗</a></article>').join("")||'<div class="card">No verified option in this filter yet.</div>';
+ $("earningCount").textContent=items.length+" option(s) currently shown. We will add more only after checking.";
+}
+document.querySelectorAll("[data-earn-filter]").forEach(b=>b.addEventListener("click",()=>renderEarningDirectory(b.dataset.earnFilter)));
+renderEarningDirectory();
+
 const SUPABASE_URL = "https://fgjcudwglwlizhhlmruk.supabase.co";
 const SUPABASE_KEY = "sb_publishable_v7CERFljtqM-6O692eZzNA_aH6DEedu";
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
