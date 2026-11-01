@@ -31,11 +31,13 @@ footer{text-align:center;color:#6a807d;font-size:12px;padding:0 15px 25px}a{colo
 <form id="uploadForm"><label for="documentFile">ଦଲିଲ Upload (ଇଚ୍ଛାଧୀନ)</label><input id="documentFile" type="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"><button id="uploadBtn" type="submit">Private Storage କୁ Upload କରନ୍ତୁ</button><div id="uploadMsg" class="alert" role="status"></div></form>
 </section>
 <div class="notice"><strong>ସୁରକ୍ଷା:</strong> OTP, password, UPI PIN, ATM PIN, bank login କିମ୍ବା ଅନାବଶ୍ୟକ ଗୋପନୀୟ ତଥ୍ୟ କେବେ upload କରନ୍ତୁ ନାହିଁ। ଏହା ସରକାରୀ website ନୁହେଁ; Smart Digital Seva ଏକ ସ୍ୱତନ୍ତ୍ର ସହାୟତା ସେବା। ସରକାରୀ ଫିସ୍ ଅଲଗା ହୋଇପାରେ।</div>
-</main><footer>Smart Digital Seva • ସହାୟତା: +91 8458023492<br><a href="./track.html">Application Tracking</a> · <a href="./policies.html">Privacy & Policies</a></footer>
+</main><footer>Smart Digital Seva<br><a href="./track.html">Application Tracking</a> · <a href="./policies.html">Privacy & Policies</a></footer>
 <script>
 const API="https://fgjcudwglwlizhhlmruk.supabase.co/functions/v1/sds-public";
 const APIKEY="sb_publishable_v7CERFljtqM-6O692eZzNA_aH6DEedu";
 let savedCode="",savedKey="";
+const requestedService=new URLSearchParams(window.location.search).get("service");
+if(requestedService){const serviceSelect=document.getElementById("service");for(const option of serviceSelect.options){if(option.textContent.trim()===requestedService.trim()){serviceSelect.value=option.value;break;}}}
 async function callApi(payload){const r=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json","apikey":APIKEY},body:JSON.stringify(payload)});const j=await r.json();if(!r.ok)throw new Error(j.error||"Request failed");return j;}
 document.getElementById("requestForm").addEventListener("submit",async e=>{
  e.preventDefault();const f=e.currentTarget;if(!f.reportValidity())return;
