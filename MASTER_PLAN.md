@@ -237,11 +237,11 @@ All displayed prices are Smart Digital Seva assistance fees, not government fees
 
 ## 13. Deployment and release status — 1 November 2026
 
-- Confirmed that the homepage source contains all 11 price-line elements and the approved price labels.
-- Removed the duplicate custom Pages workflow file `.github/workflows/deploy-pages.yml`; the main homepage and separate feature pages were not changed by that removal.
-- The GitHub-managed Pages build completed successfully, but deployment failed because GitHub reported an older Pages deployment for commit `e15273f49695eebdee62bba3ea290cfe7d502bb9` still in progress.
-- The current blocker is GitHub Pages deployment state, not missing price HTML. The Pages deployment must be cancelled or cleared before a new deployment can complete.
-- Do not report the new price catalogue as live until a successful Pages deployment and real-device visual check are confirmed.
+- Removed the duplicate custom Pages workflow file `.github/workflows/deploy-pages.yml`; GitHub-managed Pages deployment is the only deployment workflow.
+- The one-time stale-deployment inspector found the older Pages deployment was already marked `succeed` by the Pages API.
+- GitHub Actions run `41291628141` completed successfully: build, deploy and report-build-status jobs all succeeded.
+- Subsequent commits adding the customer information pages triggered fresh Pages runs; the latest run must be checked before declaring the newest files live.
+- Source contains all 11 owner-approved price-line elements. Live visual verification on Android is still required.
 - `creator_studio_pro.html` remains protected and must not be modified during this work.
 
 ## 14. Remaining work
@@ -254,3 +254,15 @@ All displayed prices are Smart Digital Seva assistance fees, not government fees
 6. Later, plan a secure backend for enquiry records, reference numbers and admin status tracking. Do not put customer records or private keys in public HTML or GitHub.
 7. Preserve `creator_studio_pro.html`; use separate files for future tools and test before linking them.
 
+
+
+## 15. Additional public website pages — 1 November 2026
+
+- Added `service_guide.html` with the 11 listed services, preliminary document checklists and official portal links for Odisha eDistrict, Bhulekh, e-Pauti, e-Shram, Income Tax/PAN, UIDAI and Odisha Police.
+- Added `faq.html` explaining independent-service status, assistance fees vs government charges, e-Shram's free government registration, WhatsApp-only enquiry limitations, privacy and no approval guarantee.
+- Added `policies.html` covering enquiry data handling, sensitive-data warnings, fees, cancellations/refunds, third-party portals and complaints contact.
+- Linked the guide, FAQ and policies from the homepage and enquiry page.
+- Checklists are preliminary, not a guarantee of exact requirements. Official portal/authority instructions prevail.
+- The enquiry form remains WhatsApp handoff only: it does not persist enquiries, generate secure reference numbers or provide status tracking.
+- No dedicated Smart Digital Seva Supabase project was identified. Existing projects belong to other named workstreams; do not modify them without the owner's explicit project selection.
+- Next technical milestone: choose/create a dedicated backend project at confirmed $0 cost, configure authentication, RLS, enquiry storage, reference numbers and admin/customer status workflows. Do not claim backend functionality until end-to-end tests pass.
