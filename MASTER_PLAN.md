@@ -219,7 +219,38 @@ Before every release:
 
 ## 12. Pricing update — 1 November 2026
 
-- Added visible indicative Smart Digital Seva assistance fees to the homepage service cards: ROR ₹40; income/caste/residence certificates ₹30 each; PAN assistance ₹50; character certificate assistance ₹40; e-Pauti assistance ₹30; online form filling from ₹50; other work quoted before starting.
-- e-Shram registration is displayed as free; no registration charge is collected. Aadhaar section is information-only and points customers to authorised centres.
-- Government/provider charges are stated separately and must be confirmed before collecting payment. These suggested assistance fees are initial estimates, not a guaranteed profit calculation; review them against actual time, travel, printing, payment costs and partner margin.
-- Next: verify each fee/wording against current official portals, test the live GitHub Pages page on Android, then add service detail/document checklist pages and secure enquiry tracking in a backend when feasible.
+The owner-approved Smart Digital Seva assistance fees currently displayed in the homepage service catalogue are:
+
+- ROR / land record copy: ₹19
+- Income certificate assistance: ₹99
+- Caste certificate assistance: ₹99
+- Residence certificate assistance: ₹99
+- PAN card assistance: ₹129
+- e-Shram assistance: ₹119. The e-Shram government registration itself is free; ₹119 is only the Smart Digital Seva assistance fee.
+- Character certificate assistance: ₹149
+- e-Pauti: area-wise price; confirm and quote before starting.
+- Online form filling: ₹99
+- Other services: service-wise quotation before starting.
+- Aadhaar section remains information-only and directs customers to authorised centres.
+
+All displayed prices are Smart Digital Seva assistance fees, not government fees. Government, portal or provider charges, if any, must be separately identified and confirmed before collecting payment. Do not promise approval or a government processing timeline.
+
+## 13. Deployment and release status — 1 November 2026
+
+- Confirmed that the homepage source contains all 11 price-line elements and the approved price labels.
+- Removed the duplicate custom Pages workflow file `.github/workflows/deploy-pages.yml`; the main homepage and separate feature pages were not changed by that removal.
+- The GitHub-managed Pages build completed successfully, but deployment failed because GitHub reported an older Pages deployment for commit `e15273f49695eebdee62bba3ea290cfe7d502bb9` still in progress.
+- The current blocker is GitHub Pages deployment state, not missing price HTML. The Pages deployment must be cancelled or cleared before a new deployment can complete.
+- Do not report the new price catalogue as live until a successful Pages deployment and real-device visual check are confirmed.
+- `creator_studio_pro.html` remains protected and must not be modified during this work.
+
+## 14. Remaining work
+
+1. Clear the stuck GitHub Pages deployment and rerun the managed Pages deployment.
+2. Verify the live homepage displays all approved service fees on Android; check desktop and narrow-screen layouts too.
+3. Test the homepage navigation, customer enquiry page and WhatsApp handoff end-to-end.
+4. Confirm actual service availability and the operator's authority/partner arrangements before advertising each service as deliverable.
+5. Build service detail pages with verified official links, document checklists and FAQs.
+6. Later, plan a secure backend for enquiry records, reference numbers and admin status tracking. Do not put customer records or private keys in public HTML or GitHub.
+7. Preserve `creator_studio_pro.html`; use separate files for future tools and test before linking them.
+
