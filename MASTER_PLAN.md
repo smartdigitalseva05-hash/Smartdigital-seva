@@ -1,0 +1,190 @@
+# SMART DIGITAL SEVA — MASTER BUSINESS & PRODUCT PLAN
+
+**Project:** Smart Digital Seva  
+**Base:** Bhawanipatna, Odisha  
+**Business owner/operator:** Hemanta Sahu  
+**Website:** https://smartdigitalseva05-hash.github.io/Smartdigital-seva/  
+**Customer phone/WhatsApp:** +91 8458023492  
+**WhatsApp Channel:** https://whatsapp.com/channel/0029Vb9JXTj42DchUNDpRx0E  
+**Primary language:** Odia, with simple English labels where useful
+
+## 1. Vision
+
+Build Smart Digital Seva into a trusted, customer-first digital assistance platform for people who need help understanding and completing online service processes. Start lean in Bhawanipatna, prove demand and service quality, then expand to nearby areas through repeat customers, referrals, and carefully selected partner operators.
+
+Earn trust through clear pricing, honest timelines, privacy, accurate guidance, and reliable follow-up—not through fear, false guarantees, or misleading government affiliation.
+
+## 2. Customer problems we solve
+
+1. Customers do not know which service or official portal they need.
+2. They are unsure which documents are required.
+3. They struggle with online forms, uploads, language, or mobile workflows.
+4. They cannot easily understand application status or next steps.
+5. They waste time travelling before confirming requirements.
+6. They miss relevant announcements, deadlines, or service changes.
+7. They do not know the service fee, official fee, or expected timeline in advance.
+
+For every service page, publish: who it may be for, eligibility caveat, document checklist, process overview, official portal link, service fee (only after confirmed), government fee (separately identified), expected assistance timeline, common mistakes, and a clear enquiry/request action.
+
+## 3. Product modules
+
+### A. Public website
+- Premium, responsive Odia-first design; fast on low-end Android phones and slow networks.
+- Home page, service directory, search and categories.
+- Individual service detail pages with checklists and FAQs.
+- About, contact, transparent pricing, privacy policy, terms, refund/cancellation policy, grievance/contact route.
+- WhatsApp Channel updates and click-to-call/WhatsApp.
+- Customer testimonials only with genuine consent; no fabricated reviews or counters.
+- Accessibility: readable type, contrast, keyboard support, clear error messages.
+
+### B. Customer request workflow
+- Request form: customer name, mobile, selected service, preferred contact method, short description.
+- Do not ask for Aadhaar number, OTP, passwords, bank PIN, or unnecessary sensitive documents in the first enquiry.
+- Generate a unique request/reference number.
+- Show acknowledgement and next steps.
+- Status stages: Received → Need information → Quotation shared → Customer approved → In progress → Ready/Submitted → Completed / Closed.
+- Customer can check status using reference number plus a safe verification method.
+- Customer receives updates; start with manual WhatsApp updates, then add approved messaging integration if eligible and cost-effective.
+- Customer can request correction or raise a complaint.
+
+### C. Admin dashboard
+- Secure owner login; no public admin link or shared password.
+- View/search/filter requests by status, service, date.
+- Update status, add internal notes, record customer-visible updates.
+- Maintain service catalogue, document checklists, fees, availability, FAQs and announcements.
+- Record payments/receipts only when actually received; export operational reports.
+- Role-based access before adding staff; audit log for important changes.
+- Backups and recovery procedure.
+
+### D. Marketing and growth
+- WhatsApp Channel: useful, concise, regular updates; avoid spam and unverified claims.
+- Google Business Profile: accurate address/service area, hours, phone, real photos, review responses.
+- Local SEO: Odia and English service names, Bhawanipatna and relevant service-area pages.
+- Shareable service explainers, document checklists, short educational videos, QR code for the website/channel.
+- Referral programme only with clear terms and sustainable economics.
+- Monthly campaign calendar and simple tracking: enquiries, qualified enquiries, completed jobs, repeat customers, referrals, revenue and expenses.
+- No purchased contact lists, unsolicited bulk messages, fake reviews, false urgency, or guaranteed approval claims.
+
+### E. Future expansion
+- Add nearby service areas only after reliable operations.
+- Partner/agent portal with written service standards and permissions.
+- More languages if customers need them.
+- Customer account only when there is a clear benefit and adequate security.
+- PWA/app wrapper only after the mobile website and workflows are stable.
+- Integrations and online payments only through legitimate providers and after policy/compliance review.
+
+## 4. Business model and income
+
+Potential revenue streams:
+1. Clearly disclosed assistance/service fee for work actually provided.
+2. Form-filling/document preparation support where lawful and within authorised scope.
+3. Printing/scanning or other locally available add-on services, if offered transparently.
+4. Business-to-business digital support for local shops, after the core service workflow is stable.
+5. Partner network revenue only with written agreements, transparent customer pricing, and quality controls.
+
+Never present a government fee as the business's own fee. Confirm current official fees and eligibility from the relevant official source before publishing. Do not promise certificate approval, guaranteed outcomes, or fixed government processing times.
+
+Track unit economics monthly:
+- Leads/enquiries
+- Qualified enquiries
+- Completed paid services
+- Average service revenue
+- Direct costs and refunds
+- Gross contribution per service
+- Repeat/referral share
+- Customer complaints and resolution time
+
+No income is guaranteed. Validate demand and actual margins before spending on ads, paid tools, or staff.
+
+## 5. Trust, safety and compliance
+
+- Clearly state that Smart Digital Seva is an independent assistance service, not a government department or official portal.
+- Link to official portals where appropriate; customer submits/approves their own application and data wherever required.
+- Collect the minimum data needed; explain purpose and retention; restrict access; delete data when no longer required, subject to legal recordkeeping needs.
+- Never request or store OTPs, passwords, UPI PINs, card PINs, or bank login credentials.
+- Do not impersonate government services, use government emblems misleadingly, or claim authorisation/accreditation unless documented.
+- Publish service availability, fees, refund rules, limitations, and complaint contact.
+- Obtain consent before sending promotional messages or publishing testimonials/photos.
+- Follow applicable Indian privacy, consumer, advertising, tax, payment and messaging rules; seek qualified advice where required.
+
+## 6. Technical architecture — staged, low-cost first
+
+### Phase 1: Stable public website
+- Keep the existing index.html as the public entry point.
+- Keep creator_studio_pro.html untouched.
+- Put new pages/assets in separate files and test before linking them.
+- Use semantic HTML, responsive CSS, accessible forms, and lightweight JavaScript.
+- Add a clear 404 page and basic metadata.
+
+### Phase 2: Backend and secure data
+- Evaluate Supabase for database, authentication, row-level security, and server-side functions.
+- Proposed entities: services, service_documents, enquiries, enquiry_events, customers (only if necessary), announcements, payments (minimal ledger), staff_roles, audit_events.
+- Enforce row-level security; customers may only access their own verified request; staff access is role-limited.
+- Never place service-role secrets or private API keys in browser code or public GitHub files.
+- Use server-side validation, rate limits, spam protection, backups and retention rules.
+
+### Phase 3: Notifications and payments
+- Start with manual WhatsApp updates and click-to-chat to avoid unnecessary costs.
+- Consider official WhatsApp Business Platform integration only after checking eligibility, template rules, consent, and pricing.
+- Add payment gateway only when a real business need exists; verify payment server-side and issue clear receipts/refund records. Never store card data.
+
+### Phase 4: Scale
+- Add reporting, staff roles, partner operations, service-area pages, and integrations only after the previous phase is stable and measured.
+
+## 7. Delivery roadmap and acceptance checks
+
+### Milestone 0 — Discovery and audit
+- Confirm service list, actual delivery capability, service fees, official fees, operating hours, contact channels, and policies.
+- Test existing site on Android, slow connection, and common screen sizes.
+- Check all links, images, forms, spelling, and page loading.
+**Done when:** all public claims are verified and all visible links work.
+
+### Milestone 1 — Professional website foundation
+- Premium Odia home page, service directory, individual service information, FAQ, contact, trust and policy pages.
+- Search/filter, WhatsApp Channel, click-to-call and click-to-chat.
+**Done when:** mobile usability, accessibility basics, links and content pass a manual test checklist.
+
+### Milestone 2 — Enquiry and reference workflow
+- Secure request submission, reference number, customer acknowledgement and admin request list.
+**Done when:** test requests save correctly, validation works, duplicate/spam handling exists, and private records are not public.
+
+### Milestone 3 — Admin and customer status
+- Admin login, status changes, event history, customer status lookup and customer-visible updates.
+**Done when:** unauthorised users cannot see or change another customer's request.
+
+### Milestone 4 — Marketing system
+- Google Business Profile setup, local SEO pages, content calendar, QR/share links, consent-based reviews and analytics.
+**Done when:** enquiry source and conversion can be measured without collecting unnecessary personal data.
+
+### Milestone 5 — Optimise and expand
+- Review metrics, customer feedback, service profitability, error rate and turnaround time.
+**Done when:** repeatable operating process exists before hiring or adding partner locations.
+
+## 8. Weekly operating rhythm
+
+- Daily: check new enquiries, reply, confirm fees/documents, update request statuses.
+- Weekly: publish 1–2 useful channel updates, review pending requests, resolve complaints, check broken links.
+- Monthly: review revenue/costs, top services, conversion, customer feedback, privacy/security, and next month's content plan.
+
+## 9. Quality assurance checklist
+
+Before every release:
+- Test Android mobile, desktop and small screen.
+- Test all navigation, service enquiry links, phone, email and channel links.
+- Test search/filter and form validation.
+- Check Odia text rendering and spelling.
+- Check no private keys, customer records or credentials are committed to GitHub.
+- Check privacy notice, fee clarity, government-independence notice and consent.
+- Test loading, broken images, keyboard focus and error states.
+- Keep a backup/known-good commit and a short release note.
+- Do not call a feature complete until its real end-to-end workflow is tested.
+
+## 10. Immediate next actions
+
+1. Confirm the actual services that can currently be delivered.
+2. Create a verified service-and-fee catalogue; keep unknown fees unpublished until checked.
+3. Audit the live website and repository before changing production pages.
+4. Design the page map and customer journey.
+5. Build and test one milestone at a time; preserve existing index.html until a reviewed replacement is ready and keep creator_studio_pro.html untouched.
+
+**Project principle:** Trust first, solve a real customer problem, measure the result, then scale. A beautiful website attracts attention; reliable service, transparent pricing and follow-through create a sustainable business.
