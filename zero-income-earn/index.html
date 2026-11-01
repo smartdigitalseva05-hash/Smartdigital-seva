@@ -61,7 +61,23 @@ document.querySelectorAll("[data-earn-filter]").forEach(b=>b.addEventListener("c
 
 const SUPABASE_URL = "https://fgjcudwglwlizhhlmruk.supabase.co";
 const SUPABASE_KEY = "sb_publishable_v7CERFljtqM-6O692eZzNA_aH6DEedu";
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let db = null;
+async function ensureSupabase(){
+ if(window.supabase && typeof window.supabase.createClient==="function") return true;
+ const sources=["https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2","https://unpkg.com/@supabase/supabase-js@2"];
+ for(const src of sources){
+  try{
+   await new Promise((resolve,reject)=>{
+    const script=document.createElement("script");
+    script.src=src; script.async=true;
+    script.onload=resolve; script.onerror=()=>reject(new Error("Could not load "+src));
+    document.head.appendChild(script);
+   });
+   if(window.supabase && typeof window.supabase.createClient==="function") return true;
+  }catch(error){console.warn("Supabase CDN fallback:",error);}
+ }
+ return false;
+}
 let mode = "signup", user = null, profile = null, balancePaise = 0;
 const money = p => "₹" + (Number(p||0)/100).toFixed(2);
 const msg = (id,t) => $(id).textContent = t;
@@ -71,7 +87,25 @@ function showPage(page){["tasks","wallet","profile","admin"].forEach(p=>$("page-
 document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
 $("signupTab").onclick=()=>setMode("signup");$("loginTab").onclick=()=>setMode("login");
 function setMode(m){mode=m;$("nameWrap").classList.toggle("hidden",m==="login");$("authBtn").textContent=m==="signup"?"Create free account":"Sign in";$("authMsg").textContent="";}
-$("authBtn").onclick=async()=>{let email=$("email").value.trim(),password=$("password").value,name=$("name").value.trim();if(!email||password.length<8){msg("authMsg","Enter a valid email and password with at least 8 characters.");return;}msg("authMsg","Please wait…");let r=mode==="signup"?await db.auth.signUp({email,password,options:{data:{display_name:name}}}):await db.auth.signInWithPassword({email,password});if(r.error){msg("authMsg",r.error.message);return;}if(mode==="signup"&&!r.data.session){msg("authMsg","Account created. Check your email to confirm, then sign in.");return;}await boot(r.data.user);};
+$("authBtn").onclick=async()=>{
+ const btn=$("authBtn"); if(btn.disabled) return;
+ const email=$("email").value.trim(),password=$("password").value,name=$("name").value.trim();
+ if(!email||!/^\S+@\S+\.\S+$/.test(email)){msg("authMsg","Please enter a valid email address.");return;}
+ if(password.length<8){msg("authMsg","Password must be at least 8 characters.");return;}
+ if(mode==="signup"&&!name){msg("authMsg","Please enter your name.");return;}
+ btn.disabled=true; btn.textContent=mode==="signup"?"Creating account…":"Signing in…"; msg("authMsg","Connecting securely…");
+ try{
+  if(!db) throw new Error("Secure sign-in service is not ready. Check your internet connection, then refresh the page.");
+  const r=mode==="signup"
+   ? await db.auth.signUp({email,password,options:{data:{display_name:name}}})
+   : await db.auth.signInWithPassword({email,password});
+  if(r.error) throw r.error;
+  if(mode==="signup"&&!r.data.session){msg("authMsg","Account request created. Check your email inbox/spam and confirm your email, then return here and sign in.");return;}
+  if(!r.data.user) throw new Error("Account response was incomplete. Please try signing in.");
+  await boot(r.data.user);
+ }catch(error){console.error("Authentication error:",error);msg("authMsg",error.message||"Something went wrong. Please try again.");}
+ finally{btn.disabled=false;btn.textContent=mode==="signup"?"Create free account":"Sign in";}
+};
 $("logout").onclick=async()=>{await db.auth.signOut();user=null;$("app").classList.add("hidden");$("auth").classList.remove("hidden");};
 async function boot(u){user=u;$("auth").classList.add("hidden");$("app").classList.remove("hidden");$("profileEmail").textContent=u.email||"";let p=await db.from("profiles").select("*").eq("id",u.id).single();profile=p.data;$("refcode").textContent=profile?.referral_code||"—";$("profileRef").textContent=profile?.referral_code||"—";let a=await db.from("admin_users").select("user_id").eq("user_id",u.id).maybeSingle();$("adminNav").classList.toggle("hidden",!a.data);await loadOverview();await loadTasks();showPage("tasks");}
 async function loadOverview(){let [l,s]=await Promise.all([db.from("wallet_ledger").select("amount_paise").eq("user_id",user.id),db.from("task_submissions").select("id").eq("user_id",user.id).eq("status","approved")]);balancePaise=(l.data||[]).reduce((n,x)=>n+Number(x.amount_paise),0);$("balance").textContent=money(balancePaise);$("walletBalance").textContent=money(balancePaise);$("completed").textContent=(s.data||[]).length;}
@@ -81,6 +115,17 @@ async function loadWallet(){await loadOverview();let [l,w]=await Promise.all([db
 $("withdrawBtn").onclick=async()=>{let amount=Math.round(Number($("withdrawAmount").value)*100),upi=$("upi").value.trim();if(!Number.isFinite(amount)||amount<10000){msg("withdrawMsg","Minimum withdrawal is ₹100.");return;}if(!/^[\w.\-]{2,256}@[\w]{2,64}$/.test(upi)){msg("withdrawMsg","Enter a valid UPI ID.");return;}msg("withdrawMsg","Submitting…");let r=await db.from("withdrawal_requests").insert({user_id:user.id,amount_paise:amount,upi_id:upi});msg("withdrawMsg",r.error?(r.error.message.includes("Insufficient")?"Insufficient available balance.":r.error.message):"Request submitted for review. Payment is not instant; status will update after manual transfer.");if(!r.error){$("withdrawAmount").value="";await loadWallet();}};
 $("createTask").onclick=async()=>{let reward=Math.round(Number($("newReward").value||0)*100),active=$("newActive").checked;if(active&&(!$("newSponsor").value.trim()||!$("newFunding").value.trim()||reward<=0)){msg("adminMsg","To publish a paid task, enter a verified sponsor, funding reference and positive funded reward.");return;}let r=await db.from("tasks").insert({title:$("newTitle").value.trim(),description:$("newDesc").value.trim(),category:$("newCategory").value,reward_paise:reward,sponsor_name:$("newSponsor").value.trim()||null,funding_reference:$("newFunding").value.trim()||null,is_active:active,verification_method:"manual"});msg("adminMsg",r.error?r.error.message:"Task saved.");if(!r.error){$("newTitle").value="";$("newDesc").value="";await loadTasks();}};
 async function loadAdmin(){let [s,w]=await Promise.all([db.from("task_submissions").select("*,tasks(title,reward_paise),profiles(display_name)").eq("status","pending").order("created_at"),db.from("withdrawal_requests").select("*,profiles(display_name)").in("status",["pending","approved"]).order("created_at")]);$("adminSubmissions").innerHTML=s.error?esc(s.error.message):((s.data||[]).map(x=>'<div class="listitem"><strong>'+esc(x.tasks?.title||"Task")+'</strong><p class="muted small">'+esc(x.proof_text||"No proof")+'</p><button data-approve="'+x.id+'" data-uid="'+x.user_id+'" data-amount="'+x.tasks?.reward_paise+'">Approve & credit '+money(x.tasks?.reward_paise||0)+'</button> <button class="secondary" data-reject="'+x.id+'">Reject</button></div>').join("")||'<p class="muted">No pending submissions.</p>');$("adminWithdrawals").innerHTML=w.error?esc(w.error.message):((w.data||[]).map(x=>'<div class="listitem"><strong>'+money(x.amount_paise)+'</strong><p class="muted small">'+esc(x.upi_id)+' · '+esc(x.status)+'</p><button data-paid="'+x.id+'" data-uid="'+x.user_id+'" data-amount="'+x.amount_paise+'">Mark paid after UPI transfer</button></div>').join("")||'<p class="muted">No pending withdrawals.</p>');$("adminSubmissions").querySelectorAll("[data-approve]").forEach(b=>b.onclick=async()=>{let amount=Number(b.dataset.amount);if(!amount||amount<=0){alert("This task has no funded reward. Do not credit it.");return;}let ins=await db.from("wallet_ledger").insert({user_id:b.dataset.uid,amount_paise:amount,entry_type:"task_reward",reference_id:b.dataset.approve,description:"Verified task reward"});if(ins.error){alert(ins.error.message);return;}let up=await db.from("task_submissions").update({status:"approved",reviewed_at:new Date().toISOString()}).eq("id",b.dataset.approve).eq("status","pending");if(up.error)alert(up.error.message);await loadAdmin();});$("adminSubmissions").querySelectorAll("[data-reject]").forEach(b=>b.onclick=async()=>{let r=await db.from("task_submissions").update({status:"rejected",reviewed_at:new Date().toISOString()}).eq("id",b.dataset.reject).eq("status","pending");if(r.error)alert(r.error.message);await loadAdmin();});$("adminWithdrawals").querySelectorAll("[data-paid]").forEach(b=>b.onclick=async()=>{if(!confirm("Confirm that you have already sent this exact amount to the user's UPI ID?"))return;let ins=await db.from("wallet_ledger").insert({user_id:b.dataset.uid,amount_paise:-Number(b.dataset.amount),entry_type:"withdrawal",reference_id:b.dataset.paid,description:"UPI withdrawal paid"});if(ins.error){alert(ins.error.message);return;}let up=await db.from("withdrawal_requests").update({status:"paid",reviewed_at:new Date().toISOString()}).eq("id",b.dataset.paid);if(up.error)alert(up.error.message);await loadAdmin();});}
-db.auth.getSession().then(({data})=>{if(data.session)boot(data.session.user);});
-db.auth.onAuthStateChange((_event,session)=>{if(session&&!user)boot(session.user);});
+(async()=>{
+ const ready=await ensureSupabase();
+ if(!ready){msg("authMsg","Sign-in service could not load. Please check your internet connection and reload this page.");$("authBtn").disabled=true;return;}
+ try{
+  db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+  const {data,error}=await db.auth.getSession();
+  if(error) throw error;
+  if(data.session) await boot(data.session.user);
+  db.auth.onAuthStateChange((_event,session)=>{
+   if(session&&!user) boot(session.user).catch(error=>{console.error(error);msg("authMsg","Signed in, but profile could not load: "+(error.message||"Please refresh."));});
+  });
+ }catch(error){console.error("Startup error:",error);msg("authMsg","Website startup error: "+(error.message||"Please reload."));$("authBtn").disabled=true;}
+})();
 </script></body></html>
