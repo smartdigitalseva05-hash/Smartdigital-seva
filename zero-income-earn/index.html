@@ -45,6 +45,7 @@
 </main>
 <script>
 
+const $ = id => document.getElementById(id);
 const earningOptions = [
  {name:"PollPe",kind:"zero",work:"Paid surveys and daily polls",payout:"UPI / IMPS; minimum ₹50 (as stated on its Google Play listing)",status:"B · app-store payout claim; not independently audited here",risk:"Survey availability and screening vary. Do not expect fixed daily income.",url:"https://play.google.com/store/apps/details?id=com.ai.pollpe",source:"Google Play listing"},
  {name:"Nopser",kind:"research",work:"Paid research studies, focus groups and product tests",payout:"UPI after attending an eligible study; reward varies by study",status:"B · official website describes UPI incentives; individual payout not independently verified",risk:"Study slots and city eligibility are limited; some studies require in-person attendance.",url:"https://nopser.com/",source:"Official participant website"},
@@ -62,7 +63,6 @@ const SUPABASE_URL = "https://fgjcudwglwlizhhlmruk.supabase.co";
 const SUPABASE_KEY = "sb_publishable_v7CERFljtqM-6O692eZzNA_aH6DEedu";
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let mode = "signup", user = null, profile = null, balancePaise = 0;
-const $ = id => document.getElementById(id);
 const money = p => "₹" + (Number(p||0)/100).toFixed(2);
 const msg = (id,t) => $(id).textContent = t;
 const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
