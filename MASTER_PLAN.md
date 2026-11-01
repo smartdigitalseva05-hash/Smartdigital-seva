@@ -215,3 +215,11 @@ Before every release:
 3. Build a verified service catalogue with official source links, document checklists and separately stated fees; leave unverified prices unpublished.
 4. Only after that, design a secure enquiry record/reference workflow. Never store customer data in public HTML or a public repository.
 5. Keep `creator_studio_pro.html` untouched and use backups/reviewed commits for future homepage changes.
+
+
+## 12. Pricing update — 1 November 2026
+
+- Added visible indicative Smart Digital Seva assistance fees to the homepage service cards: ROR ₹40; income/caste/residence certificates ₹30 each; PAN assistance ₹50; character certificate assistance ₹40; e-Pauti assistance ₹30; online form filling from ₹50; other work quoted before starting.
+- e-Shram registration is displayed as free; no registration charge is collected. Aadhaar section is information-only and points customers to authorised centres.
+- Government/provider charges are stated separately and must be confirmed before collecting payment. These suggested assistance fees are initial estimates, not a guaranteed profit calculation; review them against actual time, travel, printing, payment costs and partner margin.
+- Next: verify each fee/wording against current official portals, test the live GitHub Pages page on Android, then add service detail/document checklist pages and secure enquiry tracking in a backend when feasible.
