@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://smartdigitalseva05-hash.github.io/Smartdigital-seva/sitemap.xml
