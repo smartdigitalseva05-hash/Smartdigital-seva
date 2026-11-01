@@ -87,6 +87,22 @@ function showPage(page){["tasks","wallet","profile","admin"].forEach(p=>$("page-
 document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
 $("signupTab").onclick=()=>setMode("signup");$("loginTab").onclick=()=>setMode("login");
 function setMode(m){mode=m;$("nameWrap").classList.toggle("hidden",m==="login");$("authBtn").textContent=m==="signup"?"Create free account":"Sign in";$("password").setAttribute("autocomplete",m==="signup"?"new-password":"current-password");$("authMsg").textContent="";}
+function startAuthCooldown(seconds){
+ const btn=$("authBtn");
+ const end=Date.now()+Math.max(1,seconds)*1000;
+ if(window.authCooldownTimer) clearInterval(window.authCooldownTimer);
+ const tick=()=>{
+  const left=Math.max(0,Math.ceil((end-Date.now())/1000));
+  if(left===0){
+   clearInterval(window.authCooldownTimer);window.authCooldownTimer=null;
+   btn.disabled=false;btn.textContent=mode==="signup"?"Create free account":"Sign in";
+   msg("authMsg","You can try again now.");return;
+  }
+  btn.disabled=true;btn.textContent="Wait "+left+"s";
+  msg("authMsg","For security, please wait "+left+" seconds before trying again. Do not keep resubmitting.");
+ };
+ tick();window.authCooldownTimer=setInterval(tick,1000);
+}
 $("authBtn").onclick=async()=>{
  const btn=$("authBtn"); if(btn.disabled) return;
  const email=$("email").value.trim(),password=$("password").value,name=$("name").value.trim();
@@ -103,8 +119,8 @@ $("authBtn").onclick=async()=>{
   if(mode==="signup"&&!r.data.session){msg("authMsg","Account request created. Check your email inbox/spam and confirm your email, then return here and sign in.");return;}
   if(!r.data.user) throw new Error("Account response was incomplete. Please try signing in.");
   await boot(r.data.user);
- }catch(error){console.error("Authentication error:",error);msg("authMsg",error.message||"Something went wrong. Please try again.");}
- finally{btn.disabled=false;btn.textContent=mode==="signup"?"Create free account":"Sign in";}
+ }catch(error){console.error("Authentication error:",error);const errorText=error.message||"Something went wrong. Please try again.";const waitMatch=errorText.match(/after\s+(\d+)\s+seconds?/i);if(waitMatch){msg("authMsg","");startAuthCooldown(Number(waitMatch[1]));}else{msg("authMsg",errorText);}}
+ finally{if(!window.authCooldownTimer){btn.disabled=false;btn.textContent=mode==="signup"?"Create free account":"Sign in";}}
 };
 $("logout").onclick=async()=>{try{const r=await db.auth.signOut();if(r.error)throw r.error;user=null;profile=null;$("app").classList.add("hidden");$("auth").classList.remove("hidden");msg("authMsg","You have signed out.");}catch(error){alert("Could not sign out: "+(error.message||"Please try again."));}};
 async function boot(u){
