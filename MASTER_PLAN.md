@@ -188,3 +188,30 @@ Before every release:
 5. Build and test one milestone at a time; preserve existing index.html until a reviewed replacement is ready and keep creator_studio_pro.html untouched.
 
 **Project principle:** Trust first, solve a real customer problem, measure the result, then scale. A beautiful website attracts attention; reliable service, transparent pricing and follow-through create a sustainable business.
+
+
+---
+
+## 11. Development progress — 1 November 2026
+
+**Owner decision confirmed:** business model = own services + future partner/platform model; budget = ₹0; initial reach = Bhawanipatna/local area.
+
+### Completed
+- [x] Audited the current repository file list and inspected the existing Odia homepage.
+- [x] Preserved `creator_studio_pro.html`; it was not modified.
+- [x] Created `customer_request.html`, a mobile-friendly preliminary enquiry page.
+- [x] The enquiry page opens WhatsApp with a prefilled message for the customer to review and send. It does not save enquiries to a database.
+- [x] Added links from the homepage navigation and hero area to the enquiry page.
+- [x] Kept the homepage and enquiry page free of file uploads and requests for OTPs, passwords, UPI PINs or bank credentials.
+
+### Current limitations
+- The enquiry flow is WhatsApp handoff only; there is no automatic reference number, database, admin dashboard or customer status tracking yet.
+- Service availability, document requirements, government fees and Smart Digital Seva assistance fees must be verified before being advertised as confirmed.
+- GitHub Pages deployment and live mobile behaviour still require a real-device check after publishing.
+
+### Next actions
+1. Test the homepage and `customer_request.html` on an Android phone, including every navigation and WhatsApp link.
+2. Confirm exactly which services the operator can currently provide and under what authority/partner arrangement.
+3. Build a verified service catalogue with official source links, document checklists and separately stated fees; leave unverified prices unpublished.
+4. Only after that, design a secure enquiry record/reference workflow. Never store customer data in public HTML or a public repository.
+5. Keep `creator_studio_pro.html` untouched and use backups/reviewed commits for future homepage changes.
