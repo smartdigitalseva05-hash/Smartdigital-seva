@@ -113,7 +113,7 @@ $("authBtn").onclick=async()=>{
  try{
   if(!db) throw new Error("Secure sign-in service is not ready. Check your internet connection, then refresh the page.");
   const r=mode==="signup"
-   ? await db.auth.signUp({email,password,options:{data:{display_name:name}}})
+   ? await db.auth.signUp({email,password,options:{data:{display_name:name},emailRedirectTo:"https://smartdigitalseva05-hash.github.io/Smartdigital-seva/zero-income-earn/"}})
    : await db.auth.signInWithPassword({email,password});
   if(r.error) throw r.error;
   if(mode==="signup"&&!r.data.session){msg("authMsg","Account request created. Check your email inbox/spam and confirm your email, then return here and sign in.");return;}
