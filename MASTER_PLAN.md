@@ -266,3 +266,10 @@ All displayed prices are Smart Digital Seva assistance fees, not government fees
 - The enquiry form remains WhatsApp handoff only: it does not persist enquiries, generate secure reference numbers or provide status tracking.
 - No dedicated Smart Digital Seva Supabase project was identified. Existing projects belong to other named workstreams; do not modify them without the owner's explicit project selection.
 - Next technical milestone: choose/create a dedicated backend project at confirmed $0 cost, configure authentication, RLS, enquiry storage, reference numbers and admin/customer status workflows. Do not claim backend functionality until end-to-end tests pass.
+
+## 16. SEO and navigation additions — 1 November 2026
+
+- Added an Odia `404.html` fallback page.
+- Added `robots.txt` and `sitemap.xml` for the public homepage, enquiry page, service guide, FAQ and policies.
+- Added canonical URL and Open Graph sharing metadata to `index.html`.
+- These are source-level changes; search engine indexing and social preview appearance need external verification after deployment.
