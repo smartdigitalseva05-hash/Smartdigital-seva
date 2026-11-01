@@ -18,10 +18,11 @@ jobs:
           script: |
             const staleSha = "e15273f49695eebdee62bba3ea290cfe7d502bb9";
             try {
-              await github.rest.repos.cancelPagesDeployment({
+              await github.request("POST /repos/{owner}/{repo}/pages/deployments/{pages_deployment_id}/cancel", {
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                pages_deployment_id: staleSha
+                pages_deployment_id: staleSha,
+                headers: { "X-GitHub-Api-Version": "2022-11-28" }
               });
               core.info("Cancelled stale GitHub Pages deployment " + staleSha);
             } catch (error) {
