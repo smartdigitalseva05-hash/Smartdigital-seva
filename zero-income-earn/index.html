@@ -57,7 +57,7 @@ function renderEarningDirectory(filter="all"){
  $("earningCount").textContent=items.length+" option(s) currently shown. We will add more only after checking.";
 }
 document.querySelectorAll("[data-earn-filter]").forEach(b=>b.addEventListener("click",()=>renderEarningDirectory(b.dataset.earnFilter)));
-renderEarningDirectory();
+
 
 const SUPABASE_URL = "https://fgjcudwglwlizhhlmruk.supabase.co";
 const SUPABASE_KEY = "sb_publishable_v7CERFljtqM-6O692eZzNA_aH6DEedu";
@@ -66,6 +66,7 @@ let mode = "signup", user = null, profile = null, balancePaise = 0;
 const money = p => "₹" + (Number(p||0)/100).toFixed(2);
 const msg = (id,t) => $(id).textContent = t;
 const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+renderEarningDirectory();
 function showPage(page){["tasks","wallet","profile","admin"].forEach(p=>$("page-"+p).classList.toggle("hidden",p!==page));document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("secondary",b.dataset.page!==page));if(page==="wallet")loadWallet();if(page==="admin")loadAdmin();}
 document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
 $("signupTab").onclick=()=>setMode("signup");$("loginTab").onclick=()=>setMode("login");
