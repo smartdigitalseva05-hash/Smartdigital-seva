@@ -19,7 +19,7 @@ footer{text-align:center;color:#6a807d;font-size:12px;padding:0 15px 25px}a{colo
 <form id="requestForm">
 <label for="customerName">ଆପଣଙ୍କ ନାମ *</label><input id="customerName" maxlength="100" required autocomplete="name" placeholder="ନାମ ଲେଖନ୍ତୁ">
 <label for="mobile">ମୋବାଇଲ୍ ନମ୍ବର *</label><input id="mobile" inputmode="numeric" maxlength="10" pattern="[6-9][0-9]{9}" required placeholder="10 ଅଙ୍କର ମୋବାଇଲ୍ ନମ୍ବର">
-<label for="service">କେଉଁ ସେବା ଦରକାର? *</label><select id="service" required><option value="">ସେବା ବାଛନ୍ତୁ</option><option>ROR / ଜମି ରେକର୍ଡ କପି</option><option>ଆୟ ପ୍ରମାଣପତ୍ର</option><option>ଜାତି ପ୍ରମାଣପତ୍ର</option><option>ବାସିନ୍ଦା ପ୍ରମାଣପତ୍ର</option><option>PAN କାର୍ଡ</option><option>ଇ-ଶ୍ରମ କାର୍ଡ</option><option>ଆଧାର ସମ୍ବନ୍ଧୀୟ ସୂଚନା</option><option>ଚରିତ୍ର ପ୍ରମାଣପତ୍ର</option><option>ଇ-ପାଉତି / ମାଲଗୁଜାରି ପାଉତି</option><option>ଅନଲାଇନ୍ ଫର୍ମ ପୂରଣ</option><option>ଅନ୍ୟାନ୍ୟ</option></select>
+<label for="service">କେଉଁ ସେବା ଦରକାର? *</label><select id="service" required><option value="">ସେବା ବାଛନ୍ତୁ</option><option>ROR / ଜମି ରେକର୍ଡ କପି</option><option>ଆୟ ପ୍ରମାଣପତ୍ର</option><option>ଜାତି ପ୍ରମାଣପତ୍ର</option><option>ବାସିନ୍ଦା ପ୍ରମାଣପତ୍ର</option><option>PAN କାର୍ଡ</option><option>ଇ-ଶ୍ରମ କାର୍ଡ</option><option>ଆଧାର ସମ୍ବନ୍ଧୀୟ ସୂଚନା</option><option>ଚରିତ୍ର ପ୍ରମାଣପତ୍ର</option><option>ଇ-ପାଉତି / ମାଲଗୁଜାରି ପାଉତି</option><option>ଅନଲାଇନ୍ ଫର୍ମ ପୂରଣ</option><option>ଅନ୍ୟାନ୍ୟ</option></select><p id="requestServiceStatus" class="hint" aria-live="polite">ସେବା ତାଲିକା ଲୋଡ୍ ହେଉଛି...</p>
 <label for="details">ଅଧିକ ବିବରଣୀ (ଇଚ୍ଛାଧୀନ)</label><textarea id="details" maxlength="1500" placeholder="ଆପଣଙ୍କ ଆବଶ୍ୟକତା ସଂକ୍ଷେପରେ ଲେଖନ୍ତୁ"></textarea>
 <p class="hint">Submit ପରେ ମିଳୁଥିବା tracking code ଏବଂ private access key ସୁରକ୍ଷିତ ରଖନ୍ତୁ। ଏହା ହରାଇଲେ application ଖୋଜିବା କଷ୍ଟକର ହେବ।</p>
 <button id="submitBtn" type="submit">ଅନୁରୋଧ Save କରନ୍ତୁ →</button><div id="formError" class="alert error" role="alert"></div>
@@ -32,10 +32,14 @@ footer{text-align:center;color:#6a807d;font-size:12px;padding:0 15px 25px}a{colo
 </section>
 <div class="notice"><strong>ସୁରକ୍ଷା:</strong> OTP, password, UPI PIN, ATM PIN, bank login କିମ୍ବା ଅନାବଶ୍ୟକ ଗୋପନୀୟ ତଥ୍ୟ କେବେ upload କରନ୍ତୁ ନାହିଁ। ଏହା ସରକାରୀ website ନୁହେଁ; Smart Digital Seva ଏକ ସ୍ୱତନ୍ତ୍ର ସହାୟତା ସେବା। ସରକାରୀ ଫିସ୍ ଅଲଗା ହୋଇପାରେ।</div>
 </main><footer>Smart Digital Seva<br><a href="./track.html">Application Tracking</a> · <a href="./policies.html">Privacy & Policies</a></footer>
-<script src="./services.js"></script>
+<script src="./services.js" onerror="document.getElementById('requestServiceStatus').textContent='ସେବା ତାଲିକା ଲୋଡ୍ ହୋଇନାହିଁ। ପୃଷ୍ଠା Refresh କରନ୍ତୁ।';"></script>
 <script>
 const serviceSelect=document.getElementById("service");
-(window.SDS_SERVICES||[]).forEach(item=>{const option=document.createElement("option");option.value=item.title;option.textContent=item.title;serviceSelect.appendChild(option);});
+const requestServiceStatus=document.getElementById("requestServiceStatus");
+const seenServices=new Set([...serviceSelect.options].map(option=>option.value.trim().toLocaleLowerCase()).filter(Boolean));
+(Array.isArray(window.SDS_SERVICES)?window.SDS_SERVICES:[]).forEach(item=>{if(!item||typeof item.title!=="string"||!item.title.trim())return;const title=item.title.trim(),key=title.toLocaleLowerCase();if(seenServices.has(key))return;seenServices.add(key);const option=document.createElement("option");option.value=title;option.textContent=title;serviceSelect.appendChild(option);});
+const requestTotal=serviceSelect.options.length-1;
+requestServiceStatus.textContent=requestTotal===200?"ମୋଟ 200ଟି ସେବାରୁ ବାଛନ୍ତୁ।":"ସତର୍କତା: ବର୍ତ୍ତମାନ "+requestTotal+"ଟି ସେବା ଲୋଡ୍ ହୋଇଛି। ଇଣ୍ଟରନେଟ୍ ଯାଞ୍ଚ କରି Refresh କରନ୍ତୁ।";
 const API="https://fgjcudwglwlizhhlmruk.supabase.co/functions/v1/sds-public";
 const APIKEY="sb_publishable_v7CERFljtqM-6O692eZzNA_aH6DEedu";
 let savedCode="",savedKey="";
