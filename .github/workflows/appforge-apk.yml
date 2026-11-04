@@ -22,7 +22,7 @@ on:
         type: string
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -160,10 +160,23 @@ jobs:
           PY
       - name: Build debug APK
         run: gradle --no-daemon assembleDebug
-      - name: Upload installable APK
+      - name: Upload installable APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: AppForge-Android-APK
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 7
+      - name: Publish direct APK download
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          TAG=smart-business-pro-apk
+          gh release view "$TAG" --repo "$GH_REPO" >/dev/null 2>&1 || \
+            gh release create "$TAG" --repo "$GH_REPO" \
+              --title "Smart Business Pro Android APK" \
+              --notes "Installable Android APK. Package: com.smartbusinesspro.app. Website wrapper build." \
+              --latest
+          gh release upload "$TAG" app/build/outputs/apk/debug/app-debug.apk \
+            --repo "$GH_REPO" --clobber
