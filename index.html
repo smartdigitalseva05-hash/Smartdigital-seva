@@ -215,8 +215,6 @@ document.querySelectorAll(".apply").forEach(link=>{
 });
 document.getElementById("year").textContent=new Date().getFullYear();
 </script>
-<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));}</script>
-
 <script>
 // Remove any previously cached public page version so visitors receive the current site.
 if ("serviceWorker" in navigator) {
