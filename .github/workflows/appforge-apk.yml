@@ -24,12 +24,8 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - name: Validate inputs
-        shell: bash
-        run: |
-          [[ "${{ inputs.package_id }}" =~ ^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)+$ ]] || { echo "Invalid package ID"; exit 1; }
-          [[ "${{ inputs.website_url }}" =~ ^https:// ]] || { echo "Website URL must start with https://"; exit 1; }
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
@@ -41,68 +37,70 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.7'
-      - name: Create Android WebView project
-        shell: bash
+      - name: Generate safe Android project
         env:
           APP_NAME: ${{ inputs.app_name }}
           PACKAGE_ID: ${{ inputs.package_id }}
           WEBSITE_URL: ${{ inputs.website_url }}
         run: |
-          mkdir -p app/src/main/java
-          PKG_PATH="$(echo "$PACKAGE_ID" | tr '.' '/')"
-          mkdir -p "app/src/main/java/$PKG_PATH"
-          cat > settings.gradle <<'EOF'
-          pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
-          dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }
-          rootProject.name = "AppForgeBuild"
-          include(":app")
-          EOF
-          echo 'plugins { id "com.android.application" version "8.6.1" apply false }' > build.gradle
-          cat > app/build.gradle <<EOF
-          plugins { id "com.android.application" }
-          android {
-            namespace "$PACKAGE_ID"
-            compileSdk 35
-            defaultConfig {
-              applicationId "$PACKAGE_ID"
-              minSdk 23
-              targetSdk 35
-              versionCode 1
-              versionName "1.0"
-            }
-          }
-          EOF
-          cat > app/src/main/AndroidManifest.xml <<EOF
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-            <uses-permission android:name="android.permission.INTERNET"/>
-            <application android:theme="@android:style/Theme.Material.Light.NoActionBar" android:label="$APP_NAME" android:usesCleartextTraffic="false">
-              <activity android:name=".MainActivity" android:exported="true">
-                <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
-              </activity>
-            </application>
-          </manifest>
-          EOF
-          cat > "app/src/main/java/$PKG_PATH/MainActivity.java" <<EOF
-          package $PACKAGE_ID;
+          python3 - <<'PY'
+          import os, re, json, html
+          from pathlib import Path
+          from urllib.parse import urlparse
+
+          app = os.environ["APP_NAME"].strip()
+          package = os.environ["PACKAGE_ID"].strip()
+          url = os.environ["WEBSITE_URL"].strip()
+          if not app or len(app) > 40 or any(ord(c) < 32 for c in app):
+              raise SystemExit("App name must be 1–40 printable characters.")
+          if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*(?:\.[A-Za-z][A-Za-z0-9_]*)+", package):
+              raise SystemExit("Invalid package ID.")
+          parsed = urlparse(url)
+          if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password:
+              raise SystemExit("Enter a valid public HTTPS website URL.")
+
+          pkg_path = package.replace(".", "/")
+          Path(f"app/src/main/java/{pkg_path}").mkdir(parents=True, exist_ok=True)
+          Path("app/src/main").mkdir(parents=True, exist_ok=True)
+          Path("settings.gradle").write_text(
+              'pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }\n'
+              'dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }\n'
+              'rootProject.name = "AppForgeBuild"\ninclude(":app")\n')
+          Path("build.gradle").write_text(
+              'plugins { id "com.android.application" version "8.6.1" apply false }\n')
+          Path("app/build.gradle").write_text(
+              'plugins { id "com.android.application" }\n'
+              f'android {{ namespace "{package}"; compileSdk 35; defaultConfig {{ applicationId "{package}"; minSdk 23; targetSdk 35; versionCode 1; versionName "1.0" }} }}\n')
+          label = html.escape(app, quote=True)
+          Path("app/src/main/AndroidManifest.xml").write_text(
+              '<manifest xmlns:android="http://schemas.android.com/apk/res/android">\n'
+              '<uses-permission android:name="android.permission.INTERNET"/>\n'
+              f'<application android:theme="@android:style/Theme.Material.Light.NoActionBar" android:label="{label}" android:usesCleartextTraffic="false">\n'
+              '<activity android:name=".MainActivity" android:exported="true"><intent-filter>'
+              '<action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/>'
+              '</intent-filter></activity></application></manifest>\n')
+          java = f'''package {package};
           import android.app.Activity;
           import android.os.Bundle;
           import android.webkit.WebView;
           import android.webkit.WebViewClient;
           import android.webkit.WebSettings;
-          public class MainActivity extends Activity {
-            @Override public void onCreate(Bundle b) {
-              super.onCreate(b);
-              WebView w = new WebView(this);
-              WebSettings s = w.getSettings();
-              s.setJavaScriptEnabled(true);
-              s.setDomStorageEnabled(true);
-              w.setWebViewClient(new WebViewClient());
-              setContentView(w);
-              w.loadUrl("$WEBSITE_URL");
-            }
-          }
-          EOF
-          printf 'App: %s\nPackage: %s\nWebsite: %s\n' "$APP_NAME" "$PACKAGE_ID" "$WEBSITE_URL" > BUILD-INFO.txt
+          public class MainActivity extends Activity {{
+            @Override public void onCreate(Bundle state) {{
+              super.onCreate(state);
+              WebView web = new WebView(this);
+              WebSettings settings = web.getSettings();
+              settings.setJavaScriptEnabled(true);
+              settings.setDomStorageEnabled(true);
+              web.setWebViewClient(new WebViewClient());
+              setContentView(web);
+              web.loadUrl({json.dumps(url)});
+            }}
+          }}
+          '''
+          Path(f"app/src/main/java/{pkg_path}/MainActivity.java").write_text(java)
+          Path("BUILD-INFO.txt").write_text(f"App: {app}\nPackage: {package}\nWebsite: {url}\n")
+          PY
       - name: Build debug APK
         run: gradle --no-daemon assembleDebug
       - name: Upload installable APK
@@ -110,4 +108,5 @@ jobs:
         with:
           name: AppForge-Android-APK
           path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
           retention-days: 7
