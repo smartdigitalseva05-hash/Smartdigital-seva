@@ -1,0 +1,109 @@
+name: AppForge APK Builder
+
+on:
+  workflow_dispatch:
+    inputs:
+      app_name:
+        description: App display name
+        required: true
+        default: My Website App
+        type: string
+      package_id:
+        description: Android package ID
+        required: true
+        default: com.example.mywebsiteapp
+        type: string
+      website_url:
+        description: HTTPS website URL to open in the APK
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate inputs
+        shell: bash
+        run: |
+          [[ "${{ inputs.package_id }}" =~ ^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)+$ ]] || { echo "Invalid package ID"; exit 1; }
+          [[ "${{ inputs.website_url }}" =~ ^https:// ]] || { echo "Website URL must start with https://"; exit 1; }
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Create Android WebView project
+        shell: bash
+        env:
+          APP_NAME: ${{ inputs.app_name }}
+          PACKAGE_ID: ${{ inputs.package_id }}
+          WEBSITE_URL: ${{ inputs.website_url }}
+        run: |
+          mkdir -p app/src/main/java
+          PKG_PATH="$(echo "$PACKAGE_ID" | tr '.' '/')"
+          mkdir -p "app/src/main/java/$PKG_PATH"
+          cat > settings.gradle <<'EOF'
+          pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
+          dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }
+          rootProject.name = "AppForgeBuild"
+          include(":app")
+          EOF
+          echo 'plugins { id "com.android.application" version "8.6.1" apply false }' > build.gradle
+          cat > app/build.gradle <<EOF
+          plugins { id "com.android.application" }
+          android {
+            namespace "$PACKAGE_ID"
+            compileSdk 35
+            defaultConfig {
+              applicationId "$PACKAGE_ID"
+              minSdk 23
+              targetSdk 35
+              versionCode 1
+              versionName "1.0"
+            }
+          }
+          EOF
+          cat > app/src/main/AndroidManifest.xml <<EOF
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+            <uses-permission android:name="android.permission.INTERNET"/>
+            <application android:theme="@android:style/Theme.Material.Light.NoActionBar" android:label="$APP_NAME" android:usesCleartextTraffic="false">
+              <activity android:name=".MainActivity" android:exported="true">
+                <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+              </activity>
+            </application>
+          </manifest>
+          EOF
+          cat > "app/src/main/java/$PKG_PATH/MainActivity.java" <<EOF
+          package $PACKAGE_ID;
+          import android.app.Activity;
+          import android.os.Bundle;
+          import android.webkit.WebView;
+          import android.webkit.WebViewClient;
+          import android.webkit.WebSettings;
+          public class MainActivity extends Activity {
+            @Override public void onCreate(Bundle b) {
+              super.onCreate(b);
+              WebView w = new WebView(this);
+              WebSettings s = w.getSettings();
+              s.setJavaScriptEnabled(true);
+              s.setDomStorageEnabled(true);
+              w.setWebViewClient(new WebViewClient());
+              setContentView(w);
+              w.loadUrl("$WEBSITE_URL");
+            }
+          }
+          EOF
+          printf 'App: %s\nPackage: %s\nWebsite: %s\n' "$APP_NAME" "$PACKAGE_ID" "$WEBSITE_URL" > BUILD-INFO.txt
+      - name: Build debug APK
+        run: gradle --no-daemon assembleDebug
+      - name: Upload installable APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AppForge-Android-APK
+          path: app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 7
