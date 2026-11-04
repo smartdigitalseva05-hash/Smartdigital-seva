@@ -53,5 +53,6 @@ $('buildBtn').onclick=async()=>{
  a.file('README.txt','Open this folder in Android Studio. This is starter source, not a ready APK. Check permissions, privacy, website compatibility and signing before release. For website mode, if the website blocks iframe embedding, the Android WebView opens the original URL directly. For HTML mode, the HTML is bundled in app assets.\n');
  try{const blob=await zip.generateAsync({type:'blob'});const link=document.createElement('a');const objectUrl=URL.createObjectURL(blob);link.href=objectUrl;link.download=(name.replace(/[^a-z0-9_-]/gi,'-')||'AppForge')+'-app-project.zip';document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(objectUrl),30000);status.textContent='ZIP generated. Check your browser Downloads folder.'}catch(e){status.textContent='Could not generate ZIP: '+e.message}
 };
+$('apkCloudBtn').onclick=()=>{window.location.href='https://github.com/smartdigitalseva05-hash/Smartdigital-seva/actions/workflows/appforge-apk.yml'};
 preview();
 </script></body></html>
