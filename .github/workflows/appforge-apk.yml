@@ -1,6 +1,9 @@
 name: AppForge APK Builder
 
 on:
+  push:
+    paths:
+      - ".github/workflows/appforge-apk.yml"
   workflow_dispatch:
     inputs:
       app_name:
@@ -39,9 +42,9 @@ jobs:
           gradle-version: '8.7'
       - name: Generate safe Android project
         env:
-          APP_NAME: ${{ inputs.app_name }}
-          PACKAGE_ID: ${{ inputs.package_id }}
-          WEBSITE_URL: ${{ inputs.website_url }}
+          APP_NAME: ${{ inputs.app_name || 'Smart Business Pro' }}
+          PACKAGE_ID: ${{ inputs.package_id || 'com.smartbusinesspro.app' }}
+          WEBSITE_URL: ${{ inputs.website_url || 'https://smartdigitalseva05-hash.github.io/smart-grocery-store-pro/' }}
         run: |
           python3 - <<'PY'
           import os, re, json, html
