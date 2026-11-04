@@ -1,0 +1,122 @@
+name: Super Admin APK Builder
+
+on:
+  push:
+    paths:
+      - ".github/workflows/super-admin-apk.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+      - name: Generate Super Admin Android app
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          package = "com.smartbusinesspro.owner"
+          pkg_path = package.replace(".", "/")
+          Path(f"app/src/main/java/{pkg_path}").mkdir(parents=True, exist_ok=True)
+          Path("app/src/main").mkdir(parents=True, exist_ok=True)
+          Path("settings.gradle").write_text('pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }\ndependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }\nrootProject.name = "SmartBusinessProOwner"\ninclude(":app")\n')
+          Path("build.gradle").write_text('plugins { id "com.android.application" version "8.6.1" apply false }\n')
+          Path("app/build.gradle").write_text('plugins { id "com.android.application" }\nandroid { namespace "com.smartbusinesspro.owner"; compileSdk 35; defaultConfig { applicationId "com.smartbusinesspro.owner"; minSdk 23; targetSdk 35; versionCode 1; versionName "1.0" } }\n')
+          Path("app/src/main/AndroidManifest.xml").write_text('''<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+          <uses-permission android:name="android.permission.INTERNET"/>
+          <application android:theme="@android:style/Theme.Material.Light.NoActionBar" android:label="Smart Business Pro Owner" android:usesCleartextTraffic="false">
+          <activity android:name=".MainActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity>
+          </application></manifest>''')
+          java = r'''package com.smartbusinesspro.owner;
+          import android.app.Activity;
+          import android.os.Bundle;
+          import android.webkit.*;
+          import android.content.Intent;
+          import android.net.Uri;
+          import android.view.View;
+          import android.widget.*;
+          import android.graphics.Color;
+          public class MainActivity extends Activity {
+            private WebView web;
+            private final String host = "smartdigitalseva05-hash.github.io";
+            private final String ownerUrl = "https://smartdigitalseva05-hash.github.io/smart-grocery-store-pro/owner.html";
+            @Override public void onCreate(Bundle state) {
+              super.onCreate(state);
+              getWindow().setStatusBarColor(Color.rgb(16,24,39));
+              FrameLayout root = new FrameLayout(this);
+              web = new WebView(this);
+              ProgressBar progress = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
+              FrameLayout.LayoutParams bar = new FrameLayout.LayoutParams(-1, 6);
+              root.addView(web, new FrameLayout.LayoutParams(-1, -1));
+              root.addView(progress, bar);
+              setContentView(root);
+              WebSettings s = web.getSettings();
+              s.setJavaScriptEnabled(true);
+              s.setDomStorageEnabled(true);
+              s.setAllowFileAccess(false);
+              s.setAllowContentAccess(false);
+              s.setJavaScriptCanOpenWindowsAutomatically(false);
+              s.setSupportMultipleWindows(false);
+              web.setWebChromeClient(new WebChromeClient() {
+                @Override public void onProgressChanged(WebView v, int p) {
+                  progress.setProgress(p);
+                  progress.setVisibility(p >= 100 ? View.GONE : View.VISIBLE);
+                }
+              });
+              web.setWebViewClient(new WebViewClient() {
+                @Override public boolean shouldOverrideUrlLoading(WebView v, WebResourceRequest r) {
+                  Uri u = r.getUrl();
+                  if ("https".equalsIgnoreCase(u.getScheme()) && host.equalsIgnoreCase(u.getHost())) return false;
+                  try { startActivity(new Intent(Intent.ACTION_VIEW, u)); } catch (Exception ignored) {}
+                  return true;
+                }
+              });
+              if (state == null) web.loadUrl(ownerUrl); else web.restoreState(state);
+            }
+            @Override protected void onSaveInstanceState(Bundle out) {
+              if (web != null) web.saveState(out);
+              super.onSaveInstanceState(out);
+            }
+            @Override public void onBackPressed() {
+              if (web != null && web.canGoBack()) web.goBack(); else super.onBackPressed();
+            }
+            @Override protected void onDestroy() {
+              if (web != null) { web.stopLoading(); web.destroy(); web = null; }
+              super.onDestroy();
+            }
+          }'''
+          Path(f"app/src/main/java/{pkg_path}/MainActivity.java").write_text(java)
+          Path("BUILD-INFO.txt").write_text("App: Smart Business Pro Owner\nPackage: com.smartbusinesspro.owner\nURL: https://smartdigitalseva05-hash.github.io/smart-grocery-store-pro/owner.html\n")
+          PY
+      - name: Build installable APK
+        run: gradle --no-daemon assembleDebug
+      - name: Publish direct APK download
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          TAG=smart-business-pro-owner-apk
+          gh release view "$TAG" --repo "$GH_REPO" >/dev/null 2>&1 || \
+            gh release create "$TAG" --repo "$GH_REPO" \
+              --title "Smart Business Pro Super Admin APK" \
+              --notes "Dedicated Owner portal app. Package: com.smartbusinesspro.owner. Opens the protected owner.html route; Supabase authorization and MFA remain required." \
+              --latest
+          gh release upload "$TAG" app/build/outputs/apk/debug/app-debug.apk \
+            --repo "$GH_REPO" --clobber
