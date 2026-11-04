@@ -195,6 +195,7 @@ extraServices.forEach(service=>{
   const category=service.category,icon=service.icon;
   serviceList.insertAdjacentHTML("beforeend",`<article class="service-card" data-category="${category}"><div class="service-icon">${icon}</div><h3>${title}</h3><p>${title} ସମ୍ବନ୍ଧୀୟ ଅନଲାଇନ୍ ଆବେଦନ, ଫର୍ମ, ଦଲିଲ କିମ୍ବା status ବିଷୟରେ ସୂଚନା ଓ ଉପଲବ୍ଧ ସହାୟତା। ଅଧିକୃତ portal ର ନିୟମ ଲାଗୁ ହେବ।</p><div class="price-line"><strong>ଦର ପଚାରନ୍ତୁ</strong><small>ସହାୟତା ଶୁଳ୍କ ଓ ସରକାରୀ / portal fee ପୂର୍ବରୁ ନିଶ୍ଚିତ କରନ୍ତୁ।</small></div><a class="btn apply" data-service="${title}" href="#">ଏହି ସେବା ପାଇଁ ପଚାରନ୍ତୁ →</a></article>`);
 });
+document.getElementById("serviceCount").textContent="ମୋଟ "+document.querySelectorAll(".service-card").length+"ଟି ଭିନ୍ନ ସେବା";
 const searchInput=document.getElementById("search");
 const cards=[...document.querySelectorAll(".service-card")];
 const filters=[...document.querySelectorAll(".filter")];
