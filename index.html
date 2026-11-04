@@ -132,7 +132,7 @@ footer p{margin:4px}
   <div class="filters">
     <button class="filter active" data-category="all">ସମସ୍ତ 200 ସେବା</button><button class="filter" data-category="certificate">ପ୍ରମାଣପତ୍ର</button><button class="filter" data-category="identity">ପରିଚୟ / ଲାଇସେନ୍ସ</button><button class="filter" data-category="land">ଜମି / ସମ୍ପତ୍ତି</button><button class="filter" data-category="finance">ଟ୍ୟାକ୍ସ / ଆର୍ଥିକ</button><button class="filter" data-category="education">ଶିକ୍ଷା / ଚାକିରି</button><button class="filter" data-category="business">ବ୍ୟବସାୟ</button><button class="filter" data-category="utility">ବିଦ୍ୟୁତ / ପାଣି</button><button class="filter" data-category="travel">ଯାତ୍ରା</button><button class="filter" data-category="digital">ଡିଜିଟାଲ୍</button><button class="filter" data-category="other">ଅନ୍ୟାନ୍ୟ</button>
   </div>
-  <p id="serviceCount" style="text-align:center;color:#60777a;font-size:12px;margin:0 0 15px">ମୋଟ 200ଟି ଭିନ୍ନ ସେବା</p>
+  <p id="serviceCount" style="text-align:center;color:#60777a;font-size:12px;margin:0 0 6px" aria-live="polite">ସେବା ତାଲିକା ଲୋଡ୍ ହେଉଛି...</p><p id="serviceLoadStatus" style="text-align:center;color:#8a5b13;font-size:12px;margin:0 0 15px" aria-live="polite"></p>
   <div class="services" id="serviceList">
     <article class="service-card" data-category="land"><div class="service-icon">📄</div><h3>ROR / ଜମି ରେକର୍ଡ କପି</h3><p>Record of Rights (ROR) କପି ସମ୍ବନ୍ଧୀୟ ସୂଚନା ଓ ଅନଲାଇନ୍ ସହାୟତା।</p><div class="price-line"><strong>₹19</strong><small>Smart Digital Seva ସେବା ଶୁଳ୍କ • ସରକାରୀ certified copy fee ଅଲଗା</small></div><a class="btn apply" data-service="ROR / ଜମି ରେକର୍ଡ କପି" href="#">ଏହି ସେବା ପାଇଁ ପଚାରନ୍ତୁ →</a></article>
     <article class="service-card" data-category="certificate"><div class="service-icon">💰</div><h3>ଆୟ ପ୍ରମାଣପତ୍ର</h3><p>Income Certificate ଆବେଦନ ପ୍ରକ୍ରିୟା ଓ ଆବଶ୍ୟକ ଦଲିଲ ବିଷୟରେ ସହାୟତା।</p><div class="price-line"><strong>₹99</strong><small>Smart Digital Seva ସେବା ଶୁଳ୍କ • ସରକାରୀ ଫିସ୍ ଥିଲେ ଅଲଗା</small></div><a class="btn apply" data-service="ଆୟ ପ୍ରମାଣପତ୍ର" href="#">ଏହି ସେବା ପାଇଁ ପଚାରନ୍ତୁ →</a></article>
@@ -186,7 +186,7 @@ footer p{margin:4px}
 </section>
 <footer><p><strong>SMART DIGITAL SEVA</strong></p><p>ସ୍ମାର୍ଟ ଡିଜିଟାଲ୍ ସେବା • Bhawanipatna, Odisha</p><p><a href="service_guide.html" style="color:#d8efeb">ସେବା ଗାଇଡ୍</a> · <a href="faq.html" style="color:#d8efeb">ପ୍ରଶ୍ନୋତ୍ତର</a> · <a href="policies.html" style="color:#d8efeb">Privacy & Policies</a> · <a href="customer_request.html" style="color:#d8efeb">ସେବା ଅନୁରୋଧ</a> · <a href="complaint.html" style="color:#d8efeb">ଅଭିଯୋଗ</a> · <a href="track.html" style="color:#d8efeb">Application Tracking</a></p><p>© <span id="year"></span> Smart Digital Seva. ସମସ୍ତ ଅଧିକାର ସଂରକ୍ଷିତ।</p></footer>
 
-<script src="./services.js"></script>
+<script src="./services.js" onerror="document.getElementById('serviceCount').textContent='ବର୍ତ୍ତମାନ 11ଟି ସେବା ଦେଖାଯାଉଛି।';document.getElementById('serviceLoadStatus').textContent='ଅତିରିକ୍ତ ସେବା ଲୋଡ୍ ହୋଇନାହିଁ। ଇଣ୍ଟରନେଟ୍ ଯାଞ୍ଚ କରି Refresh କରନ୍ତୁ।';"></script>
 <script>
 const extraServices=window.SDS_SERVICES||[];
 const serviceList=document.getElementById("serviceList");
@@ -196,6 +196,9 @@ extraServices.forEach(service=>{
   serviceList.insertAdjacentHTML("beforeend",`<article class="service-card" data-category="${category}"><div class="service-icon">${icon}</div><h3>${title}</h3><p>${title} ସମ୍ବନ୍ଧୀୟ ଅନଲାଇନ୍ ଆବେଦନ, ଫର୍ମ, ଦଲିଲ କିମ୍ବା status ବିଷୟରେ ସୂଚନା ଓ ଉପଲବ୍ଧ ସହାୟତା। ଅଧିକୃତ portal ର ନିୟମ ଲାଗୁ ହେବ।</p><div class="price-line"><strong>ଦର ପଚାରନ୍ତୁ</strong><small>ସହାୟତା ଶୁଳ୍କ ଓ ସରକାରୀ / portal fee ପୂର୍ବରୁ ନିଶ୍ଚିତ କରନ୍ତୁ।</small></div><a class="btn apply" data-service="${title}" href="#">ଏହି ସେବା ପାଇଁ ପଚାରନ୍ତୁ →</a></article>`);
 });
 document.getElementById("serviceCount").textContent="ମୋଟ "+document.querySelectorAll(".service-card").length+"ଟି ଭିନ୍ନ ସେବା";
+const loadedTotal=document.querySelectorAll(".service-card").length;
+document.getElementById("serviceLoadStatus").textContent=loadedTotal===200?"ସମସ୍ତ 200ଟି ସେବା ସଫଳତାର ସହିତ ଲୋଡ୍ ହୋଇଛି।":"ସତର୍କତା: "+loadedTotal+"ଟି ସେବା ଲୋଡ୍ ହୋଇଛି। 200ଟି ନହେଲେ ଇଣ୍ଟରନେଟ୍ ଯାଞ୍ଚ କରି Refresh କରନ୍ତୁ।";
+document.getElementById("serviceLoadStatus").style.color=loadedTotal===200?"#08766c":"#8a5b13";
 const searchInput=document.getElementById("search");
 const cards=[...document.querySelectorAll(".service-card")];
 const filters=[...document.querySelectorAll(".filter")];
