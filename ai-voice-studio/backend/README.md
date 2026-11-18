@@ -74,7 +74,7 @@ The API caps each request at 3,000 characters and serializes model inference to 
 
 ## Current integration status
 
-This backend is a separate scaffold. The GitHub Pages frontend still uses the device's built-in speech engine until a private backend URL and a safe user-token flow are configured. No paid API is used by this code, but hosting, bandwidth, and compute may have free-tier limits.
+This backend is a separate scaffold. The GitHub Pages frontend now has an optional Neural AI mode: enter your backend HTTPS URL and private token in the Voice controls panel, then use Neural AI and select a language/voice. The token is kept in sessionStorage for the current browser tab session. Device mode remains available without a backend. No paid API is used by this code, but hosting, bandwidth, and compute may have free-tier limits.
 
 ## Model notes
 
