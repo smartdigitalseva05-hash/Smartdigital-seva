@@ -30,8 +30,8 @@
 </section>
 <aside class="card">
 <h3>🎙️ Voice controls</h3>
-<div class="field"><label for="engine">Voice engine</label><select id="engine"><option value="device">Device voices (free, built-in)</option><option value="neural">Neural AI (Mithi backend)</option></select></div>
-<div id="neuralSettings" class="field" hidden><label for="backendUrl">Your Python backend URL (HTTPS)</label><input id="backendUrl" type="url" placeholder="https://your-python-host.example" style="width:100%;background:#0b1525;border:1px solid #344866;border-radius:12px;color:var(--text);padding:12px;font:inherit;margin-bottom:9px"><label for="apiToken">Private API token</label><input id="apiToken" type="password" autocomplete="off" placeholder="Paste your backend token" style="width:100%;background:#0b1525;border:1px solid #344866;border-radius:12px;color:var(--text);padding:12px;font:inherit"><button class="secondary" id="saveBackend" style="width:100%;margin-top:9px">Save & test connection</button><small class="note">Token is stored only in this browser tab session. Use HTTPS and never share it. Neural mode needs your own running Python backend.</small></div>
+<div class="field"><label for="engine">Voice engine</label><select id="engine"><option value="device">Device voices (free, built-in)</option><option value="hf">Free Neural AI (Hugging Face ZeroGPU)</option><option value="neural">Neural AI (custom backend)</option></select></div>
+<div id="hfSettings" class="field" hidden><label for="hfSpaceUrl">Your free Hugging Face Space URL</label><input id="hfSpaceUrl" type="url" placeholder="https://huggingface.co/spaces/username/space-name" style="width:100%;background:#0b1525;border:1px solid #344866;border-radius:12px;color:var(--text);padding:12px;font:inherit"><button class="secondary" id="openHfSpace" style="width:100%;margin-top:9px">Open free Neural AI</button><small class="note">After creating your free ZeroGPU Space, paste its URL here. Speak copies your script and opens the AI page; paste it there to generate Odia audio. Free quota and queue limits apply. Do not enter private text.</small></div>\n<div id="neuralSettings" class="field" hidden><label for="backendUrl">Your Python backend URL (HTTPS)</label><input id="backendUrl" type="url" placeholder="https://your-python-host.example" style="width:100%;background:#0b1525;border:1px solid #344866;border-radius:12px;color:var(--text);padding:12px;font:inherit;margin-bottom:9px"><label for="apiToken">Private API token</label><input id="apiToken" type="password" autocomplete="off" placeholder="Paste your backend token" style="width:100%;background:#0b1525;border:1px solid #344866;border-radius:12px;color:var(--text);padding:12px;font:inherit"><button class="secondary" id="saveBackend" style="width:100%;margin-top:9px">Save & test connection</button><small class="note">Token is stored only in this browser tab session. Use HTTPS and never share it. Neural mode needs your own running Python backend.</small></div>
 <div class="field"><label for="language">Language</label><select id="language"><option value="all">All available voices</option><option value="or" selected>Odia</option><option value="hi">Hindi</option><option value="en">English</option></select></div>
 <div class="field"><label for="voice">Voice</label><select id="voice"><option value="">Loading device voices…</option></select></div>
 <div class="field range-wrap"><label for="rate">Speaking speed <span id="rateVal">1.0×</span></label><input id="rate" type="range" min=".65" max="1.35" step=".05" value="1"></div>
@@ -53,7 +53,7 @@
 const synth=window.speechSynthesis;
 const $=id=>document.getElementById(id);
 const script=$('script'),voiceSelect=$('voice'),language=$('language'),status=$('status');
-const engine=$('engine'),neuralSettings=$('neuralSettings'),downloadButton=$('downloadWav');
+const engine=$('engine'),neuralSettings=$('neuralSettings'),hfSettings=$('hfSettings'),downloadButton=$('downloadWav');
 let voices=[],speechChunks=[],chunkIndex=0,playbackActive=false;
 let audioObject=null,audioUrl=null,activeRequest=null;
 const neuralVoices=[['satvik','Satvik — Male'],['anirban','Anirban — Male'],['nakul','Nakul — Male'],['vasant','Vasant — Male'],['siddhant','Siddhant — Male'],['charvi','Charvi — Female'],['ahana','Ahana — Female'],['vaidehi','Vaidehi — Female'],['malini','Malini — Female'],['jahnavi','Jahnavi — Female']];
@@ -61,7 +61,7 @@ function sayStatus(message,type){status.textContent=message;status.className='st
 function updateCount(){$('count').textContent=script.value.length.toLocaleString();}
 function langMatches(v,filter){return filter==='all'||(v.lang||'').toLowerCase().startsWith(filter);}
 function getBackend(){return {url:($('backendUrl').value||'').trim().replace(/\/+$/,''),token:$('apiToken').value||''};}
-function loadSavedBackend(){try{$('backendUrl').value=sessionStorage.getItem('voiceBackendUrl')||'';$('apiToken').value=sessionStorage.getItem('voiceApiToken')||'';}catch(e){}}
+function loadSavedBackend(){try{$('backendUrl').value=sessionStorage.getItem('voiceBackendUrl')||'';$('apiToken').value=sessionStorage.getItem('voiceApiToken')||'';$('hfSpaceUrl').value=sessionStorage.getItem('hfSpaceUrl')||'';}catch(e){}}\nfunction validHfUrl(raw){try{const u=new URL(raw);return u.protocol==='https:'&&(u.hostname==='huggingface.co'&&u.pathname.startsWith('/spaces/')||u.hostname.endsWith('.hf.space'));}catch(e){return false;}}\nfunction openHfSpace(copyText){const raw=$('hfSpaceUrl').value.trim().replace(/\\/+$/,'');if(!validHfUrl(raw)){sayStatus('Paste a valid Hugging Face Space URL (huggingface.co/spaces/... or *.hf.space).','bad');return;}try{sessionStorage.setItem('hfSpaceUrl',raw);}catch(e){}window.open(raw,'_blank','noopener');if(copyText&&navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(script.value).then(()=>sayStatus('Free Neural AI opened. Your script was copied; paste it into the Space to generate speech.','good')).catch(()=>sayStatus('Free Neural AI opened. Copy your script and paste it into the Space.','good'));}else if(copyText){sayStatus('Free Neural AI opened. Copy your script and paste it into the Space.','good');}}
 function loadVoices(){
  voiceSelect.innerHTML='';
  if(engine.value==='neural'){
@@ -122,7 +122,7 @@ async function speakNeural(text){
 }
 function speak(){
  const text=script.value.trim();if(!text){sayStatus('Please enter some text first.','bad');script.focus();return;}
- if(engine.value==='neural'){if(synth)synth.cancel();playbackActive=false;speechChunks=[];if(audioObject){audioObject.pause();audioObject=null;}speakNeural(text);return;}
+ if(engine.value==='hf'){openHfSpace(true);return;}\n if(engine.value==='neural'){if(synth)synth.cancel();playbackActive=false;speechChunks=[];if(audioObject){audioObject.pause();audioObject=null;}speakNeural(text);return;}
  if(!synth){sayStatus('Speech synthesis is not supported by this browser.','bad');return;}
  synth.cancel();speechChunks=splitForSpeech(text,220);chunkIndex=0;playbackActive=true;playNext();
 }
@@ -134,14 +134,14 @@ $('pause').addEventListener('click',()=>{
 $('stop').addEventListener('click',()=>{if(activeRequest)activeRequest.abort();if(synth)synth.cancel();if(audioObject){audioObject.pause();audioObject.currentTime=0;audioObject=null;}playbackActive=false;speechChunks=[];chunkIndex=0;sayStatus('Playback stopped.');});
 $('refresh').addEventListener('click',loadVoices);
 language.addEventListener('change',()=>{if(engine.value==='neural'&&language.value==='all')language.value='or';loadVoices();});
-engine.addEventListener('change',()=>{neuralSettings.hidden=engine.value!=='neural';$('rate').disabled=engine.value==='neural';$('pitch').disabled=engine.value==='neural';if(engine.value==='neural'&&language.value==='all')language.value='hi';loadVoices();});
+engine.addEventListener('change',()=>{neuralSettings.hidden=engine.value!=='neural';hfSettings.hidden=engine.value!=='hf';$('rate').disabled=engine.value!=='device';$('pitch').disabled=engine.value!=='device';if(engine.value==='neural'&&language.value==='all')language.value='hi';loadVoices();});\n$('openHfSpace').addEventListener('click',()=>openHfSpace(false));
 $('saveBackend').addEventListener('click',saveBackend);
 downloadButton.addEventListener('click',()=>{if(!audioUrl)return;const a=document.createElement('a');a.href=audioUrl;a.download='ai-voice-studio-speech.wav';document.body.appendChild(a);a.click();a.remove();});
 script.addEventListener('input',updateCount);
 $('rate').addEventListener('input',()=>{$('rateVal').textContent=Number($('rate').value).toFixed(2)+'×';});
 $('pitch').addEventListener('input',()=>{$('pitchVal').textContent=Number($('pitch').value).toFixed(2);});
 loadSavedBackend();if(synth){loadVoices();if(typeof synth.addEventListener==='function')synth.addEventListener('voiceschanged',loadVoices);else synth.onvoiceschanged=loadVoices;}else loadVoices();
-neuralSettings.hidden=true;updateCount();
+neuralSettings.hidden=true;hfSettings.hidden=true;updateCount();
 })();
 </script>
 <script>if ("serviceWorker" in navigator && location.protocol === "https:") { window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {})); }</script>
