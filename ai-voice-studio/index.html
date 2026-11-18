@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#101827">\n<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#101827">
+<link rel="manifest" href="./manifest.webmanifest">
 <meta name="description" content="A free, private text-to-speech studio using voices available on your device.">
 <title>AI Voice Studio Pro — Free Text to Speech</title>
 <style>
@@ -76,7 +77,8 @@ function splitForSpeech(text,maxLen){
   if(remaining.length<=maxLen){parts.push(remaining);break;}
   let cut=-1;
   const window=remaining.slice(0,maxLen+1);
-  const punctuation=Math.max(window.lastIndexOf('।'),window.lastIndexOf('.'),window.lastIndexOf('!'),window.lastIndexOf('?'),window.lastIndexOf('\n'));
+  const punctuation=Math.max(window.lastIndexOf('।'),window.lastIndexOf('.'),window.lastIndexOf('!'),window.lastIndexOf('?'),window.lastIndexOf('
+'));
   if(punctuation>Math.floor(maxLen*.45)) cut=punctuation+1;
   if(cut<0){const space=window.lastIndexOf(' ');cut=space>0?space:maxLen;}
   parts.push(remaining.slice(0,cut).trim());
@@ -111,5 +113,6 @@ if(synth){loadVoices();if(typeof synth.addEventListener==='function')synth.addEv
 updateCount();
 })();
 </script>
-<script>if ("serviceWorker" in navigator && location.protocol === "https:") { window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {})); }</script>\n</body>
+<script>if ("serviceWorker" in navigator && location.protocol === "https:") { window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {})); }</script>
+</body>
 </html>
