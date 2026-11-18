@@ -8,7 +8,7 @@ V=".venv/bin"
 "$V/pip" install --upgrade pip
 "$V/pip" install torch --index-url https://download.pytorch.org/whl/cpu
 "$V/pip" install -r requirements.txt
-if [ ! -f mithi-v2-flash/run.py ]; then
+"$V/python" -m spacy download en_core_web_sm\nif [ ! -f mithi-v2-flash/run.py ]; then
   "$V/hf" download Oomni/mithi-v2-flash --local-dir mithi-v2-flash
 fi
 if [ ! -f .voice_api_key ]; then
