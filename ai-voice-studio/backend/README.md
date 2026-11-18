@@ -79,3 +79,14 @@ This backend is a separate scaffold. The GitHub Pages frontend now has an option
 ## Model notes
 
 Mithi v2 Flash is distributed under Apache-2.0. The model card reports 11 languages and 10 voices. It also notes flatter emotional intonation than natural speech and possible pronunciation/speed issues in Odia and some other languages. Test the generated audio before publishing.
+
+
+## Easiest local setup (no daily ZeroGPU quota)
+
+For a personal computer, use the ready-made scripts and Hindi guide:
+
+- Windows: run `setup_and_run_windows.bat`
+- macOS/Linux: run `setup_and_run_linux_mac.sh`
+- Full steps: `LOCAL_SETUP_HINDI.md`
+
+The scripts install CPU-only PyTorch, dependencies, the Mithi model and create a private local API token. The server binds only to `127.0.0.1`; do not expose it directly to the public internet. The first setup needs internet and several GB of free disk. CPU speed depends on your computer. There is no cloud GPU-minute quota, but this is not unlimited cloud hosting: your computer must remain powered on and running.
