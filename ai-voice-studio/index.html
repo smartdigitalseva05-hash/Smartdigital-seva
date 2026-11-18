@@ -143,7 +143,7 @@ $('pitch').addEventListener('input',()=>{$('pitchVal').textContent=Number($('pit
 loadSavedBackend();if(synth){loadVoices();if(typeof synth.addEventListener==='function')synth.addEventListener('voiceschanged',loadVoices);else synth.onvoiceschanged=loadVoices;}else loadVoices();
 neuralSettings.hidden=true;updateCount();
 })();
-</script>>
+</script>
 <script>if ("serviceWorker" in navigator && location.protocol === "https:") { window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {})); }</script>
 </body>
 </html>
