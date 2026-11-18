@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101827">
+<meta name="description" content="A free, private text-to-speech studio using voices available on your device.">
+<title>AI Voice Studio Pro — Free Text to Speech</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#121d30;--panel2:#17243a;--line:#293a55;--text:#edf4ff;--muted:#9db0ca;--accent:#8b7cff;--accent2:#5de0c1;--danger:#ff8795}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 10% 0%,#20234c 0,transparent 40%),var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh}
+.wrap{max-width:1000px;margin:auto;padding:26px 16px 56px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:26px}.brand{display:flex;align-items:center;gap:12px}.logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--accent),#45cdb7);display:grid;place-items:center;font-size:22px;font-weight:800;color:#07111f}.brand h1{font-size:18px;margin:0}.brand p{margin:0;color:var(--muted);font-size:12px}.pill{border:1px solid #286a60;color:#8cf0d7;background:#10342f;padding:5px 10px;border-radius:99px;font-size:12px}
+.hero{text-align:center;margin:20px 0 25px}.hero h2{font-size:clamp(28px,5vw,44px);line-height:1.12;margin:0 0 10px;letter-spacing:-1.3px}.hero h2 span{background:linear-gradient(90deg,#b5aaff,#65e4cb);color:transparent;background-clip:text}.hero p{color:var(--muted);margin:0}
+.grid{display:grid;grid-template-columns:1.5fr 1fr;gap:16px}.card{background:linear-gradient(180deg,#17243a,#111b2c);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 14px 35px #0002}.card h3{font-size:15px;margin:0 0 14px}.field{margin-bottom:15px}label{display:block;font-size:13px;color:#c6d4e8;margin-bottom:7px}textarea,select{width:100%;background:#0b1525;border:1px solid #344866;border-radius:12px;color:var(--text);padding:13px;font:inherit;outline:none}textarea{min-height:230px;resize:vertical}textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px #8b7cff22}select{min-height:46px}.row{display:flex;gap:10px;align-items:center}.row>*{flex:1;min-width:0}.range-line{display:flex;justify-content:space-between;color:var(--muted);font-size:12px}input[type=range]{width:100%;accent-color:var(--accent)}button{border:0;border-radius:12px;padding:12px 15px;font:600 14px system-ui;cursor:pointer;transition:.15s}button:disabled{opacity:.45;cursor:not-allowed}.primary{background:linear-gradient(100deg,#8b7cff,#5cdbbd);color:#091321}.secondary{background:#23334d;color:var(--text);border:1px solid #3a4d6b}.danger{background:#3a2332;color:#ffb0ba;border:1px solid #704050}.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}.status{margin-top:12px;padding:10px 12px;border-radius:10px;background:#0c1728;color:var(--muted);font-size:13px;min-height:42px}.status.good{color:#91ead4}.status.bad{color:#ffadb6}.note{color:var(--muted);font-size:12px;margin:12px 0 0}.count{text-align:right;color:var(--muted);font-size:12px;margin-top:5px}.foot{text-align:center;color:#8194ae;font-size:12px;margin-top:22px}.range-wrap{padding:8px 0 2px}.feature{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #263750}.feature:last-child{border:0}.feature b{display:block;font-size:13px}.feature small{color:var(--muted);font-size:12px}.dot{width:28px;height:28px;border-radius:9px;background:#283456;display:grid;place-items:center;flex:none}
+@media(max-width:760px){.grid{grid-template-columns:1fr}.wrap{padding:18px 12px 40px}.card{padding:15px}.actions{grid-template-columns:1fr 1fr}.actions button:last-child{grid-column:span 2}.top{align-items:flex-start}.pill{font-size:11px}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<header class="top"><div class="brand"><div class="logo">V</div><div><h1>AI Voice Studio Pro</h1><p>Private • No account • No credits</p></div></div><span class="pill">FREE DEVICE VOICES</span></header>
+<section class="hero"><h2>Turn your text into <span>spoken words</span></h2><p>Listen with the speech voices available on your phone or computer.</p></section>
+<div class="grid">
+<section class="card">
+<h3>✍️ Your script</h3>
+<div class="field"><textarea id="script" maxlength="12000" placeholder="Type or paste your Hindi, Odia or English text here…">ନମସ୍କାର! ଆପଣଙ୍କୁ AI Voice Studio Pro କୁ ସ୍ୱାଗତ। ଆଜି ଆମେ ଏକ ସୁନ୍ଦର କାହାଣୀ ଶୁଣିବା।</textarea><div class="count"><span id="count">0</span> / 12,000 characters</div></div>
+<div class="actions"><button class="primary" id="speak">▶ Speak</button><button class="secondary" id="pause">Ⅱ Pause</button><button class="danger" id="stop">■ Stop</button></div>
+<div class="status" id="status" role="status" aria-live="polite">Ready. Choose a voice and press Speak.</div>
+<p class="note">Tip: Available languages and voice quality depend on your device, browser and installed speech packs.</p>
+</section>
+<aside class="card">
+<h3>🎙️ Voice controls</h3>
+<div class="field"><label for="language">Language</label><select id="language"><option value="all">All available voices</option><option value="hi">Hindi</option><option value="or">Odia</option><option value="en">English</option></select></div>
+<div class="field"><label for="voice">Voice</label><select id="voice"><option value="">Loading device voices…</option></select></div>
+<div class="field range-wrap"><label for="rate">Speaking speed <span id="rateVal">1.0×</span></label><input id="rate" type="range" min=".65" max="1.35" step=".05" value="1"></div>
+<div class="field range-wrap"><label for="pitch">Voice pitch <span id="pitchVal">1.0</span></label><input id="pitch" type="range" min=".7" max="1.3" step=".05" value="1"></div>
+<button class="secondary" id="refresh" style="width:100%">↻ Refresh device voices</button>
+<div style="margin-top:20px"><h3>✨ Included</h3>
+<div class="feature"><span class="dot">🌐</span><div><b>Hindi, Odia & English</b><small>Only if the device provides those voices.</small></div></div>
+<div class="feature"><span class="dot">🔒</span><div><b>Private by design</b><small>Text stays in this browser page; no account or API key.</small></div></div>
+<div class="feature"><span class="dot">♾️</span><div><b>No app credits</b><small>No credit counter or subscription in this page.</small></div></div>
+</div>
+</aside>
+</div>
+<p class="foot">This first version uses your browser's built-in speech engine. It is not a hosted neural voice model and does not export MP3 audio. Internet, device voices and browser support may affect playback.</p>
+</main>
+<script>
+(function(){
+'use strict';
+const synth=window.speechSynthesis;
+const $=id=>document.getElementById(id);
+const script=$('script'),voiceSelect=$('voice'),language=$('language'),status=$('status');
+let voices=[];
+function sayStatus(message,type){status.textContent=message;status.className='status'+(type?' '+type:'');}
+function updateCount(){$('count').textContent=script.value.length;}
+function langMatches(v,filter){return filter==='all'||(v.lang||'').toLowerCase().startsWith(filter);}
+function loadVoices(){
+ if(!synth){voiceSelect.innerHTML='<option value="">Speech synthesis is not supported in this browser</option>';sayStatus('Your browser does not support speech synthesis. Try an updated Chrome browser.','bad');return;}
+ const old=voiceSelect.value;
+ voices=synth.getVoices()||[];
+ const filtered=voices.filter(v=>langMatches(v,language.value));
+ voiceSelect.innerHTML='';
+ if(!filtered.length){const opt=document.createElement('option');opt.value='';opt.textContent='No matching voices installed';voiceSelect.appendChild(opt);sayStatus('No voice found for this language on this device. Try another language or install a speech voice.','bad');return;}
+ filtered.forEach(v=>{const opt=document.createElement('option');opt.value=String(voices.indexOf(v));opt.textContent=v.name+' ('+v.lang+')'+(v.default?' — default':'' );voiceSelect.appendChild(opt);});
+ const keep=filtered.findIndex(v=>String(voices.indexOf(v))===old);
+ voiceSelect.selectedIndex=keep>=0?keep:0;
+ sayStatus(voices.length+' device voice(s) available. Choose one and press Speak.','good');
+}
+function selectedVoice(){const i=Number(voiceSelect.value);return Number.isInteger(i)?voices[i]||null:null;}
+function speak(){
+ if(!synth){sayStatus('Speech synthesis is not supported by this browser.','bad');return;}
+ const text=script.value.trim();if(!text){sayStatus('Please enter some text first.','bad');script.focus();return;}
+ synth.cancel();
+ const u=new SpeechSynthesisUtterance(text),v=selectedVoice();
+ if(v)u.voice=v;
+ u.rate=Number($('rate').value);u.pitch=Number($('pitch').value);
+ u.onstart=()=>sayStatus('Speaking…','good');
+ u.onend=()=>sayStatus('Finished speaking.','good');
+ u.onerror=e=>sayStatus('Playback error: '+(e.error||'unknown error')+'. Try another device voice.','bad');
+ synth.speak(u);
+}
+$('speak').addEventListener('click',speak);
+$('pause').addEventListener('click',()=>{if(!synth)return;if(synth.speaking&&!synth.paused){synth.pause();sayStatus('Paused.','good');}else if(synth.paused){synth.resume();sayStatus('Resumed.','good');}else sayStatus('Nothing is playing yet.');});
+$('stop').addEventListener('click',()=>{if(synth)synth.cancel();sayStatus('Playback stopped.');});
+$('refresh').addEventListener('click',loadVoices);
+language.addEventListener('change',loadVoices);
+script.addEventListener('input',updateCount);
+$('rate').addEventListener('input',()=>{$('rateVal').textContent=Number($('rate').value).toFixed(2)+'×';});
+$('pitch').addEventListener('input',()=>{$('pitchVal').textContent=Number($('pitch').value).toFixed(2);});
+if(synth){loadVoices();if(typeof synth.addEventListener==='function')synth.addEventListener('voiceschanged',loadVoices);else synth.onvoiceschanged=loadVoices;}
+updateCount();
+})();
+</script>
+</body>
+</html>
