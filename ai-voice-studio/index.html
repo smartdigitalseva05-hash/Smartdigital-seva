@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="or">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -32,7 +32,7 @@
 <h3>🎙️ Voice controls</h3>
 <div class="field"><label for="engine">Voice engine</label><select id="engine"><option value="device">Device voices (free, built-in)</option><option value="neural">Neural AI (Mithi backend)</option></select></div>
 <div id="neuralSettings" class="field" hidden><label for="backendUrl">Your Python backend URL (HTTPS)</label><input id="backendUrl" type="url" placeholder="https://your-python-host.example" style="width:100%;background:#0b1525;border:1px solid #344866;border-radius:12px;color:var(--text);padding:12px;font:inherit;margin-bottom:9px"><label for="apiToken">Private API token</label><input id="apiToken" type="password" autocomplete="off" placeholder="Paste your backend token" style="width:100%;background:#0b1525;border:1px solid #344866;border-radius:12px;color:var(--text);padding:12px;font:inherit"><button class="secondary" id="saveBackend" style="width:100%;margin-top:9px">Save & test connection</button><small class="note">Token is stored only in this browser tab session. Use HTTPS and never share it. Neural mode needs your own running Python backend.</small></div>
-<div class="field"><label for="language">Language</label><select id="language"><option value="all">All available voices</option><option value="hi">Hindi</option><option value="or">Odia</option><option value="en">English</option></select></div>
+<div class="field"><label for="language">Language</label><select id="language"><option value="all">All available voices</option><option value="or" selected>Odia</option><option value="hi">Hindi</option><option value="en">English</option></select></div>
 <div class="field"><label for="voice">Voice</label><select id="voice"><option value="">Loading device voices…</option></select></div>
 <div class="field range-wrap"><label for="rate">Speaking speed <span id="rateVal">1.0×</span></label><input id="rate" type="range" min=".65" max="1.35" step=".05" value="1"></div>
 <div class="field range-wrap"><label for="pitch">Voice pitch <span id="pitchVal">1.0</span></label><input id="pitch" type="range" min=".7" max="1.3" step=".05" value="1"></div>
@@ -66,12 +66,12 @@ function loadVoices(){
  voiceSelect.innerHTML='';
  if(engine.value==='neural'){
   neuralVoices.forEach(item=>{const opt=document.createElement('option');opt.value=item[0];opt.textContent=item[1];voiceSelect.appendChild(opt);});
-  $('engineBadge').textContent='NEURAL MODE';sayStatus('Mithi voice list ready. Configure and test your Python backend connection.','good');return;
+  $('engineBadge').textContent='NEURAL MODE';sayStatus('Mithi: Odia सहित 11 भाषाएँ और 10 voices उपलब्ध। पहले backend URL/token जोड़कर model connection जाँचें।','good');return;
  }
  $('engineBadge').textContent='DEVICE VOICES';
  if(!synth){const opt=document.createElement('option');opt.value='';opt.textContent='Speech synthesis not supported';voiceSelect.appendChild(opt);sayStatus('This browser does not support speech synthesis. Try an updated Chrome browser.','bad');return;}
  voices=synth.getVoices()||[];const filtered=voices.filter(v=>langMatches(v,language.value));
- if(!filtered.length){const opt=document.createElement('option');opt.value='';opt.textContent='No matching voices installed';voiceSelect.appendChild(opt);sayStatus('No voice found for this language on this device. Try another language or install a speech voice.','bad');return;}
+ if(!filtered.length){const opt=document.createElement('option');opt.value='';opt.textContent='No matching voices installed';voiceSelect.appendChild(opt);sayStatus(language.value==='or'?'ଏହି ମୋବାଇଲରେ Odia voice install ହୋଇନାହିଁ। Neural AI (Mithi) ବ୍ୟବହାର କରନ୍ତୁ, କିମ୍ବା Android Text-to-speech settings ରେ Odia voice install କରି Refresh voices ଦବାନ୍ତୁ।':'No voice found for this language on this device. Install a matching speech voice or use Neural AI.','bad');return;}
  filtered.forEach(v=>{const opt=document.createElement('option');opt.value=String(voices.indexOf(v));opt.textContent=v.name+' ('+v.lang+')'+(v.default?' — default':'');voiceSelect.appendChild(opt);});
  sayStatus(voices.length+' device voice(s) available.','good');
 }
@@ -102,7 +102,7 @@ async function saveBackend(){
  try{
   const parsed=new URL(cfg.url);if(parsed.protocol!=='https:'&&parsed.hostname!=='localhost'&&parsed.hostname!=='127.0.0.1'){sayStatus('Use an HTTPS backend URL for safety.','bad');return;}
   const response=await fetch(cfg.url+'/health',{method:'GET'});if(!response.ok)throw new Error('Health check returned HTTP '+response.status);
-  const data=await response.json();if(!data||data.status!=='ok')throw new Error('Backend health check did not return status ok.');
+  const data=await response.json();if(!data||data.status!=='ok'||data.model_loaded!==true)throw new Error('Backend is reachable, but the Mithi model is not loaded. Start the model server and retry.');
   sessionStorage.setItem('voiceBackendUrl',cfg.url);sessionStorage.setItem('voiceApiToken',cfg.token);sayStatus('Backend connection verified. Neural voice is ready.','good');
  }catch(error){sayStatus('Connection failed: '+(error.message||'check URL, CORS and server status')+'.','bad');}
 }
@@ -111,7 +111,7 @@ async function speakNeural(text){
  if(text.length>3000){sayStatus('Neural backend limit is 3,000 characters per request. Split the text into shorter parts.','bad');return;}
  try{
   activeRequest=new AbortController();sayStatus('Generating neural speech… this may take time on a CPU host.','good');
-  const response=await fetch(cfg.url+'/api/tts',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+cfg.token},body:JSON.stringify({text:text,language:language.value==='all'?'hi':language.value,voice:selectedVoice()}),signal:activeRequest.signal});
+  const response=await fetch(cfg.url+'/api/tts',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+cfg.token},body:JSON.stringify({text:text,language:language.value==='all'?'or':language.value,voice:selectedVoice()}),signal:activeRequest.signal});
   if(!response.ok){let message='HTTP '+response.status;try{const body=await response.json();if(body.detail)message=body.detail;}catch(e){}throw new Error(message);}
   const blob=await response.blob();if(!blob.size)throw new Error('The backend returned an empty audio file.');
   if(audioUrl)URL.revokeObjectURL(audioUrl);audioUrl=URL.createObjectURL(blob);audioObject=new Audio(audioUrl);downloadButton.hidden=false;
@@ -133,7 +133,7 @@ $('pause').addEventListener('click',()=>{
 });
 $('stop').addEventListener('click',()=>{if(activeRequest)activeRequest.abort();if(synth)synth.cancel();if(audioObject){audioObject.pause();audioObject.currentTime=0;audioObject=null;}playbackActive=false;speechChunks=[];chunkIndex=0;sayStatus('Playback stopped.');});
 $('refresh').addEventListener('click',loadVoices);
-language.addEventListener('change',()=>{if(engine.value==='neural'&&language.value==='all')language.value='hi';loadVoices();});
+language.addEventListener('change',()=>{if(engine.value==='neural'&&language.value==='all')language.value='or';loadVoices();});
 engine.addEventListener('change',()=>{neuralSettings.hidden=engine.value!=='neural';$('rate').disabled=engine.value==='neural';$('pitch').disabled=engine.value==='neural';if(engine.value==='neural'&&language.value==='all')language.value='hi';loadVoices();});
 $('saveBackend').addEventListener('click',saveBackend);
 downloadButton.addEventListener('click',()=>{if(!audioUrl)return;const a=document.createElement('a');a.href=audioUrl;a.download='ai-voice-studio-speech.wav';document.body.appendChild(a);a.click();a.remove();});
