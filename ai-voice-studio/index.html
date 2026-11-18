@@ -22,7 +22,7 @@
 <div class="grid">
 <section class="card">
 <h3>✍️ Your script</h3>
-<div class="field"><textarea id="script" maxlength="12000" placeholder="Type or paste your Hindi, Odia or English text here…">ନମସ୍କାର! ଆପଣଙ୍କୁ AI Voice Studio Pro କୁ ସ୍ୱାଗତ। ଆଜି ଆମେ ଏକ ସୁନ୍ଦର କାହାଣୀ ଶୁଣିବା।</textarea><div class="count"><span id="count">0</span> / 12,000 characters</div></div>
+<div class="field"><textarea id="script" placeholder="Type or paste your Hindi, Odia or English text here…">ନମସ୍କାର! ଆପଣଙ୍କୁ AI Voice Studio Pro କୁ ସ୍ୱାଗତ। ଆଜି ଆମେ ଏକ ସୁନ୍ଦର କାହାଣୀ ଶୁଣିବା।</textarea><div class="count"><span id="count">0</span> characters · no app-set text cap</div></div>
 <div class="actions"><button class="primary" id="speak">▶ Speak</button><button class="secondary" id="pause">Ⅱ Pause</button><button class="danger" id="stop">■ Stop</button></div>
 <div class="status" id="status" role="status" aria-live="polite">Ready. Choose a voice and press Speak.</div>
 <p class="note">Tip: Available languages and voice quality depend on your device, browser and installed speech packs.</p>
@@ -50,8 +50,11 @@ const synth=window.speechSynthesis;
 const $=id=>document.getElementById(id);
 const script=$('script'),voiceSelect=$('voice'),language=$('language'),status=$('status');
 let voices=[];
+let speechChunks=[];
+let chunkIndex=0;
+let playbackActive=false;
 function sayStatus(message,type){status.textContent=message;status.className='status'+(type?' '+type:'');}
-function updateCount(){$('count').textContent=script.value.length;}
+function updateCount(){$('count').textContent=script.value.length.toLocaleString();}
 function langMatches(v,filter){return filter==='all'||(v.lang||'').toLowerCase().startsWith(filter);}
 function loadVoices(){
  if(!synth){voiceSelect.innerHTML='<option value="">Speech synthesis is not supported in this browser</option>';sayStatus('Your browser does not support speech synthesis. Try an updated Chrome browser.','bad');return;}
@@ -66,21 +69,39 @@ function loadVoices(){
  sayStatus(voices.length+' device voice(s) available. Choose one and press Speak.','good');
 }
 function selectedVoice(){const i=Number(voiceSelect.value);return Number.isInteger(i)?voices[i]||null:null;}
+function splitForSpeech(text,maxLen){
+ const parts=[];
+ let remaining=text.trim();
+ while(remaining.length){
+  if(remaining.length<=maxLen){parts.push(remaining);break;}
+  let cut=-1;
+  const window=remaining.slice(0,maxLen+1);
+  const punctuation=Math.max(window.lastIndexOf('।'),window.lastIndexOf('.'),window.lastIndexOf('!'),window.lastIndexOf('?'),window.lastIndexOf('\n'));
+  if(punctuation>Math.floor(maxLen*.45)) cut=punctuation+1;
+  if(cut<0){const space=window.lastIndexOf(' ');cut=space>0?space:maxLen;}
+  parts.push(remaining.slice(0,cut).trim());
+  remaining=remaining.slice(cut).trim();
+ }
+ return parts.filter(Boolean);
+}
+function playNext(){
+ if(!playbackActive||chunkIndex>=speechChunks.length){playbackActive=false;speechChunks=[];chunkIndex=0;sayStatus('Finished speaking.','good');return;}
+ const u=new SpeechSynthesisUtterance(speechChunks[chunkIndex]);
+ const v=selectedVoice();if(v)u.voice=v;
+ u.rate=Number($('rate').value);u.pitch=Number($('pitch').value);
+ u.onstart=()=>sayStatus('Speaking… part '+(chunkIndex+1)+' of '+speechChunks.length,'good');
+ u.onend=()=>{chunkIndex++;playNext();};
+ u.onerror=e=>{if(e.error==='canceled'||e.error==='interrupted')return;playbackActive=false;sayStatus('Playback error: '+(e.error||'unknown error')+'. Try another device voice.','bad');};
+ synth.speak(u);
+}
 function speak(){
  if(!synth){sayStatus('Speech synthesis is not supported by this browser.','bad');return;}
  const text=script.value.trim();if(!text){sayStatus('Please enter some text first.','bad');script.focus();return;}
- synth.cancel();
- const u=new SpeechSynthesisUtterance(text),v=selectedVoice();
- if(v)u.voice=v;
- u.rate=Number($('rate').value);u.pitch=Number($('pitch').value);
- u.onstart=()=>sayStatus('Speaking…','good');
- u.onend=()=>sayStatus('Finished speaking.','good');
- u.onerror=e=>sayStatus('Playback error: '+(e.error||'unknown error')+'. Try another device voice.','bad');
- synth.speak(u);
+ synth.cancel();speechChunks=splitForSpeech(text,220);chunkIndex=0;playbackActive=true;playNext();
 }
 $('speak').addEventListener('click',speak);
 $('pause').addEventListener('click',()=>{if(!synth)return;if(synth.speaking&&!synth.paused){synth.pause();sayStatus('Paused.','good');}else if(synth.paused){synth.resume();sayStatus('Resumed.','good');}else sayStatus('Nothing is playing yet.');});
-$('stop').addEventListener('click',()=>{if(synth)synth.cancel();sayStatus('Playback stopped.');});
+$('stop').addEventListener('click',()=>{if(synth)synth.cancel();playbackActive=false;speechChunks=[];chunkIndex=0;sayStatus('Playback stopped.');});
 $('refresh').addEventListener('click',loadVoices);
 language.addEventListener('change',loadVoices);
 script.addEventListener('input',updateCount);
