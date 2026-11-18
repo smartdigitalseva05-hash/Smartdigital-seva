@@ -1,0 +1,11 @@
+{
+  "name": "AI Voice Studio Pro",
+  "short_name": "Voice Studio",
+  "description": "A private, free text-to-speech interface using voices provided by your device.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b1220",
+  "theme_color": "#101827",
+  "lang": "en"
+}
