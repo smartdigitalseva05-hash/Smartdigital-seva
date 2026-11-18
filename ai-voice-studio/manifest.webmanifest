@@ -1,7 +1,7 @@
 {
   "name": "AI Voice Studio Pro",
   "short_name": "Voice Studio",
-  "description": "A private, free text-to-speech interface using voices provided by your device.",
+  "description": "Free text-to-speech studio with built-in device voices and an optional self-hosted neural AI backend.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
