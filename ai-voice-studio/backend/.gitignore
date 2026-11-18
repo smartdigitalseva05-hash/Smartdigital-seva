@@ -4,3 +4,5 @@ __pycache__/
 .env
 mithi-v2-flash/
 *.wav
+
+.voice_api_key
