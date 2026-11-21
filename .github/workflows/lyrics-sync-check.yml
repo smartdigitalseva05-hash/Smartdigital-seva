@@ -57,5 +57,6 @@ jobs:
           if not scripts:
               raise SystemExit("No inline JavaScript found.")
           Path("/tmp/lyrics-sync.js").write_text("\\n".join(scripts), encoding="utf-8")
+          PY
       - name: Check frontend JavaScript syntax
         run: node --check /tmp/lyrics-sync.js
