@@ -7,7 +7,7 @@
 <section class="card"><h2>୧. ଅଡିଓ ଅପଲୋଡ୍ କରନ୍ତୁ</h2><input id="audio" type="file" accept="audio/*"><audio id="player" controls class="hide"></audio>
 <div class="row"><div><label>ଗୀତର ଭାଷା</label><select id="lang"><option value="auto">ସ୍ୱୟଂଚାଳିତ ଚିହ୍ନଟ</option><option value="or">ଓଡ଼ିଆ</option><option value="hi">ହିନ୍ଦୀ</option><option value="en">ଇଂରାଜୀ</option></select></div><div><label>AI Server URL</label><input id="api" placeholder="https://your-app.onrender.com" /><button class="secondary" id="testApi" type="button" style="margin-top:8px">AI ସର୍ଭର ଯାଞ୍ଚ କରନ୍ତୁ</button></div></div><p class="hint">AI ସର୍ଭର URL ପୂର୍ବରୁ ସେଟ୍ ହୋଇଛି। ସଂଯୋଗ ଯାଞ୍ଚ କରିବାକୁ ଉପର ବଟନ୍ ଦବାନ୍ତୁ।</p></section>
 <section class="card"><h2>୨. ସମ୍ପୂର୍ଣ୍ଣ ଗୀତିକା ଏଠାରେ ଲେଖନ୍ତୁ</h2><textarea id="lyrics" placeholder="ଅଲେଖ ମହିମା ତୁମେ ଅନନ୍ତ ଅମର&#10;ତୁମେ ପରମ ବ୍ରହ୍ମ ନିରାକାର&#10;..."></textarea><p class="hint">ଗୀତର ପ୍ରତ୍ୟେକ ଧାଡ଼ିକୁ ନୂଆ ଧାଡ଼ିରେ ଲେଖନ୍ତୁ। ପ୍ରତ୍ୟେକ ଧାଡ଼ିର ସମୟ ନିଜେ ଦେବାକୁ ପଡ଼ିବ ନାହିଁ।</p><button id="go">✨ ସମ୍ପୂର୍ଣ୍ଣ ଗୀତର ସମୟ ସ୍ୱୟଂଚାଳିତ ମେଳ କରନ୍ତୁ</button><div id="status" class="status"></div></section>
-<section id="out" class="card hide"><h2>୩. ଗୀତିକା ସମୟ ମେଳ ପୂର୍ବଦୃଶ୍ୟ</h2><div id="now" class="stage">ଗୀତ ଚଲାନ୍ତୁ</div><audio id="preview" controls></audio><div class="actions"><button class="secondary" id="srt">⬇ SRT ଡାଉନଲୋଡ୍</button><button class="secondary" id="json">⬇ ସମୟ JSON ଡାଉନଲୋଡ୍</button></div><div class="actions"><button class="secondary" id="videoExport" type="button">🎬 ଗୀତିକା ଭିଡିଓ ତିଆରି (୧୬:୯)</button></div><p class="hint">ଭିଡିଓ ରେକର୍ଡିଂ ବ୍ରାଉଜର୍‌ରେ ହୁଏ। ଆପଣଙ୍କ ଡିଭାଇସ୍ MP4 ସମର୍ଥନ ନକଲେ WebM ଫାଇଲ୍ ମିଳିବ।</p><p class="hint">ପ୍ରତ୍ୟେକ ଧାଡ଼ିର ଆରମ୍ଭ/ଶେଷ ସମୟ ସେକେଣ୍ଡରେ ଏଠାରେ ବଦଳାଇପାରିବେ। ସମୟ ନମିଳିଥିବା ଧାଡ଼ିର ସମୟ ଭରି SRT/JSON ଡାଉନଲୋଡ୍ କରନ୍ତୁ।</p><h2>AI ଗୀତରେ କ’ଣ ଶୁଣିଲା?</h2><p id="matchSummary" class="hint"></p><pre id="heard" class="transcript">ସିଙ୍କ୍ ପରେ AI ଶୁଣିଥିବା ଶବ୍ଦ ଏଠାରେ ଦେଖାଯିବ।</pre><div id="list"></div></section>
+<section id="out" class="card hide"><h2>୩. ଗୀତିକା ସମୟ ମେଳ ପୂର୍ବଦୃଶ୍ୟ</h2><div id="now" class="stage">ଗୀତ ଚଲାନ୍ତୁ</div><audio id="preview" controls></audio><div class="actions"><button class="secondary" id="srt">⬇ SRT ଡାଉନଲୋଡ୍</button><button class="secondary" id="json">⬇ ସମୟ JSON ଡାଉନଲୋଡ୍</button></div><div class="row" style="margin-top:14px"><div><label for="videoBg">ଭିଡିଓ ପାଇଁ ପୃଷ୍ଠଭୂମି ଫଟୋ / ଭିଡିଓ</label><input id="videoBg" type="file" accept="image/*,video/*"><p class="hint">ନିଜ ଫଟୋ କିମ୍ବା ଭିଡିଓ ବାଛନ୍ତୁ। ନ ବାଛିଲେ ଡିଫଲ୍ଟ ପୃଷ୍ଠଭୂମି ରହିବ।</p></div><div><label for="videoRatio">ଭିଡିଓ ଆକାର</label><select id="videoRatio"><option value="16:9">YouTube ୧୬:୯ (Landscape)</option><option value="9:16">Shorts ୯:୧୬ (Portrait)</option></select></div></div><label for="videoTitle">ଭିଡିଓ ଶୀର୍ଷକ (ଇଚ୍ଛାଧୀନ)</label><input id="videoTitle" maxlength="80" value="ALEKH MAHIMA VANI" placeholder="ଭିଡିଓ ଶୀର୍ଷକ"><div class="actions"><button class="secondary" id="videoExport" type="button">🎬 ଗୀତିକା ଭିଡିଓ ତିଆରି (YouTube / Shorts)</button></div><p class="hint">ଭିଡିଓ ରେକର୍ଡିଂ ବ୍ରାଉଜର୍‌ରେ ହୁଏ। ଆପଣଙ୍କ ଡିଭାଇସ୍ MP4 ସମର୍ଥନ ନକଲେ WebM ଫାଇଲ୍ ମିଳିବ।</p><p class="hint">ପ୍ରତ୍ୟେକ ଧାଡ଼ିର ଆରମ୍ଭ/ଶେଷ ସମୟ ସେକେଣ୍ଡରେ ଏଠାରେ ବଦଳାଇପାରିବେ। ସମୟ ନମିଳିଥିବା ଧାଡ଼ିର ସମୟ ଭରି SRT/JSON ଡାଉନଲୋଡ୍ କରନ୍ତୁ।</p><h2>AI ଗୀତରେ କ’ଣ ଶୁଣିଲା?</h2><p id="matchSummary" class="hint"></p><pre id="heard" class="transcript">ସିଙ୍କ୍ ପରେ AI ଶୁଣିଥିବା ଶବ୍ଦ ଏଠାରେ ଦେଖାଯିବ।</pre><div id="list"></div></section>
 <footer>ଅଡିଓ ପ୍ରକ୍ରିୟାକରଣ ଆପଣଙ୍କ AI ସର୍ଭରରେ ହୁଏ। ବ୍ୟକ୍ତିଗତ କିମ୍ବା କପିରାଇଟ୍ ଥିବା ଫାଇଲ୍ କେବଳ ଅଧିକାର ଥିଲେ ଅପଲୋଡ୍ କରନ୍ତୁ।</footer></main>
 <script>
 const $=x=>document.getElementById(x);let lines=[];const DEFAULT_API='https://auto-lyrics-sync-api.onrender.com';const saved=localStorage.getItem('lyricsApi');$('api').value=saved||DEFAULT_API;$('api').onchange=()=>localStorage.setItem('lyricsApi',$('api').value.trim().replace(/\/+$/,''));
@@ -26,46 +26,85 @@ $('srt').onclick=()=>{let n=0;const valid=lines.filter(x=>Number.isFinite(Number
 $('json').onclick=()=>dl('lyrics-timing.json',JSON.stringify(lines,null,2),'application/json');
 
 $('videoExport')?.addEventListener('click',async()=>{
-  const audio=$('audio').files[0];
-  if(!audio){$('status').textContent='ପ୍ରଥମେ ଅଡିଓ ଫାଇଲ୍ ବାଛନ୍ତୁ।';return}
-  const valid=lines.filter(x=>Number.isFinite(Number(x.start))&&Number.isFinite(Number(x.end))&&x.start!==null&&x.end!==null&&Number(x.end)>Number(x.start));
-  if(!valid.length){$('status').textContent='ପ୍ରଥମେ ଅତି କମ୍ ଗୋଟିଏ ଧାଡ଼ିର ସମୟ ଠିକ୍ ଭାବେ ମେଳ କରନ୍ତୁ।';return}
-  const width=1280,height=720,fps=30;
+  const audioFile=$('audio').files[0];
+  if(!audioFile){$('status').textContent='ପ୍ରଥମେ ଅଡିଓ ଫାଇଲ୍ ବାଛନ୍ତୁ।';return}
+  const valid=lines.filter(x=>Number.isFinite(Number(x.start))&&Number.isFinite(Number(x.end))&&x.start!==null&&x.end!==null&&Number(x.end)>Number(x.start)).sort((a,b)=>a.start-b.start);
+  if(!valid.length){$('status').textContent='ପ୍ରଥମେ ଅତି କମ୍ ଗୋଟିଏ ଧାଡ଼ିର ସଠିକ୍ ସମୟ ମେଳ କରନ୍ତୁ।';return}
+  if(!window.MediaRecorder||!HTMLCanvasElement.prototype.captureStream){$('status').textContent='ଏହି ବ୍ରାଉଜର୍‌ରେ ଭିଡିଓ ରେକର୍ଡିଂ ସମର୍ଥିତ ନୁହେଁ। Chrome ର ନୂଆ ସଂସ୍କରଣ ବ୍ୟବହାର କରନ୍ତୁ।';return}
+  const ratio=$('videoRatio').value;
+  const width=ratio==='9:16'?720:1280,height=ratio==='9:16'?1280:720,fps=30;
   const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
-  const ctx=canvas.getContext('2d');
+  const ctx=canvas.getContext('2d');if(!ctx){$('status').textContent='Canvas ଆରମ୍ଭ ହୋଇପାରିଲା ନାହିଁ।';return}
+  let bgImage=null,bgVideo=null,bgUrl=null;
+  const bgFile=$('videoBg').files[0];
+  if(bgFile){
+    bgUrl=URL.createObjectURL(bgFile);
+    if(bgFile.type.startsWith('image/')){bgImage=new Image();bgImage.src=bgUrl;try{await bgImage.decode()}catch(e){URL.revokeObjectURL(bgUrl);$('status').textContent='ପୃଷ୍ଠଭୂମି ଫଟୋ ଖୋଲିହେଲା ନାହିଁ।';return}}
+    else if(bgFile.type.startsWith('video/')){bgVideo=document.createElement('video');bgVideo.src=bgUrl;bgVideo.muted=true;bgVideo.loop=true;bgVideo.playsInline=true;try{await new Promise((resolve,reject)=>{bgVideo.onloadeddata=resolve;bgVideo.onerror=reject;bgVideo.load()});await bgVideo.play()}catch(e){URL.revokeObjectURL(bgUrl);$('status').textContent='ପୃଷ୍ଠଭୂମି ଭିଡିଓ ଚଲିଲା ନାହିଁ। ଅନ୍ୟ ଫାଇଲ୍ ବାଛନ୍ତୁ।';return}}
+    else{URL.revokeObjectURL(bgUrl);$('status').textContent='କେବଳ ଫଟୋ କିମ୍ବା ଭିଡିଓ ଫାଇଲ୍ ବାଛନ୍ତୁ।';return}
+  }
   const stream=canvas.captureStream(fps);
-  const audioEl=$('preview');audioEl.src=URL.createObjectURL(audio);audioEl.currentTime=0;
+  const audioEl=document.createElement('audio');audioEl.src=URL.createObjectURL(audioFile);audioEl.preload='auto';
   const AudioCtx=window.AudioContext||window.webkitAudioContext;
   if(!AudioCtx){$('status').textContent='ଏହି ବ୍ରାଉଜର୍‌ରେ ଅଡିଓ ମିଶ୍ରଣ ସୁବିଧା ନାହିଁ।';return}
   const ac=new AudioCtx();await ac.resume();
-  const source=ac.createMediaElementSource(audioEl);const dest=ac.createMediaStreamDestination();
-  source.connect(dest);source.connect(ac.destination);
-  dest.stream.getAudioTracks().forEach(t=>stream.addTrack(t));
-  const mime=['video/mp4;codecs=h264,aac','video/webm;codecs=vp9,opus','video/webm'].find(t=>MediaRecorder.isTypeSupported(t));
-  if(!mime){$('status').textContent='ଏହି ବ୍ରାଉଜର୍‌ରେ ଭିଡିଓ ରେକର୍ଡିଂ ସୁବିଧା ନାହିଁ।';return}
-  const recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:5000000});
-  const chunks=[];recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+  const source=ac.createMediaElementSource(audioEl),dest=ac.createMediaStreamDestination();
+  source.connect(dest);source.connect(ac.destination);dest.stream.getAudioTracks().forEach(t=>stream.addTrack(t));
+  const mime=['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm'].find(t=>MediaRecorder.isTypeSupported(t));
+  if(!mime){stream.getTracks().forEach(t=>t.stop());await ac.close();$('status').textContent='ଏହି ବ୍ରାଉଜର୍‌ରେ ସମର୍ଥିତ MP4/WebM ରେକର୍ଡିଂ ଫର୍ମାଟ୍ ମିଳିଲା ନାହିଁ।';return}
+  let recorder;
+  try{recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:ratio==='9:16'?3500000:5000000,audioBitsPerSecond:192000})}catch(e){stream.getTracks().forEach(t=>t.stop());await ac.close();$('status').textContent='ଭିଡିଓ ରେକର୍ଡର୍ ଆରମ୍ଭ ହୋଇପାରିଲା ନାହିଁ: '+e.message;return}
+  const chunks=[];let stopped=false,drawId=0;
+  recorder.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
+  const title=($('videoTitle').value||'ALEKH MAHIMA VANI').trim().slice(0,80);
+  function cover(source,w,h){
+    if(!source)return;
+    const sw=source.videoWidth||source.naturalWidth,sh=source.videoHeight||source.naturalHeight;if(!sw||!sh)return;
+    const scale=Math.max(w/sw,h/sh),dw=sw*scale,dh=sh*scale;
+    ctx.drawImage(source,(w-dw)/2,(h-dh)/2,dw,dh);
+  }
+  function wrap(text,maxWidth,fontSize){
+    ctx.font='bold '+fontSize+'px system-ui, sans-serif';const words=String(text||'').split(/\s+/);let rows=[],row='';
+    for(const word of words){const test=row?row+' '+word:word;if(ctx.measureText(test).width>maxWidth&&row){rows.push(row);row=word}else row=test}
+    if(row)rows.push(row);return rows;
+  }
+  function draw(){
+    const t=audioEl.currentTime;
+    ctx.fillStyle='#101a30';ctx.fillRect(0,0,width,height);
+    if(bgImage)cover(bgImage,width,height);else if(bgVideo&&bgVideo.readyState>=2)cover(bgVideo,width,height);
+    ctx.fillStyle='rgba(5,10,22,.48)';ctx.fillRect(0,0,width,height);
+    const pad=width*.08;
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillStyle='#f1d49a';ctx.font='bold '+Math.round(width*.035)+'px system-ui, sans-serif';
+    const titleRows=wrap(title,width-pad*2,Math.round(width*.035));
+    titleRows.slice(0,2).forEach((v,i)=>ctx.fillText(v,width/2,height*.17+i*width*.045));
+    const idx=valid.findIndex(x=>x.start<=t&&x.end>t);
+    const current=idx>=0?valid[idx]:null,next=idx>=0?valid.slice(idx+1).find(x=>x.start>t):valid.find(x=>x.start>t);
+    if(current){
+      const fs=Math.round(width*(ratio==='9:16'?.052:.045));
+      const rows=wrap(current.text,width-pad*2,fs).slice(0,4);
+      const lineGap=fs*1.45,startY=height*.52-(rows.length-1)*lineGap/2;
+      ctx.font='bold '+fs+'px system-ui, sans-serif';ctx.lineWidth=Math.max(3,width*.004);ctx.strokeStyle='rgba(0,0,0,.85)';ctx.fillStyle='#fff';
+      rows.forEach((v,i)=>{ctx.strokeText(v,width/2,startY+i*lineGap);ctx.fillText(v,width/2,startY+i*lineGap)});
+    }else{ctx.fillStyle='#fff';ctx.font='bold '+Math.round(width*.07)+'px system-ui';ctx.fillText('♪',width/2,height*.5)}
+    if(next){const fs=Math.round(width*.026),rows=wrap(next.text,width-pad*2,fs).slice(0,2);ctx.font=fs+'px system-ui';ctx.fillStyle='rgba(255,255,255,.85)';rows.forEach((v,i)=>ctx.fillText(v,width/2,height*.78+i*fs*1.35))}
+    ctx.fillStyle='rgba(255,255,255,.8)';ctx.font=Math.round(width*.021)+'px system-ui';ctx.fillText('Jaya Alekh Mahima',width/2,height*.93);
+    if(!audioEl.paused&&!audioEl.ended&&!stopped)drawId=requestAnimationFrame(draw);
+  }
   recorder.onstop=async()=>{
-    const blob=new Blob(chunks,{type:mime});const ext=mime.includes('mp4')?'mp4':'webm';
-    const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="lyrics-video-16x9."+ext;a.rel="noopener";a.style.display="none";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
-    $("status").textContent="✅ ଭିଡିଓ ତିଆରି ହେଲା: "+ext.toUpperCase()+" • Downloads ଫୋଲ୍ଡର୍ ଯାଞ୍ଚ କରନ୍ତୁ। WEBM ହେଲେ MP4 ନୁହେଁ।";
-    stream.getTracks().forEach(t=>t.stop());await ac.close();
+    stopped=true;cancelAnimationFrame(drawId);
+    const ext=mime.includes('mp4')?'mp4':'webm',blob=new Blob(chunks,{type:mime});
+    const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='odia-lyrics-video-'+(ratio==='9:16'?'shorts-9x16':'youtube-16x9')+'.'+ext;a.style.display='none';document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),120000);
+    stream.getTracks().forEach(t=>t.stop());audioEl.pause();audioEl.removeAttribute('src');audioEl.load();if(bgVideo)bgVideo.pause();
+    if(bgUrl)URL.revokeObjectURL(bgUrl);await ac.close();
+    $('status').textContent='✅ ଭିଡିଓ ରେକର୍ଡିଂ ସମାପ୍ତ। ଫାଇଲ୍: '+ext.toUpperCase()+' • '+ratio+' • ଫୋନ୍‌ର Downloads ଫୋଲ୍ଡର୍ ଯାଞ୍ଚ କରନ୍ତୁ। MP4 ନ ମିଳିଲେ WEBM ଫାଇଲ୍ ହେବ।';
+    $('videoExport').disabled=false;
   };
-  const draw=()=>{
-    const t=audioEl.currentTime;const line=[...valid].reverse().find(x=>x.start<=t&&x.end>t);
-    const g=ctx.createLinearGradient(0,0,width,height);g.addColorStop(0,'#10243b');g.addColorStop(1,'#291b36');
-    ctx.fillStyle=g;ctx.fillRect(0,0,width,height);
-    ctx.fillStyle='#e8c98a';ctx.font='bold 28px sans-serif';ctx.textAlign='center';ctx.fillText('ALEKH MAHIMA VANI',width/2,90);
-    ctx.fillStyle='#ffffff';ctx.font='bold 46px sans-serif';
-    const text=line?.text||'♪';
-    const words=text.split(/\s+/);let rows=[],row='';
-    for(const w of words){const test=row?row+' '+w:w;if(ctx.measureText(test).width>1050&&row){rows.push(row);row=w}else row=test}
-    if(row)rows.push(row);
-    rows.slice(0,3).forEach((v,i)=>ctx.fillText(v,width/2,height/2+(i-(Math.min(rows.length,3)-1)/2)*64));
-    ctx.fillStyle='rgba(255,255,255,.55)';ctx.font='20px sans-serif';ctx.fillText('Jaya Alekh Mahima',width/2,height-65);
-    if(!audioEl.paused&&!audioEl.ended)requestAnimationFrame(draw);
-  };
-  $('status').textContent='ଭିଡିଓ ରେକର୍ଡ ହେଉଛି… ଏହି ପୃଷ୍ଠା ଖୋଲା ରଖନ୍ତୁ ଏବଂ ଗୀତ ସରିବାକୁ ଦିଅନ୍ତୁ।';
-  recorder.start(1000);audioEl.onplay=()=>requestAnimationFrame(draw);audioEl.onended=()=>{if(recorder.state!=='inactive')recorder.stop()};await audioEl.play();
+  audioEl.onended=()=>{if(recorder.state!=='inactive')recorder.stop()};
+  audioEl.onerror=()=>{if(recorder.state!=='inactive')recorder.stop();$('status').textContent='ଅଡିଓ ପ୍ଲେବ୍ୟାକ୍‌ରେ ତ୍ରୁଟି ହେଲା।'};
+  $('videoExport').disabled=true;$('status').textContent='ଭିଡିଓ ରେକର୍ଡ ହେଉଛି… ଗୀତ ସରିବା ପର୍ଯ୍ୟନ୍ତ ପୃଷ୍ଠା ଖୋଲା ରଖନ୍ତୁ।';
+  draw();recorder.start(1000);
+  try{await audioEl.play()}catch(e){recorder.stop();$('status').textContent='ଅଡିଓ ଚଲିଲା ନାହିଁ: '+e.message}
 });
 </script></body></html>
