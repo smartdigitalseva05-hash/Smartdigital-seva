@@ -30,7 +30,7 @@ def get_model():
 
 def tokens(text):
     # Keep Unicode letters (including Odia/Hindi) and digits.
-    return re.findall(r"[^\\W_]+", text.lower(), flags=re.UNICODE)
+    return re.findall(r"[^\W_]+", text.lower(), flags=re.UNICODE)
 
 @app.get("/")
 def health():
