@@ -5,7 +5,7 @@
 ## Features
 - Audio upload (hosted Groq mode में 25 MB तक; local mode में 40 MB तक)
 - पूरा Lyrics एक साथ paste
-- Hosted Groq Whisper Large V3 Turbo (word timestamps) या local Whisper fallback; अनुमानित line-level timing alignment
+- Sarvam Saaras v4 Batch API (लंबे audio, phrase timestamps), Groq Whisper (word timestamps) या local Whisper fallback; अनुमानित line-level timing alignment
 - Live lyrics preview
 - SRT captions और JSON timing export
 
@@ -29,8 +29,10 @@ Frontend URL:
 - Build command: `pip install -r requirements.txt`
 - Start command: `uvicorn app:app --host 0.0.0.0 --port $PORT`
 - Optional fallback: `WHISPER_MODEL=tiny`
-- Recommended hosted mode: Render → **Environment** में `GROQ_API_KEY` नाम का secret जोड़ें। API key केवल backend environment में रखें; उसे HTML, GitHub या browser storage में कभी न डालें।
-- Hosted mode अपने-आप `whisper-large-v3-turbo` चुनता है और word timestamps माँगता है। Hosted mode में अधिकतम audio size 25 MB है। API rate limits / provider availability लागू हो सकती है।
+- Recommended Odia mode: Render → **Environment** में `SARVAM_API_KEY` secret जोड़ें। यह key होने पर backend अपने-आप Sarvam Saaras v4 Batch API चुनेगा। API key केवल backend environment में रखें; उसे HTML, GitHub या browser storage में कभी न डालें।
+- Sarvam Batch API में Odia के लिए `od-IN` और `saaras:v4` उपयोग होता है। 2 घंटे तक audio स्वीकार्य है; API phrase/chunk-level timestamps देती है, word-level timestamps नहीं। Lyrics line timing phrase timestamps से अनुमानित रूप से align होती है।
+- Groq `GROQ_API_KEY` କୁ fallback ଭାବରେ ରଖନ୍ତୁ; Sarvam ସଫଳ ହେବା ପରେ ମାତ୍ର ଏହାକୁ ହଟାନ୍ତୁ।
+- Groq fallback mode अपने-आप `whisper-large-v3` चुनता है और word timestamps माँगता है। Groq mode में अधिकतम audio size 25 MB; Sarvam/local mode में backend सीमा 40 MB है। API rate limits / provider availability लागू हो सकती है।
 - Groq API key बनाने के लिए [Groq Console API Keys](https://console.groq.com/keys) खोलें। Key बनाने के बाद Render service के Environment में secret value डालें और service redeploy/restart करें। कोई key ChatGPT को न भेजें।
 - Website में **AI Server जाँचें** दबाने पर diagnostics बताएगा कि hosted key configured है या अभी local fallback चल रहा है।
 
