@@ -4,7 +4,7 @@ from faster_whisper import WhisperModel
 from difflib import SequenceMatcher
 import tempfile, os, re, uuid, threading, time, resource, platform, requests, logging, unicodedata
 
-app = FastAPI(title="Auto Lyrics Sync API", version="1.3.0")
+app = FastAPI(title="Auto Lyrics Sync API", version="1.4.0")
 logger = logging.getLogger("lyrics_sync")
 
 @app.middleware("http")
@@ -48,10 +48,133 @@ def get_model():
         _model = WhisperModel(os.getenv("WHISPER_MODEL", "tiny"), device="cpu", compute_type="int8", cpu_threads=1, num_workers=1)
     return _model
 
+def transcribe_sarvam_batch(path, language, lyrics):
+    """Transcribe long audio with Saaras v4 Batch API (phrase timestamps)."""
+    api_key = os.getenv("SARVAM_API_KEY", "").strip()
+    if not api_key:
+        raise RuntimeError("Sarvam API Key ମିଳିଲା ନାହିଁ। Render Environment ରେ SARVAM_API_KEY ଯୋଡ଼ନ୍ତୁ।")
+
+    headers = {"api-subscription-key": api_key, "Content-Type": "application/json"}
+    base = "https://api.sarvam.ai/speech-to-text/job/v1"
+    filename = "lyrics_sync_audio" + (os.path.splitext(path)[1].lower() or ".mp3")
+    language_codes = {"or": "od-IN", "hi": "hi-IN", "en": "en-IN", "auto": "unknown"}
+    language_code = language_codes.get(language, "unknown")
+
+    def check(response, step):
+        if not response.ok:
+            try:
+                detail = response.json()
+            except Exception:
+                detail = response.text[:400]
+            raise RuntimeError(f"Sarvam {step} ବିଫଳ (HTTP {response.status_code}): {str(detail)[:500]}")
+        return response.json() if response.content else {}
+
+    init = check(requests.post(
+        base, headers=headers,
+        json={"job_parameters": {
+            "model": "saaras:v4", "mode": "transcribe",
+            "language_code": language_code,
+            "with_diarization": True, "num_speakers": 1
+        }},
+        timeout=(20, 60)
+    ), "job creation")
+    job_id = init.get("job_id")
+    if not job_id:
+        raise RuntimeError("Sarvam batch job ID ଦେଇନାହିଁ।")
+
+    links = check(requests.post(
+        base + "/upload-files", headers=headers,
+        json={"job_id": job_id, "files": [filename]}, timeout=(20, 60)
+    ), "upload link")
+    upload_item = (links.get("upload_urls") or {}).get(filename) or {}
+    upload_url = upload_item.get("file_url") or upload_item.get("url")
+    if not upload_url:
+        raise RuntimeError("Sarvam ଅଡିଓ upload URL ଦେଇନାହିଁ।")
+    with open(path, "rb") as audio_file:
+        uploaded = requests.put(
+            upload_url, data=audio_file,
+            headers={"Content-Type": "application/octet-stream"},
+            timeout=(30, 900)
+        )
+    if not uploaded.ok:
+        raise RuntimeError(f"Sarvam audio upload ବିଫଳ (HTTP {uploaded.status_code})।")
+
+    check(requests.post(base + f"/{job_id}/start", headers=headers, json={}, timeout=(20, 60)), "job start")
+    deadline = time.time() + 1500
+    status = {}
+    while time.time() < deadline:
+        time.sleep(5)
+        status = check(requests.get(base + f"/{job_id}/status", headers=headers, timeout=(20, 60)), "job status")
+        state = str(status.get("job_state", "")).lower()
+        if state in {"completed", "partiallycompleted"}:
+            break
+        if state == "failed":
+            raise RuntimeError("Sarvam batch job ବିଫଳ: " + str(status.get("error_message") or "ଅଜଣା ତ୍ରୁଟି"))
+    else:
+        raise RuntimeError("Sarvam batch processing ୨୫ ମିନିଟ୍ ମଧ୍ୟରେ ସମ୍ପୂର୍ଣ୍ଣ ହେଲା ନାହିଁ।")
+
+    details = status.get("job_details") or []
+    output_names = [
+        output.get("file_name")
+        for item in details if str(item.get("state", "")).lower() == "success"
+        for output in (item.get("outputs") or []) if output.get("file_name")
+    ]
+    if not output_names:
+        raise RuntimeError("Sarvam transcript output file ମିଳିଲା ନାହିଁ।")
+    downloads = check(requests.post(
+        base + "/download-files", headers=headers,
+        json={"job_id": job_id, "files": output_names}, timeout=(20, 60)
+    ), "download link")
+    download_map = downloads.get("download_urls") or {}
+    output_payload = None
+    for output_name in output_names:
+        item = download_map.get(output_name) or {}
+        download_url = item.get("file_url") or item.get("url")
+        if download_url:
+            result = requests.get(download_url, timeout=(20, 120))
+            if result.ok:
+                output_payload = result.json()
+                break
+    if output_payload is None:
+        raise RuntimeError("Sarvam transcript ଡାଉନଲୋଡ୍ ହୋଇପାରିଲା ନାହିଁ।")
+
+    transcript = str(output_payload.get("transcript") or "")
+    timestamps = output_payload.get("timestamps") or {}
+    chunks = timestamps.get("chunks") or []
+    starts = timestamps.get("start_time_seconds") or []
+    ends = timestamps.get("end_time_seconds") or []
+    words = []
+    for index, chunk in enumerate(chunks):
+        if index < len(starts) and index < len(ends):
+            words.extend(timed_tokens(chunk, starts[index], ends[index]))
+    if not transcript and chunks:
+        transcript = " ".join(str(chunk) for chunk in chunks)
+    if not words:
+        diarized = output_payload.get("diarized_transcript") or {}
+        entries = diarized.get("entries") or []
+        for entry in entries:
+            start, end = entry.get("start_time_seconds"), entry.get("end_time_seconds")
+            if start is not None and end is not None:
+                words.extend(timed_tokens(entry.get("transcript", ""), start, end))
+        if not transcript and entries:
+            transcript = " ".join(str(entry.get("transcript", "")) for entry in entries)
+    if not words:
+        raise RuntimeError("Sarvam transcript ମିଳିଛି, କିନ୍ତୁ phrase timing ମିଳିଲା ନାହିଁ।")
+    detected = output_payload.get("language_code") or language_code
+    detected = {"od-IN": "or", "or-IN": "or", "hi-IN": "hi", "en-IN": "en"}.get(detected, detected)
+    duration = max((item["end"] for item in words), default=0.0)
+    return words, transcript, detected, float(duration)
+
+
 def transcribe_audio(path, language, lyrics):
     """Prefer hosted Groq Whisper so the small Render instance does not load a local model."""
-    api_key = os.getenv("GROQ_API_KEY", "").strip()
-    provider = os.getenv("TRANSCRIPTION_PROVIDER", "groq" if api_key else "local").strip().lower()
+    sarvam_key = os.getenv("SARVAM_API_KEY", "").strip()
+    groq_key = os.getenv("GROQ_API_KEY", "").strip()
+    default_provider = "sarvam" if sarvam_key else ("groq" if groq_key else "local")
+    provider = os.getenv("TRANSCRIPTION_PROVIDER", default_provider).strip().lower()
+    if provider == "sarvam":
+        return transcribe_sarvam_batch(path, language, lyrics)
+    api_key = groq_key
     if provider == "groq":
         if not api_key:
             raise RuntimeError("Hosted AI ବାଛାଯାଇଛି, କିନ୍ତୁ GROQ_API_KEY ମିଳିଲା ନାହିଁ। Render Environment ରେ ଏହା ଯୋଡ଼ନ୍ତୁ।")
@@ -147,11 +270,15 @@ def diagnostics():
         peak_rss_mb = round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024, 1)
     except Exception:
         peak_rss_mb = None
-    key_present = bool(os.getenv("GROQ_API_KEY", "").strip())
-    provider = os.getenv("TRANSCRIPTION_PROVIDER", "groq" if key_present else "local").strip().lower()
+    sarvam_present = bool(os.getenv("SARVAM_API_KEY", "").strip())
+    groq_present = bool(os.getenv("GROQ_API_KEY", "").strip())
+    default_provider = "sarvam" if sarvam_present else ("groq" if groq_present else "local")
+    provider = os.getenv("TRANSCRIPTION_PROVIDER", default_provider).strip().lower()
     return {
-        "status": "ok", "version": "1.3.0", "provider": provider,
-        "hosted_key_configured": key_present,
+        "status": "ok", "version": "1.4.0", "provider": provider,
+        "hosted_key_configured": sarvam_present or groq_present,
+        "sarvam_key_configured": sarvam_present,
+        "groq_key_configured": groq_present,
         "local_model_loaded": _model is not None,
         "uptime_seconds": int(time.time() - _started_at),
         "peak_rss_mb": peak_rss_mb,
