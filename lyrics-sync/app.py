@@ -57,18 +57,23 @@ def transcribe_audio(path, language, lyrics):
             raise RuntimeError("Hosted AI ବାଛାଯାଇଛି, କିନ୍ତୁ GROQ_API_KEY ମିଳିଲା ନାହିଁ। Render Environment ରେ ଏହା ଯୋଡ଼ନ୍ତୁ।")
         if os.path.getsize(path) > 25 * 1024 * 1024:
             raise ValueError("ଏହି Groq API ରେ ୨୫ MB ପର୍ଯ୍ୟନ୍ତ ଅଡିଓ ଗ୍ରହଣ ହୁଏ। ଅଡିଓକୁ ଛୋଟ କରନ୍ତୁ କିମ୍ବା ଅନ୍ୟ ଫାଇଲ୍ ବାଛନ୍ତୁ।")
-        model_name = os.getenv("GROQ_WHISPER_MODEL", "whisper-large-v3-turbo")
-        # Do not send Odia lyrics as the Whisper prompt: Unicode UTF-8 byte length
-        # can exceed Groq's 896-character prompt limit even after slicing Python chars.
-        # Full lyrics remain available below for timestamp alignment after transcription.
+        model_name = os.getenv("GROQ_WHISPER_MODEL", "whisper-large-v3")
+        # Guide Whisper toward Odia with a short, language-matched lyric prompt.
+        # Groq documents a 224-token prompt limit; only include opening lines.
+        prompt = ""
+        if language == "or":
+            opening = [line.strip() for line in lyrics.splitlines() if line.strip()][:3]
+            prompt = "ଓଡ଼ିଆ ଗୀତ। ଓଡ଼ିଆ ଲିପିରେ ଲେଖନ୍ତୁ। " + " ".join(opening)
+            while len(prompt.encode("utf-8")) > 700 and opening:
+                opening.pop()
+                prompt = "ଓଡ଼ିଆ ଗୀତ। ଓଡ଼ିଆ ଲିପିରେ ଲେଖନ୍ତୁ। " + " ".join(opening)
         with open(path, "rb") as audio_file:
             response = requests.post(
                 "https://api.groq.com/openai/v1/audio/transcriptions",
                 headers={"Authorization": f"Bearer {api_key}"},
                 data=[("model", model_name), ("response_format", "verbose_json"), ("temperature", "0")]
-                     # Groq Whisper does not list Odia (or) as a supported forced-language value.
-                     # Omit it for Odia so Whisper can detect the spoken language automatically.
                      + ([("language", language)] if language not in {"auto", "or"} else [])
+                     + ([("prompt", prompt)] if prompt else [])
                      + [("timestamp_granularities[]", "word")],
                 files={"file": (os.path.basename(path), audio_file, "application/octet-stream")},
                 timeout=(20, 900),
@@ -207,7 +212,7 @@ def process_job(job_id, path, lyrics, language):
                 aligned.append({"text": line, "start": None, "end": None, "confidence": 0})
         with _jobs_lock:
             _jobs[job_id] = {"status": "completed", "updated_at": time.time(), "result": {
-                "language": detected_language, "duration": duration,
+                "language": (language if language != "auto" else detected_language),\n                "detected_language": detected_language, "duration": duration,
                 "lines": aligned, "transcript": " ".join(transcript)
             }}
     except Exception as exc:
