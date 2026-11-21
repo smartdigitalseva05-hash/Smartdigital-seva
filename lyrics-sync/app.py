@@ -80,7 +80,7 @@ def transcribe_sarvam_batch(path, language, lyrics):
         json={"job_parameters": {
             "model": "saaras:v4", "mode": "transcribe",
             "language_code": language_code,
-            "with_diarization": True, "num_speakers": 1
+            "with_diarization": True, "with_timestamps": True, "num_speakers": 1
         }},
         timeout=(20, 60)
     ), "job creation")
@@ -146,7 +146,7 @@ def transcribe_sarvam_batch(path, language, lyrics):
 
     transcript = str(output_payload.get("transcript") or "")
     timestamps = output_payload.get("timestamps") or {}
-    chunks = timestamps.get("chunks") or []
+    chunks = timestamps.get("chunks") or timestamps.get("words") or []
     starts = timestamps.get("start_time_seconds") or []
     ends = timestamps.get("end_time_seconds") or []
     words = []
