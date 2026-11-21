@@ -42,8 +42,8 @@ def transcribe_audio(path, language, lyrics):
         data = {"model": os.getenv("GROQ_WHISPER_MODEL", "whisper-large-v3-turbo"), "response_format": "verbose_json", "temperature": "0"}
         if language != "auto":
             data["language"] = language
-        if lyrics.strip():
-            data["prompt"] = lyrics[:700]
+        # Do not send full lyrics as a Whisper prompt: long multilingual lyrics
+        # can exceed the provider prompt limit. Lyrics are aligned after transcription.
         with open(path, "rb") as audio_file:
             response = requests.post(
                 "https://api.groq.com/openai/v1/audio/transcriptions",
