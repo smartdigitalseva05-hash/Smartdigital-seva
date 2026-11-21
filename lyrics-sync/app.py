@@ -347,9 +347,9 @@ def process_job(job_id, path, lyrics, language):
         # Confirmed AI timestamps are never overwritten.
         anchors = [i for i, item in enumerate(aligned)
                    if item.get("start") is not None and item.get("end") is not None]
+        def weight(i):
+            return max(1, len(tokens(aligned[i]["text"])))
         if anchors:
-            def weight(i):
-                return max(1, len(tokens(aligned[i]["text"])))
             first = anchors[0]
             if first > 0:
                 weights = [weight(i) for i in range(first)]
