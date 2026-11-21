@@ -59,4 +59,3 @@ jobs:
           Path("/tmp/lyrics-sync.js").write_text("\\n".join(scripts), encoding="utf-8")
       - name: Check frontend JavaScript syntax
         run: node --check /tmp/lyrics-sync.js
-          PY
