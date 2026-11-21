@@ -214,7 +214,10 @@ def transcribe_sarvam_batch(path, language, lyrics):
             if isinstance(value, (dict, list)):
                 scan_timing_node(value)
 
-    scan_timing_node(payload)
+    # Scan the complete downloaded response, not only the optional `result` wrapper.
+    # Sarvam batch output can place transcript/timestamps at the root while a
+    # nested result object contains only metadata (or vice versa).
+    scan_timing_node(output_payload)
     if not transcript and phrase_texts:
         transcript = " ".join(phrase_texts)
     if words:
