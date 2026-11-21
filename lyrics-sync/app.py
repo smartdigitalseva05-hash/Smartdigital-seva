@@ -343,6 +343,54 @@ def process_job(job_id, path, lyrics, language):
                     aligned.append({"text": line, "start": None, "end": None, "confidence": 0})
             else:
                 aligned.append({"text": line, "start": None, "end": None, "confidence": 0})
+        # Estimate timestamps for unmatched lines between confirmed ASR anchors.
+        # Confirmed AI timestamps are never overwritten.
+        anchors = [i for i, item in enumerate(aligned)
+                   if item.get("start") is not None and item.get("end") is not None]
+        if anchors:
+            def weight(i):
+                return max(1, len(tokens(aligned[i]["text"])))
+            first = anchors[0]
+            if first > 0:
+                weights = [weight(i) for i in range(first)]
+                total = sum(weights)
+                end_bound = max(0.0, float(aligned[first]["start"]))
+                cursor_time = 0.0
+                for i, w in enumerate(weights):
+                    start_time = cursor_time
+                    cursor_time += end_bound * w / total
+                    aligned[i].update(start=round(start_time, 3),
+                                      end=round(cursor_time, 3),
+                                      confidence="estimated")
+            for left, right in zip(anchors, anchors[1:]):
+                if right - left <= 1:
+                    continue
+                begin = float(aligned[left]["end"])
+                finish = float(aligned[right]["start"])
+                if finish <= begin:
+                    continue
+                weights = [weight(i) for i in range(left + 1, right)]
+                total = sum(weights)
+                cursor_time = begin
+                for i, w in zip(range(left + 1, right), weights):
+                    start_time = cursor_time
+                    cursor_time += (finish - begin) * w / total
+                    aligned[i].update(start=round(start_time, 3),
+                                      end=round(cursor_time, 3),
+                                      confidence="estimated")
+            last = anchors[-1]
+            if last < len(aligned) - 1 and duration > float(aligned[last]["end"]):
+                weights = [weight(i) for i in range(last + 1, len(aligned))]
+                total = sum(weights)
+                begin, finish = float(aligned[last]["end"]), float(duration)
+                cursor_time = begin
+                for i, w in zip(range(last + 1, len(aligned)), weights):
+                    start_time = cursor_time
+                    cursor_time += (finish - begin) * w / total
+                    aligned[i].update(start=round(start_time, 3),
+                                      end=round(cursor_time, 3),
+                                      confidence="estimated")
+
         with _jobs_lock:
             _jobs[job_id] = {"status": "completed", "updated_at": time.time(), "result": {
                 "language": detected_language, "selected_language": language, "duration": duration,
