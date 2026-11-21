@@ -347,7 +347,7 @@ def diagnostics():
     default_provider = "sarvam" if sarvam_present else ("groq" if groq_present else "local")
     provider = os.getenv("TRANSCRIPTION_PROVIDER", default_provider).strip().lower()
     return {
-        "status": "ok", "version": "1.4.0", "provider": provider,
+        "status": "ok", "version": "1.5.0", "provider": provider,
         "hosted_key_configured": sarvam_present or groq_present,
         "sarvam_key_configured": sarvam_present,
         "groq_key_configured": groq_present,
