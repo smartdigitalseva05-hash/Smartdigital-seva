@@ -268,7 +268,7 @@ def timed_tokens(text, start, end):
 
 @app.get("/")
 def health():
-    return {"status": "ok", "service": "Auto Lyrics Sync API", "version": "1.3.0"}
+    return {"status": "ok", "service": "Auto Lyrics Sync API", "version": "1.4.0"}
 
 @app.get("/api/diagnostics")
 def diagnostics():
@@ -466,7 +466,7 @@ async def sync(
             active = sum(1 for item in _jobs.values() if item.get("status") in {"queued", "processing"})
             if active >= MAX_ACTIVE_JOBS:
                 raise HTTPException(429, "ଅନ୍ୟ ଏକ ଅଡିଓ ପ୍ରକ୍ରିୟା ଚାଲିଛି। ଏହା ସରିବା ପରେ ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ।")
-            _jobs[job_id] = {"status": "queued", "message": "Upload received. Waiting for AI processing.", "updated_at": now}
+            _jobs[job_id] = {"status": "queued", "message": "ଅପଲୋଡ୍ ସଫଳ। AI ପ୍ରକ୍ରିୟା ପାଇଁ ଅପେକ୍ଷା କରନ୍ତୁ।", "updated_at": now}
             if len(_jobs) > 50:
                 for old_id, old_job in list(_jobs.items()):
                     if old_job.get("status") in {"completed", "failed"}:
