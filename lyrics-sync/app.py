@@ -2,9 +2,27 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTa
 from fastapi.middleware.cors import CORSMiddleware
 from faster_whisper import WhisperModel
 from difflib import SequenceMatcher
-import tempfile, os, re, uuid, threading, time, resource, platform, requests
+import tempfile, os, re, uuid, threading, time, resource, platform, requests, logging
 
 app = FastAPI(title="Auto Lyrics Sync API", version="1.3.0")
+logger = logging.getLogger("lyrics_sync")
+
+@app.middleware("http")
+async def request_trace(request, call_next):
+    started = time.time()
+    if request.url.path == "/api/sync":
+        logger.info("SYNC_UPLOAD_RECEIVED method=%s content_length=%s",
+                    request.method, request.headers.get("content-length", "unknown"))
+    try:
+        response = await call_next(request)
+    except Exception:
+        logger.exception("REQUEST_FAILED method=%s path=%s",
+                         request.method, request.url.path)
+        raise
+    if request.url.path == "/api/sync":
+        logger.info("SYNC_UPLOAD_RESPONSE status=%s elapsed_seconds=%.2f",
+                    response.status_code, time.time() - started)
+    return response
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
