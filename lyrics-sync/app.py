@@ -75,11 +75,23 @@ def transcribe_sarvam_batch(path, language, lyrics):
             raise RuntimeError(f"Sarvam {step} ବିଫଳ (HTTP {response.status_code}): {str(detail)[:500]}")
         return response.json() if response.content else {}
 
+    # Bias Saaras toward the actual Odia words supplied by the user.
+    # Saaras v4 accepts up to 50 keyterms, each up to 64 characters.
+    keyterms = []
+    seen_terms = set()
+    for token in tokens(lyrics):
+        if len(token) <= 64 and token not in seen_terms:
+            seen_terms.add(token)
+            keyterms.append(token)
+        if len(keyterms) >= 50:
+            break
+
     init = check(requests.post(
         base, headers=headers,
         json={"job_parameters": {
             "model": "saaras:v4", "mode": "transcribe",
             "language_code": language_code,
+            "keyterms": keyterms,
             "with_diarization": True, "with_timestamps": True, "num_speakers": 1
         }},
         timeout=(20, 60)
@@ -235,63 +247,61 @@ def transcribe_sarvam_batch(path, language, lyrics):
 
 
 def transcribe_audio(path, language, lyrics):
-    """Prefer hosted Groq Whisper so the small Render instance does not load a local model."""
+    """Use Odia-capable Saaras v4 exclusively for Odia; never silently fall back to English-biased Whisper."""
     sarvam_key = os.getenv("SARVAM_API_KEY", "").strip()
     groq_key = os.getenv("GROQ_API_KEY", "").strip()
-    # Odia is routed to Sarvam first; Groq Whisper is the hosted fallback.
+
+    # Groq Whisper's language handling caused Odia devotional audio to be
+    # mislabeled as English. That produces zero true matches and fake full-song
+    # estimates, so Odia must stay on Saaras v4 with od-IN.
+    if language == "or":
+        if not sarvam_key:
+            raise RuntimeError(
+                "Odia sync needs SARVAM_API_KEY on Render. Groq fallback is disabled "
+                "because it can misidentify Odia songs as English."
+            )
+        try:
+            result = transcribe_sarvam_batch(path, language, lyrics)
+        except Exception as exc:
+            raise RuntimeError(
+                "Odia AI transcription failed in Sarvam Saaras v4; no estimated timing was created. "
+                + str(exc)
+            ) from exc
+        words, transcript, detected, duration = result
+        if detected not in {"or", "od-IN", "or-IN"}:
+            raise RuntimeError(
+                "AI did not confirm Odia audio (detected: " + str(detected) +
+                "). Please check the audio language and try again."
+            )
+        return words, transcript, "or", duration
+
     # Hindi/English use Groq first for word-level timestamps.
     provider_setting = os.getenv("TRANSCRIPTION_PROVIDER", "auto").strip().lower()
     if provider_setting in {"", "auto"}:
-        if language == "or" and sarvam_key:
-            provider = "sarvam"
-        else:
-            provider = "groq" if groq_key else ("sarvam" if sarvam_key else "local")
+        provider = "groq" if groq_key else ("sarvam" if sarvam_key else "local")
     else:
         provider = provider_setting
     if provider == "sarvam":
-        try:
-            return transcribe_sarvam_batch(path, language, lyrics)
-        except Exception as sarvam_error:
-            # Sarvam Batch can return transcript JSON without usable phrase timestamps.
-            # Fall back to Groq's word-timestamp endpoint when the file fits its 25 MB limit.
-            audio_size = os.path.getsize(path)
-            if not groq_key or audio_size > 25 * 1024 * 1024:
-                raise
-            logger.warning(
-                "SARVAM_ALIGNMENT_FALLBACK provider=groq audio_bytes=%s reason=%s",
-                audio_size, str(sarvam_error)[:300]
-            )
-            provider = "groq"
+        return transcribe_sarvam_batch(path, language, lyrics)
     api_key = groq_key
     if provider == "groq":
         if not api_key:
-            raise RuntimeError("Hosted AI ବାଛାଯାଇଛି, କିନ୍ତୁ GROQ_API_KEY ମିଳିଲା ନାହିଁ। Render Environment ରେ ଏହା ଯୋଡ଼ନ୍ତୁ।")
+            raise RuntimeError("Hosted AI is selected, but GROQ_API_KEY is missing from Render Environment.")
         if os.path.getsize(path) > 25 * 1024 * 1024:
-            raise ValueError("ଏହି Groq API ରେ ୨୫ MB ପର୍ଯ୍ୟନ୍ତ ଅଡିଓ ଗ୍ରହଣ ହୁଏ। ଅଡିଓକୁ ଛୋଟ କରନ୍ତୁ କିମ୍ବା ଅନ୍ୟ ଫାଇଲ୍ ବାଛନ୍ତୁ।")
+            raise ValueError("Groq accepts audio files up to 25 MB. Reduce the audio size or choose another file.")
         model_name = os.getenv("GROQ_WHISPER_MODEL", "whisper-large-v3")
-        # Guide Whisper toward Odia with a short, language-matched lyric prompt.
-        # Groq documents a 224-token prompt limit; only include opening lines.
-        prompt = ""
-        if language == "or":
-            opening = [line.strip() for line in lyrics.splitlines() if line.strip()][:3]
-            prompt = "ଓଡ଼ିଆ ଗୀତ। ଓଡ଼ିଆ ଲିପିରେ ଲେଖନ୍ତୁ। " + " ".join(opening)
-            while len(prompt.encode("utf-8")) > 700 and opening:
-                opening.pop()
-                prompt = "ଓଡ଼ିଆ ଗୀତ। ଓଡ଼ିଆ ଲିପିରେ ଲେଖନ୍ତୁ। " + " ".join(opening)
         with open(path, "rb") as audio_file:
             response = requests.post(
                 "https://api.groq.com/openai/v1/audio/transcriptions",
                 headers={"Authorization": f"Bearer {api_key}"},
                 data=[("model", model_name), ("response_format", "verbose_json"), ("temperature", "0")]
-                     + ([("language", language)] if language not in {"auto", "or"} else [])
-                     + ([("prompt", prompt)] if prompt else [])
+                     + ([("language", language)] if language not in {"auto"} else [])
                      + [("timestamp_granularities[]", "word")],
                 files={"file": (os.path.basename(path), audio_file, "application/octet-stream")},
                 timeout=(20, 900),
             )
         if not response.ok:
-            detail = response.text[:500]
-            raise RuntimeError(f"Hosted AI ଟ୍ରାନ୍ସକ୍ରିପ୍ସନ୍ API ରୁ HTTP {response.status_code}: {detail}")
+            raise RuntimeError(f"Hosted AI transcription API returned HTTP {response.status_code}: {response.text[:500]}")
         payload = response.json()
         remote_words = payload.get("words") or []
         words = []
@@ -299,7 +309,7 @@ def transcribe_audio(path, language, lyrics):
             if item.get("start") is not None and item.get("end") is not None:
                 words.extend(timed_tokens(item.get("word", ""), item["start"], item["end"]))
         if not words:
-            raise RuntimeError("Hosted AI ଶବ୍ଦ ଅନୁଯାୟୀ ସମୟ ଦେଇନାହିଁ। ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ।")
+            raise RuntimeError("Hosted AI did not return word-level timestamps. Please try again.")
         return words, payload.get("text", ""), payload.get("language", language), float(payload.get("duration", 0) or 0)
 
     model = get_model()
@@ -438,6 +448,11 @@ def process_job(job_id, path, lyrics, language):
         # Confirmed AI timestamps are never overwritten.
         anchors = [i for i, item in enumerate(aligned)
                    if item.get("start") is not None and item.get("end") is not None]
+        if language == "or" and not anchors:
+            raise ValueError(
+                "Odia audio was transcribed, but none of the supplied Odia lyric lines matched the AI transcript. "
+                "No fake estimated timings were saved. Check that the selected song is the same as these lyrics."
+            )
         def weight(i):
             return max(1, len(tokens(aligned[i]["text"])))
         if anchors:
