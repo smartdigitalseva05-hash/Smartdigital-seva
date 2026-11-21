@@ -9,4 +9,4 @@ services:
     healthCheckPath: /
     envVars:
       - key: WHISPER_MODEL
-        value: small
+        value: tiny
