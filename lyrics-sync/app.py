@@ -384,7 +384,9 @@ async def sync(
                 if not chunk:
                     break
                 total += len(chunk)
-                if total > (25 * 1024 * 1024 if os.getenv("GROQ_API_KEY", "").strip() and os.getenv("TRANSCRIPTION_PROVIDER", "groq").strip().lower() == "groq" else MAX_AUDIO_BYTES):
+                active_provider = os.getenv("TRANSCRIPTION_PROVIDER", "sarvam" if os.getenv("SARVAM_API_KEY", "").strip() else ("groq" if os.getenv("GROQ_API_KEY", "").strip() else "local")).strip().lower()
+                upload_limit = 25 * 1024 * 1024 if active_provider == "groq" else MAX_AUDIO_BYTES
+                if total > upload_limit:
                     raise HTTPException(413, "ଅଡିଓ ଫାଇଲ୍ ବର୍ତ୍ତମାନର ସୀମାଠାରୁ ବଡ଼ (Hosted ୨୫ MB / Local ୪୦ MB)।")
                 tmp.write(chunk)
         job_id = uuid.uuid4().hex
