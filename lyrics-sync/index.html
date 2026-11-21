@@ -41,9 +41,9 @@ async function buildNoAiTimeline(file,rawLyrics){
       audio.onerror=()=>reject(new Error('Browser could not read this audio file.'));
       audio.src=url;audio.load();
     });
-    const lyricLines=rawLyrics.split(/\\r?\\n/).map(s=>s.trim()).filter(Boolean);
+    const lyricLines=rawLyrics.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
     if(!lyricLines.length)throw new Error('No lyric lines found.');
-    const weights=lyricLines.map(s=>Math.max(1,[...s].filter(ch=>/[\\p{L}\\p{M}\\p{N}]/u.test(ch)).length));
+    const weights=lyricLines.map(s=>Math.max(1,[...s].filter(ch=>/[\p{L}\p{M}\p{N}]/u.test(ch)).length));
     const total=weights.reduce((a,b)=>a+b,0);let cursor=0;
     return lyricLines.map((text,i)=>{
       const start=cursor;cursor+=duration*weights[i]/total;
