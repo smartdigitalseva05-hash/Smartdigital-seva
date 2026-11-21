@@ -238,7 +238,7 @@ def transcribe_audio(path, language, lyrics):
     """Prefer hosted Groq Whisper so the small Render instance does not load a local model."""
     sarvam_key = os.getenv("SARVAM_API_KEY", "").strip()
     groq_key = os.getenv("GROQ_API_KEY", "").strip()
-    default_provider = "sarvam" if sarvam_key else ("groq" if groq_key else "local")
+    default_provider = "groq" if groq_key else ("sarvam" if sarvam_key else "local")
     provider = os.getenv("TRANSCRIPTION_PROVIDER", default_provider).strip().lower()
     if provider == "sarvam":
         try:
