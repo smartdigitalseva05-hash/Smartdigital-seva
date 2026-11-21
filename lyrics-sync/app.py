@@ -66,7 +66,9 @@ def transcribe_audio(path, language, lyrics):
                 "https://api.groq.com/openai/v1/audio/transcriptions",
                 headers={"Authorization": f"Bearer {api_key}"},
                 data=[("model", model_name), ("response_format", "verbose_json"), ("temperature", "0")]
-                     + ([("language", language)] if language != "auto" else [])
+                     # Groq Whisper does not list Odia (or) as a supported forced-language value.
+                     # Omit it for Odia so Whisper can detect the spoken language automatically.
+                     + ([("language", language)] if language not in {"auto", "or"} else [])
                      + [("timestamp_granularities[]", "word")],
                 files={"file": (os.path.basename(path), audio_file, "application/octet-stream")},
                 timeout=(20, 900),
