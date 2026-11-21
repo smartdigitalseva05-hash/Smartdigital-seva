@@ -210,17 +210,25 @@ def transcribe_sarvam_batch(path, language, lyrics):
     if not transcript:
         transcript = " ".join(phrase_texts)
     if not words:
+        # Keep diagnostics safe for every provider response shape. These fields
+        # are optional in Sarvam output and must never mask the real STT error.
+        root_payload = output_payload if isinstance(output_payload, dict) else {}
+        timestamps = payload.get("timestamps") if isinstance(payload, dict) else None
+        diarized = payload.get("diarized_transcript") if isinstance(payload, dict) else None
+        top_level_keys = list(payload.keys()) if isinstance(payload, dict) else [type(payload).__name__]
+        timestamp_shape = (
+            {key: type(value).__name__ for key, value in timestamps.items()}
+            if isinstance(timestamps, dict) else type(timestamps).__name__
+        )
         logger.error(
             "SARVAM_TIMING_MISSING top_level_keys=%s timestamp_shape=%s diarized_shape=%s",
-            list(payload.keys()),
-            ({key: type(value).__name__ for key, value in timestamps.items()}
-             if isinstance(timestamps, dict) else type(timestamps).__name__),
-            type(diarized).__name__,
+            top_level_keys, timestamp_shape, type(diarized).__name__,
         )
         raise RuntimeError(
             "Sarvam transcript ମିଳିଛି, କିନ୍ତୁ ଏହି output ରେ ବ୍ୟବହାରଯୋଗ୍ୟ phrase timing ନାହିଁ।"
         )
-    detected = output_payload.get("language_code") or language_code
+    root_payload = output_payload if isinstance(output_payload, dict) else {}
+    detected = (payload.get("language_code") if isinstance(payload, dict) else None) or root_payload.get("language_code") or language_code
     detected = {"od-IN": "or", "or-IN": "or", "hi-IN": "hi", "en-IN": "en"}.get(detected, detected)
     duration = max((item["end"] for item in words), default=0.0)
     return words, transcript, detected, float(duration)
