@@ -212,7 +212,7 @@ def process_job(job_id, path, lyrics, language):
                 aligned.append({"text": line, "start": None, "end": None, "confidence": 0})
         with _jobs_lock:
             _jobs[job_id] = {"status": "completed", "updated_at": time.time(), "result": {
-                "language": (language if language != "auto" else detected_language),\n                "detected_language": detected_language, "duration": duration,
+                "language": detected_language, "selected_language": language, "duration": duration,
                 "lines": aligned, "transcript": " ".join(transcript)
             }}
     except Exception as exc:
