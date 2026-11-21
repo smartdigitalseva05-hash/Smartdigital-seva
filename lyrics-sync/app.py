@@ -54,9 +54,9 @@ def transcribe_audio(path, language, lyrics):
     provider = os.getenv("TRANSCRIPTION_PROVIDER", "groq" if api_key else "local").strip().lower()
     if provider == "groq":
         if not api_key:
-            raise RuntimeError("Hosted AI is selected but GROQ_API_KEY is missing. Add it in Render Environment, or set TRANSCRIPTION_PROVIDER=local.")
+            raise RuntimeError("Hosted AI ବାଛାଯାଇଛି, କିନ୍ତୁ GROQ_API_KEY ମିଳିଲା ନାହିଁ। Render Environment ରେ ଏହା ଯୋଡ଼ନ୍ତୁ।")
         if os.path.getsize(path) > 25 * 1024 * 1024:
-            raise ValueError("Hosted Groq transcription accepts files up to 25 MB on this API tier. Compress the audio or use a smaller file.")
+            raise ValueError("ଏହି Groq API ରେ ୨୫ MB ପର୍ଯ୍ୟନ୍ତ ଅଡିଓ ଗ୍ରହଣ ହୁଏ। ଅଡିଓକୁ ଛୋଟ କରନ୍ତୁ କିମ୍ବା ଅନ୍ୟ ଫାଇଲ୍ ବାଛନ୍ତୁ।")
         model_name = os.getenv("GROQ_WHISPER_MODEL", "whisper-large-v3-turbo")
         # Do not send Odia lyrics as the Whisper prompt: Unicode UTF-8 byte length
         # can exceed Groq's 896-character prompt limit even after slicing Python chars.
@@ -75,7 +75,7 @@ def transcribe_audio(path, language, lyrics):
             )
         if not response.ok:
             detail = response.text[:500]
-            raise RuntimeError(f"Hosted transcription API returned HTTP {response.status_code}: {detail}")
+            raise RuntimeError(f"Hosted AI ଟ୍ରାନ୍ସକ୍ରିପ୍ସନ୍ API ରୁ HTTP {response.status_code}: {detail}")
         payload = response.json()
         remote_words = payload.get("words") or []
         words = []
@@ -83,7 +83,7 @@ def transcribe_audio(path, language, lyrics):
             if item.get("start") is not None and item.get("end") is not None:
                 words.extend(timed_tokens(item.get("word", ""), item["start"], item["end"]))
         if not words:
-            raise RuntimeError("Hosted AI returned no word-level timestamps. Please retry or use local transcription.")
+            raise RuntimeError("Hosted AI ଶବ୍ଦ ଅନୁଯାୟୀ ସମୟ ଦେଇନାହିଁ। ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ।")
         return words, payload.get("text", ""), payload.get("language", language), float(payload.get("duration", 0) or 0)
 
     model = get_model()
@@ -158,18 +158,18 @@ def job_status(job_id: str):
     with _jobs_lock:
         job = _jobs.get(job_id)
         if not job:
-            raise HTTPException(404, "Sync job not found. The server may have restarted; please upload the audio again.")
+            raise HTTPException(404, "Sync କାମ ମିଳିଲା ନାହିଁ। ସର୍ଭର ପୁନଃଚାଳୁ ହୋଇଥାଇପାରେ; ଅଡିଓ ପୁଣି ଅପଲୋଡ୍ କରନ୍ତୁ।")
         return dict(job)
 
 def process_job(job_id, path, lyrics, language):
     try:
         with _jobs_lock:
-            _jobs[job_id] = {"status": "processing", "message": "AI is analyzing the audio.", "updated_at": time.time()}
+            _jobs[job_id] = {"status": "processing", "message": "AI ଅଡିଓ ବିଶ୍ଳେଷଣ କରୁଛି।", "updated_at": time.time()}
         # Serialize inference per instance; hosted transcription avoids loading Whisper into Render RAM.
         with _model_lock:
             words, transcript, detected_language, duration = transcribe_audio(path, language, lyrics)
         if not words:
-            raise ValueError("Speech could not be detected. Try clearer audio or another language setting.")
+            raise ValueError("ଅଡିଓରେ କଥା/ଗୀତ ଚିହ୍ନଟ ହୋଇନାହିଁ। ସ୍ପଷ୍ଟ ଅଡିଓ କିମ୍ବା ଅନ୍ୟ ଭାଷା ବାଛନ୍ତୁ।")
         lyric_lines = [line.strip() for line in lyrics.splitlines() if line.strip()]
         aligned, cursor = [], 0
         for line in lyric_lines:
@@ -199,7 +199,7 @@ def process_job(job_id, path, lyrics, language):
                 "lines": aligned, "transcript": " ".join(transcript)
             }}
     except Exception as exc:
-        message = str(exc).strip() or "Audio processing failed. Please try again."
+        message = str(exc).strip() or "ଅଡିଓ ପ୍ରକ୍ରିୟା ବିଫଳ ହେଲା। ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ।"
         with _jobs_lock:
             _jobs[job_id] = {"status": "failed", "error": message, "updated_at": time.time()}
     finally:
@@ -217,19 +217,19 @@ async def sync(
     language: str = Form("auto"),
 ):
     if not lyrics.strip():
-        raise HTTPException(400, "Paste the full lyrics first.")
+        raise HTTPException(400, "ପ୍ରଥମେ ସମ୍ପୂର୍ଣ୍ଣ ଗୀତିକା ଲେଖନ୍ତୁ।")
     if len(lyrics) > MAX_LYRICS_CHARS:
-        raise HTTPException(413, "Lyrics are too long. Please keep them under 30,000 characters.")
+        raise HTTPException(413, "ଗୀତିକା ବହୁତ ଲମ୍ବା। ୩୦,୦୦୦ ଅକ୍ଷର ମଧ୍ୟରେ ରଖନ୍ତୁ।")
     lyric_line_count = sum(1 for line in lyrics.splitlines() if line.strip())
     if lyric_line_count > MAX_LYRIC_LINES:
-        raise HTTPException(413, "Please keep lyrics under 500 non-empty lines for reliable processing.")
+        raise HTTPException(413, "ଭଲ ଭାବେ ପ୍ରକ୍ରିୟା ପାଇଁ ୫୦୦ ରୁ କମ୍ ଖାଲି ନଥିବା ଧାଡ଼ି ରଖନ୍ତୁ।")
     if lyric_line_count == 0:
-        raise HTTPException(400, "No readable lyric lines found. Paste the lyrics one line per row.")
+        raise HTTPException(400, "ପଢ଼ିହେବା ଭଳି ଗୀତିକା ଧାଡ଼ି ମିଳିଲା ନାହିଁ। ପ୍ରତ୍ୟେକ ଧାଡ଼ିକୁ ଅଲଗା ଲାଇନ୍‌ରେ ଲେଖନ୍ତୁ।")
     if language not in {"auto", "or", "hi", "en"}:
-        raise HTTPException(400, "Choose Auto Detect, Odia, Hindi, or English.")
+        raise HTTPException(400, "ସ୍ୱୟଂଚାଳିତ ଚିହ୍ନଟ, ଓଡ଼ିଆ, ହିନ୍ଦୀ କିମ୍ବା ଇଂରାଜୀ ବାଛନ୍ତୁ।")
     suffix = os.path.splitext(audio.filename or "audio.mp3")[1].lower() or ".mp3"
     if suffix not in ALLOWED_AUDIO:
-        raise HTTPException(415, "Unsupported audio format. Use MP3, WAV, M4A, AAC, OGG, FLAC, or WEBM.")
+        raise HTTPException(415, "ଏହି ଅଡିଓ ଫର୍ମାଟ୍ ସମର୍ଥିତ ନୁହେଁ। MP3, WAV, M4A, AAC, OGG, FLAC କିମ୍ବା WEBM ବ୍ୟବହାର କରନ୍ତୁ।")
     path = None
     try:
         with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
@@ -241,7 +241,7 @@ async def sync(
                     break
                 total += len(chunk)
                 if total > (25 * 1024 * 1024 if os.getenv("GROQ_API_KEY", "").strip() and os.getenv("TRANSCRIPTION_PROVIDER", "groq").strip().lower() == "groq" else MAX_AUDIO_BYTES):
-                    raise HTTPException(413, "Audio file exceeds the current transcription provider limit (25 MB hosted / 40 MB local).")
+                    raise HTTPException(413, "ଅଡିଓ ଫାଇଲ୍ ବର୍ତ୍ତମାନର ସୀମାଠାରୁ ବଡ଼ (Hosted ୨୫ MB / Local ୪୦ MB)।")
                 tmp.write(chunk)
         job_id = uuid.uuid4().hex
         with _jobs_lock:
@@ -251,7 +251,7 @@ async def sync(
                     _jobs.pop(old_id, None)
             active = sum(1 for item in _jobs.values() if item.get("status") in {"queued", "processing"})
             if active >= MAX_ACTIVE_JOBS:
-                raise HTTPException(429, "Another audio is being processed. Please wait for it to finish, then try again.")
+                raise HTTPException(429, "ଅନ୍ୟ ଏକ ଅଡିଓ ପ୍ରକ୍ରିୟା ଚାଲିଛି। ଏହା ସରିବା ପରେ ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ।")
             _jobs[job_id] = {"status": "queued", "message": "Upload received. Waiting for AI processing.", "updated_at": now}
             if len(_jobs) > 50:
                 for old_id, old_job in list(_jobs.items()):
