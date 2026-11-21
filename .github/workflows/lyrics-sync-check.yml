@@ -52,4 +52,11 @@ jobs:
           if "/api/sync" not in page:
               raise SystemExit("Frontend does not reference the sync API endpoint.")
           print("Frontend structure check passed.")
+          import re
+          scripts = re.findall(r"<script>(.*?)</script>", page, flags=re.S)
+          if not scripts:
+              raise SystemExit("No inline JavaScript found.")
+          Path("/tmp/lyrics-sync.js").write_text("\\n".join(scripts), encoding="utf-8")
+      - name: Check frontend JavaScript syntax
+        run: node --check /tmp/lyrics-sync.js
           PY
