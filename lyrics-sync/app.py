@@ -177,7 +177,7 @@ def transcribe_sarvam_batch(path, language, lyrics):
                 if index < len(starts) and index < len(ends):
                     add_timed_phrase(chunk, starts[index], ends[index])
         # Some response variants return timestamp entries as objects.
-        entries = timestamps.get("entries") or timestamps.get("segments") or []
+        entries = timestamps.get("entries") or timestamps.get("segments") or timestamps.get("words") or []
         if not words and isinstance(entries, list):
             for entry in entries:
                 if isinstance(entry, dict):
