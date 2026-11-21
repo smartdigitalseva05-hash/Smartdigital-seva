@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="or"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101a30"><title>Auto Lyrics Sync Pro</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101a30"><title>Auto Lyrics Sync Pro</title>
 <style>
 :root{color-scheme:dark;--bg:#0b1222;--panel:#17243b;--muted:#aab7ce;--accent:#78e0b3;--line:#30415e}*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#172b45,#090f1d 65%);color:#f5f7fc;font:16px system-ui,Arial}main{max-width:850px;margin:auto;padding:22px 15px 50px}.head{display:flex;gap:13px;align-items:center;margin:8px 0 22px}.logo{font-size:25px;background:#204d47;border-radius:14px;padding:11px}h1{font-size:24px;margin:0}.muted,.hint{color:var(--muted);font-size:13px;line-height:1.5}.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:17px;margin:13px 0}h2{font-size:17px;margin:0 0 12px}label{display:block;margin:12px 0 7px;font-size:14px}input,textarea,select{width:100%;padding:12px;border-radius:11px;border:1px solid #40516e;background:#0d172a;color:white;font:inherit}textarea{min-height:175px;line-height:1.7;resize:vertical}.row{display:flex;gap:12px;flex-wrap:wrap}.row>div{flex:1;min-width:190px}button{border:0;border-radius:12px;padding:13px 17px;background:var(--accent);color:#092017;font-weight:750;font-size:15px;cursor:pointer}button:disabled{opacity:.55}.secondary{background:#2b3c5b;color:#fff}.status{color:var(--accent);font-size:14px;white-space:pre-wrap;margin-top:10px}audio{width:100%;margin-top:12px}.hide{display:none}.stage{font-size:26px;text-align:center;color:var(--accent);min-height:92px;display:grid;place-items:center;line-height:1.5;padding:12px}.line{padding:10px;border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center;flex-wrap:wrap}.line small{color:var(--muted);min-width:65px}.line.miss{color:#f1c87a}.line input{padding:8px;font-size:13px;min-width:0}.line .lyric-edit{flex:1;min-width:150px}.line .time-edit{width:88px}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}.transcript{white-space:pre-wrap;overflow-wrap:anywhere;background:#0d172a;border:1px solid var(--line);border-radius:10px;padding:12px;max-height:260px;overflow:auto;font-size:14px;line-height:1.7}footer{text-align:center;color:var(--muted);font-size:12px;margin:22px}
 </style></head><body><main>
@@ -124,18 +124,19 @@ $('videoExport')?.addEventListener('click',async()=>{
     try{await ac.close()}catch(_){}
     $('videoExport').disabled=false;
     if(!blob.size){
-      $('status').textContent='❌ Video creation failed. Audio playback or browser recording did not start. Please try again in Chrome.';
+      $('videoDownloadArea').textContent='';$('status').textContent='❌ Video creation failed. No video data was recorded. Please use the latest Chrome and keep this page open until the song ends.';
       return;
     }
     if(lastVideoUrl)URL.revokeObjectURL(lastVideoUrl);
     lastVideoUrl=URL.createObjectURL(blob);
     const filename='odia-lyrics-video-'+(ratio==='9:16'?'shorts-9x16':'youtube-16x9')+'.'+ext;
     const area=$('videoDownloadArea');area.innerHTML='';
-    const link=document.createElement('a');link.href=lastVideoUrl;link.download=filename;link.textContent='⬇ '+filename+' — Tap here to download your video';
+    const downloadButton=document.createElement('button');downloadButton.type='button';downloadButton.textContent='⬇ Download Video ('+ext.toUpperCase()+')';downloadButton.addEventListener('click',()=>{const a=document.createElement('a');a.href=lastVideoUrl;a.download=filename;a.rel='noopener';document.body.appendChild(a);a.click();a.remove();$('status').textContent='✅ Download requested: '+filename+'. Check your Downloads folder.'});area.appendChild(downloadButton);
+    const link=document.createElement('a');link.href=lastVideoUrl;link.download=filename;link.textContent='If the button does not work, tap here to save '+filename;
     link.style.display='inline-block';link.style.padding='12px';link.style.marginTop='8px';link.style.border='1px solid currentColor';link.style.borderRadius='10px';link.style.color='inherit';link.style.fontWeight='700';
     area.appendChild(link);
     const autoLink=document.createElement('a');autoLink.href=lastVideoUrl;autoLink.download=filename;autoLink.style.display='none';document.body.appendChild(autoLink);autoLink.click();autoLink.remove();
-    $('status').textContent='✅ Video ready ('+ext.toUpperCase()+', '+(blob.size/1024/1024).toFixed(1)+' MB)। If the download does not start automatically, tap the download link below.';
+    $('status').textContent='✅ Video ready ('+ext.toUpperCase()+', '+(blob.size/1024/1024).toFixed(1)+' MB). Tap Download Video below to save it to your device.';
   };
   audioEl.onended=()=>{if(recorder.state!=='inactive')recorder.stop()};
   audioEl.onerror=()=>{if(recorder.state!=='inactive')recorder.stop();$('status').textContent='Audio playback failed. Check the file format or whether the file is damaged.'};
@@ -148,7 +149,7 @@ $('videoExport')?.addEventListener('click',async()=>{
   }catch(e){
     $('videoExport').disabled=false;audioEl.pause();if(recorder.state!=='inactive')recorder.stop();
     stream.getTracks().forEach(t=>t.stop());URL.revokeObjectURL(audioUrl);try{await ac.close()}catch(_){}
-    $('status').textContent='❌ Could not start audio playback/recording: '+(e.message||e.name||'Unknown error');
+    $('status').textContent='❌ Could not start audio playback/recording: '+(e.message||e.name||'Unknown error')+'. Tap Create Lyrics Video again in Chrome.';
   }
 });
 </script></body></html>
