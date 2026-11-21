@@ -20,7 +20,7 @@ Frontend URL:
 यदि workflow deploy नहीं होता, GitHub के **Actions** tab में Pages workflow का error देखें।
 
 ### 2. AI backend: Render
-****एक-क्लिक Blueprint लिंक:** [Render पर Smart Lyrics Sync Backend Deploy करें](https://render.com/deploy?repo=https://github.com/smartdigitalseva05-hash/Smartdigital-seva)
+**एक-क्लिक Blueprint लिंक:** [Render पर Smart Lyrics Sync Backend Deploy करें](https://render.com/deploy?repo=https://github.com/smartdigitalseva05-hash/Smartdigital-seva)
 
 लिंक खोलकर Render में sign in/connect करें और Blueprint deploy की पुष्टि करें। Repository root में `render.yaml` blueprint है; Render API service create करेगा।
 
