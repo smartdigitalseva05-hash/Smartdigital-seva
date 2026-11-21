@@ -2,9 +2,9 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTa
 from fastapi.middleware.cors import CORSMiddleware
 from faster_whisper import WhisperModel
 from difflib import SequenceMatcher
-import tempfile, os, re, uuid, threading, time
+import tempfile, os, re, uuid, threading, time, resource, platform
 
-app = FastAPI(title="Auto Lyrics Sync API", version="1.1.0")
+app = FastAPI(title="Auto Lyrics Sync API", version="1.2.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -15,7 +15,7 @@ app.add_middleware(
 _model = None
 _model_lock = threading.Lock()
 _jobs = {}
-_jobs_lock = threading.Lock()
+_jobs_lock = threading.Lock()\n_started_at = time.time()
 MAX_AUDIO_BYTES = 40 * 1024 * 1024
 MAX_LYRICS_CHARS = 30000
 MAX_LYRIC_LINES = 500
@@ -26,7 +26,7 @@ ALLOWED_AUDIO = {".mp3", ".wav", ".m4a", ".aac", ".ogg", ".flac", ".webm", ".mp4
 def get_model():
     global _model
     if _model is None:
-        _model = WhisperModel(os.getenv("WHISPER_MODEL", "tiny"), device="cpu", compute_type="int8")
+        _model = WhisperModel(os.getenv("WHISPER_MODEL", "tiny"), device="cpu", compute_type="int8", cpu_threads=1, num_workers=1)
     return _model
 
 def tokens(text):
@@ -53,7 +53,7 @@ def process_job(job_id, path, lyrics, language):
             model = get_model()
             lang = None if language == "auto" else language
             segments, info = model.transcribe(
-                path, language=lang, word_timestamps=True, vad_filter=True, beam_size=3
+                path, language=lang, word_timestamps=True, vad_filter=True, beam_size=1, condition_on_previous_text=False
             )
             words, transcript = [], []
             for seg in segments:
