@@ -2,7 +2,7 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTa
 from fastapi.middleware.cors import CORSMiddleware
 from faster_whisper import WhisperModel
 from difflib import SequenceMatcher
-import tempfile, os, re, uuid, threading, time, resource, platform, requests, logging
+import tempfile, os, re, uuid, threading, time, resource, platform, requests, logging, unicodedata
 
 app = FastAPI(title="Auto Lyrics Sync API", version="1.3.0")
 logger = logging.getLogger("lyrics_sync")
@@ -104,7 +104,19 @@ def transcribe_audio(path, language, lyrics):
     return words, " ".join(transcript), info.language, float(info.duration or 0)
 
 def tokens(text):
-    return re.findall(r"[^\W_]+", text.lower(), flags=re.UNICODE)
+    """Tokenize Unicode words without splitting Indic-script combining marks."""
+    text = unicodedata.normalize("NFC", str(text or "")).casefold()
+    result, current = [], []
+    for char in text:
+        category = unicodedata.category(char)
+        if category.startswith("L") or category.startswith("M"):
+            current.append(char)
+        elif current:
+            result.append("".join(current))
+            current = []
+    if current:
+        result.append("".join(current))
+    return result
 
 @app.get("/")
 def health():
