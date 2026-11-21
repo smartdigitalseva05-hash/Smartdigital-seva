@@ -144,29 +144,81 @@ def transcribe_sarvam_batch(path, language, lyrics):
     if output_payload is None:
         raise RuntimeError("Sarvam transcript ଡାଉନଲୋଡ୍ ହୋଇପାରିଲା ନାହିଁ।")
 
-    transcript = str(output_payload.get("transcript") or "")
-    timestamps = output_payload.get("timestamps") or {}
-    chunks = timestamps.get("chunks") or timestamps.get("words") or []
-    starts = timestamps.get("start_time_seconds") or []
-    ends = timestamps.get("end_time_seconds") or []
+    # Batch output schemas can differ slightly between API revisions. Accept the
+    # documented parallel arrays as well as entry-style timestamp objects.
+    payload = output_payload
+    if isinstance(payload, dict) and isinstance(payload.get("result"), dict):
+        payload = payload["result"]
+    transcript = str(payload.get("transcript") or "")
+    timestamps = payload.get("timestamps") or {}
     words = []
-    for index, chunk in enumerate(chunks):
-        if index < len(starts) and index < len(ends):
-            words.extend(timed_tokens(chunk, starts[index], ends[index]))
-    if not transcript and chunks:
-        transcript = " ".join(str(chunk) for chunk in chunks)
+    phrase_texts = []
+
+    def add_timed_phrase(text_value, start_value, end_value):
+        if text_value is None or start_value is None or end_value is None:
+            return
+        try:
+            start_value, end_value = float(start_value), float(end_value)
+            if start_value < 0 or end_value <= start_value:
+                return
+        except (TypeError, ValueError):
+            return
+        phrase = str(text_value).strip()
+        if phrase:
+            phrase_texts.append(phrase)
+            words.extend(timed_tokens(phrase, start_value, end_value))
+
+    if isinstance(timestamps, dict):
+        chunks = timestamps.get("chunks") or timestamps.get("words") or timestamps.get("segments") or []
+        starts = timestamps.get("start_time_seconds") or timestamps.get("start") or []
+        ends = timestamps.get("end_time_seconds") or timestamps.get("end") or []
+        if isinstance(chunks, list) and isinstance(starts, list) and isinstance(ends, list):
+            for index, chunk in enumerate(chunks):
+                if index < len(starts) and index < len(ends):
+                    add_timed_phrase(chunk, starts[index], ends[index])
+        # Some response variants return timestamp entries as objects.
+        entries = timestamps.get("entries") or timestamps.get("segments") or []
+        if isinstance(entries, list):
+            for entry in entries:
+                if isinstance(entry, dict):
+                    add_timed_phrase(
+                        entry.get("text") or entry.get("transcript") or entry.get("word"),
+                        entry.get("start_time_seconds", entry.get("start")),
+                        entry.get("end_time_seconds", entry.get("end")),
+                    )
+    elif isinstance(timestamps, list):
+        for entry in timestamps:
+            if isinstance(entry, dict):
+                add_timed_phrase(
+                    entry.get("text") or entry.get("transcript") or entry.get("word"),
+                    entry.get("start_time_seconds", entry.get("start")),
+                    entry.get("end_time_seconds", entry.get("end")),
+                )
+
+    diarized = payload.get("diarized_transcript") or {}
+    diarized_entries = diarized.get("entries", []) if isinstance(diarized, dict) else diarized
+    if not words and isinstance(diarized_entries, list):
+        for entry in diarized_entries:
+            if isinstance(entry, dict):
+                add_timed_phrase(
+                    entry.get("transcript") or entry.get("text"),
+                    entry.get("start_time_seconds", entry.get("start")),
+                    entry.get("end_time_seconds", entry.get("end")),
+                )
+
+    if not transcript:
+        transcript = " ".join(phrase_texts)
     if not words:
-        diarized = output_payload.get("diarized_transcript") or {}
-        entries = diarized.get("entries") or []
-        for entry in entries:
-            start, end = entry.get("start_time_seconds"), entry.get("end_time_seconds")
-            if start is not None and end is not None:
-                words.extend(timed_tokens(entry.get("transcript", ""), start, end))
-        if not transcript and entries:
-            transcript = " ".join(str(entry.get("transcript", "")) for entry in entries)
-    if not words:
-        logger.error("SARVAM_TIMING_MISSING top_level_keys=%s timestamp_keys=%s diarized_keys=%s entry_count=%s", list(output_payload.keys()), list(timestamps.keys()) if isinstance(timestamps, dict) else type(timestamps).__name__, list((output_payload.get("diarized_transcript") or {}).keys()) if isinstance(output_payload.get("diarized_transcript"), dict) else type(output_payload.get("diarized_transcript")).__name__, len((output_payload.get("diarized_transcript") or {}).get("entries") or []) if isinstance(output_payload.get("diarized_transcript"), dict) else 0)
-        raise RuntimeError("Sarvam transcript ମିଳିଛି, କିନ୍ତୁ phrase timing ମିଳିଲା ନାହିଁ।")
+        logger.error(
+            "SARVAM_TIMING_MISSING top_level_keys=%s timestamp_shape=%s diarized_shape=%s",
+            list(payload.keys()),
+            ({key: type(value).__name__ for key, value in timestamps.items()}
+             if isinstance(timestamps, dict) else type(timestamps).__name__),
+            type(diarized).__name__,
+        )
+        raise RuntimeError(
+            "Sarvam transcript ମିଳିଛି, କିନ୍ତୁ ଏହି output ରେ ବ୍ୟବହାରଯୋଗ୍ୟ phrase timing ନାହିଁ।"
+        )
     detected = output_payload.get("language_code") or language_code
     detected = {"od-IN": "or", "or-IN": "or", "hi-IN": "hi", "en-IN": "en"}.get(detected, detected)
     duration = max((item["end"] for item in words), default=0.0)
