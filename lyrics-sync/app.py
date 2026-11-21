@@ -2,7 +2,7 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTa
 from fastapi.middleware.cors import CORSMiddleware
 from faster_whisper import WhisperModel
 from difflib import SequenceMatcher
-import tempfile, os, re, uuid, threading, traceback
+import tempfile, os, re, uuid, threading, time
 
 app = FastAPI(title="Auto Lyrics Sync API", version="1.1.0")
 app.add_middleware(
@@ -18,6 +18,9 @@ _jobs = {}
 _jobs_lock = threading.Lock()
 MAX_AUDIO_BYTES = 40 * 1024 * 1024
 MAX_LYRICS_CHARS = 30000
+MAX_LYRIC_LINES = 500
+MAX_ACTIVE_JOBS = 1
+JOB_RETENTION_SECONDS = 2 * 60 * 60
 ALLOWED_AUDIO = {".mp3", ".wav", ".m4a", ".aac", ".ogg", ".flac", ".webm", ".mp4"}
 
 def get_model():
@@ -38,13 +41,13 @@ def job_status(job_id: str):
     with _jobs_lock:
         job = _jobs.get(job_id)
         if not job:
-            raise HTTPException(404, "Sync job not found. Please upload the audio again.")
+            raise HTTPException(404, "Sync job not found. The server may have restarted; please upload the audio again.")
         return dict(job)
 
 def process_job(job_id, path, lyrics, language):
     try:
         with _jobs_lock:
-            _jobs[job_id] = {"status": "processing", "message": "AI is analyzing the audio."}
+            _jobs[job_id] = {"status": "processing", "message": "AI is analyzing the audio.", "updated_at": time.time()}
         # Keep model inference off the web event loop and serialize model use on small hosts.
         with _model_lock:
             model = get_model()
@@ -84,14 +87,14 @@ def process_job(job_id, path, lyrics, language):
             else:
                 aligned.append({"text": line, "start": None, "end": None, "confidence": 0})
         with _jobs_lock:
-            _jobs[job_id] = {"status": "completed", "result": {
+            _jobs[job_id] = {"status": "completed", "updated_at": time.time(), "result": {
                 "language": info.language, "duration": info.duration,
                 "lines": aligned, "transcript": " ".join(transcript)
             }}
     except Exception as exc:
         message = str(exc).strip() or "Audio processing failed. Please try again."
         with _jobs_lock:
-            _jobs[job_id] = {"status": "failed", "error": message}
+            _jobs[job_id] = {"status": "failed", "error": message, "updated_at": time.time()}
     finally:
         if path and os.path.exists(path):
             try:
@@ -110,6 +113,11 @@ async def sync(
         raise HTTPException(400, "Paste the full lyrics first.")
     if len(lyrics) > MAX_LYRICS_CHARS:
         raise HTTPException(413, "Lyrics are too long. Please keep them under 30,000 characters.")
+    lyric_line_count = sum(1 for line in lyrics.splitlines() if line.strip())
+    if lyric_line_count > MAX_LYRIC_LINES:
+        raise HTTPException(413, "Please keep lyrics under 500 non-empty lines for reliable processing.")
+    if lyric_line_count == 0:
+        raise HTTPException(400, "No readable lyric lines found. Paste the lyrics one line per row.")
     if language not in {"auto", "or", "hi", "en"}:
         raise HTTPException(400, "Choose Auto Detect, Odia, Hindi, or English.")
     suffix = os.path.splitext(audio.filename or "audio.mp3")[1].lower() or ".mp3"
@@ -130,11 +138,20 @@ async def sync(
                 tmp.write(chunk)
         job_id = uuid.uuid4().hex
         with _jobs_lock:
-            _jobs[job_id] = {"status": "queued", "message": "Upload received. Waiting for AI processing."}
-            # Bound memory use on the free instance.
-            if len(_jobs) > 30:
-                for old_id in list(_jobs)[:-20]:
+            now = time.time()
+            for old_id, old_job in list(_jobs.items()):
+                if old_job.get("status") in {"completed", "failed"} and now - old_job.get("updated_at", now) > JOB_RETENTION_SECONDS:
                     _jobs.pop(old_id, None)
+            active = sum(1 for item in _jobs.values() if item.get("status") in {"queued", "processing"})
+            if active >= MAX_ACTIVE_JOBS:
+                raise HTTPException(429, "Another audio is being processed. Please wait for it to finish, then try again.")
+            _jobs[job_id] = {"status": "queued", "message": "Upload received. Waiting for AI processing.", "updated_at": now}
+            if len(_jobs) > 50:
+                for old_id, old_job in list(_jobs.items()):
+                    if old_job.get("status") in {"completed", "failed"}:
+                        _jobs.pop(old_id, None)
+                        if len(_jobs) <= 40:
+                            break
         background_tasks.add_task(process_job, job_id, path, lyrics, language)
         path = None
         return {"job_id": job_id, "status": "queued"}
