@@ -180,7 +180,19 @@ def transcribe_audio(path, language, lyrics):
     default_provider = "sarvam" if sarvam_key else ("groq" if groq_key else "local")
     provider = os.getenv("TRANSCRIPTION_PROVIDER", default_provider).strip().lower()
     if provider == "sarvam":
-        return transcribe_sarvam_batch(path, language, lyrics)
+        try:
+            return transcribe_sarvam_batch(path, language, lyrics)
+        except Exception as sarvam_error:
+            # Sarvam Batch can return transcript JSON without usable phrase timestamps.
+            # Fall back to Groq's word-timestamp endpoint when the file fits its 25 MB limit.
+            audio_size = os.path.getsize(path)
+            if not groq_key or audio_size > 25 * 1024 * 1024:
+                raise
+            logger.warning(
+                "SARVAM_ALIGNMENT_FALLBACK provider=groq audio_bytes=%s reason=%s",
+                audio_size, str(sarvam_error)[:300]
+            )
+            provider = "groq"
     api_key = groq_key
     if provider == "groq":
         if not api_key:
