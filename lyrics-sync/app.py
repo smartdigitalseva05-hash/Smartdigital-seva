@@ -80,9 +80,8 @@ def transcribe_audio(path, language, lyrics):
         remote_words = payload.get("words") or []
         words = []
         for item in remote_words:
-            found = tokens(item.get("word", ""))
-            if found and item.get("start") is not None and item.get("end") is not None:
-                words.append({"token": found[0], "start": float(item["start"]), "end": float(item["end"])})
+            if item.get("start") is not None and item.get("end") is not None:
+                words.extend(timed_tokens(item.get("word", ""), item["start"], item["end"]))
         if not words:
             raise RuntimeError("Hosted AI returned no word-level timestamps. Please retry or use local transcription.")
         return words, payload.get("text", ""), payload.get("language", language), float(payload.get("duration", 0) or 0)
@@ -98,9 +97,7 @@ def transcribe_audio(path, language, lyrics):
         transcript.append(seg.text)
         if seg.words:
             for word in seg.words:
-                found = tokens(word.word)
-                if found:
-                    words.append({"token": found[0], "start": float(word.start), "end": float(word.end)})
+                words.extend(timed_tokens(word.word, word.start, word.end))
     return words, " ".join(transcript), info.language, float(info.duration or 0)
 
 def tokens(text):
@@ -117,6 +114,23 @@ def tokens(text):
     if current:
         result.append("".join(current))
     return result
+
+
+def timed_tokens(text, start, end):
+    """Preserve all Unicode tokens when an ASR timestamp contains multiple words."""
+    parts = tokens(text)
+    if not parts:
+        return []
+    start, end = float(start), float(end)
+    span = max(0.0, end - start)
+    count = len(parts)
+    return [
+        {"token": part,
+         "start": start + span * index / count,
+         "end": start + span * (index + 1) / count}
+        for index, part in enumerate(parts)
+    ]
+
 
 @app.get("/")
 def health():
@@ -164,14 +178,16 @@ def process_job(job_id, path, lyrics, language):
                 continue
             best, best_score = None, 0.0
             for start in range(cursor, min(len(words), cursor + 120)):
-                low = max(1, len(target) - 4)
-                high = min(len(target) + 6, len(words) - start)
+                tolerance = max(4, int(len(target) * 0.5))
+                low = max(1, len(target) - tolerance)
+                high = min(len(target) + tolerance, len(words) - start)
                 for length in range(low, high + 1):
                     heard = [item["token"] for item in words[start:start + length]]
                     score = SequenceMatcher(None, target, heard).ratio()
                     if score > best_score:
                         best, best_score = (start, start + length - 1), score
-            if best and best_score >= 0.30:
+            minimum_score = 0.42 if len(target) >= 4 else 0.55
+            if best and best_score >= minimum_score:
                 first, last = best
                 aligned.append({"text": line, "start": words[first]["start"], "end": words[last]["end"], "confidence": round(best_score, 2)})
                 cursor = max(cursor, last + 1)
