@@ -29,7 +29,7 @@ async def request_trace(request, call_next):
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://smartdigitalseva05-hash.github.io"],
+    allow_origins=["*"],
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
     allow_credentials=False,
@@ -528,6 +528,10 @@ async def sync(
     if suffix not in ALLOWED_AUDIO:
         raise HTTPException(415, "ଏହି ଅଡିଓ ଫର୍ମାଟ୍ ସମର୍ଥିତ ନୁହେଁ। MP3, WAV, M4A, AAC, OGG, FLAC କିମ୍ବା WEBM ବ୍ୟବହାର କରନ୍ତୁ।")
     path = None
+    upload_started = time.time()
+    logger.info("SYNC_UPLOAD_RECEIVED filename=%s language=%s content_length=%s",
+                os.path.basename(audio.filename or "audio"), language,
+                audio.headers.get("content-length", "unknown"))
     try:
         with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
             path = tmp.name
@@ -560,6 +564,8 @@ async def sync(
                             break
         background_tasks.add_task(process_job, job_id, path, lyrics, language)
         path = None
+        logger.info("SYNC_UPLOAD_RESPONSE job_id=%s status=queued audio_bytes=%s lyric_lines=%s elapsed_seconds=%.2f",
+                    job_id, total, lyric_line_count, time.time() - upload_started)
         return {"job_id": job_id, "status": "queued"}
     finally:
         await audio.close()
