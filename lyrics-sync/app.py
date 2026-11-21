@@ -5,7 +5,7 @@ from difflib import SequenceMatcher
 import tempfile, os, re
 
 app = FastAPI(title="Auto Lyrics Sync API")
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(CORSMiddleware, allow_origins=["https://smartdigitalseva05-hash.github.io"], allow_methods=["*"], allow_headers=["*"])
 _model = None
 
 def get_model():
