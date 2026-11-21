@@ -80,7 +80,7 @@ def transcribe_sarvam_batch(path, language, lyrics):
         json={"job_parameters": {
             "model": "saaras:v4", "mode": "transcribe",
             "language_code": language_code,
-            "with_diarization": True, "with_timestamps": True, "num_speakers": 1
+            "with_diarization": True, "num_speakers": 1
         }},
         timeout=(20, 60)
     ), "job creation")
@@ -165,6 +165,7 @@ def transcribe_sarvam_batch(path, language, lyrics):
         if not transcript and entries:
             transcript = " ".join(str(entry.get("transcript", "")) for entry in entries)
     if not words:
+        logger.error("SARVAM_TIMING_MISSING top_level_keys=%s timestamp_keys=%s diarized_keys=%s entry_count=%s", list(output_payload.keys()), list(timestamps.keys()) if isinstance(timestamps, dict) else type(timestamps).__name__, list((output_payload.get("diarized_transcript") or {}).keys()) if isinstance(output_payload.get("diarized_transcript"), dict) else type(output_payload.get("diarized_transcript")).__name__, len((output_payload.get("diarized_transcript") or {}).get("entries") or []) if isinstance(output_payload.get("diarized_transcript"), dict) else 0)
         raise RuntimeError("Sarvam transcript ମିଳିଛି, କିନ୍ତୁ phrase timing ମିଳିଲା ନାହିଁ।")
     detected = output_payload.get("language_code") or language_code
     detected = {"od-IN": "or", "or-IN": "or", "hi-IN": "hi", "en-IN": "en"}.get(detected, detected)
