@@ -40,14 +40,15 @@ def transcribe_audio(path, language, lyrics):
         if os.path.getsize(path) > 25 * 1024 * 1024:
             raise ValueError("Hosted Groq transcription accepts files up to 25 MB on this API tier. Compress the audio or use a smaller file.")
         model_name = os.getenv("GROQ_WHISPER_MODEL", "whisper-large-v3-turbo")
-        # Do not send full lyrics as a Whisper prompt: long multilingual lyrics
-        # can exceed the provider prompt limit. Lyrics are aligned after transcription.
+        # Send a short lyrics excerpt as vocabulary context; stay below Groq's 896-character limit.
+        prompt_excerpt = lyrics.strip()[:800]
         with open(path, "rb") as audio_file:
             response = requests.post(
                 "https://api.groq.com/openai/v1/audio/transcriptions",
                 headers={"Authorization": f"Bearer {api_key}"},
                 data=[("model", model_name), ("response_format", "verbose_json"), ("temperature", "0")]
                      + ([("language", language)] if language != "auto" else [])
+                     + ([("prompt", prompt_excerpt)] if prompt_excerpt else [])
                      + [("timestamp_granularities[]", "word")],
                 files={"file": (os.path.basename(path), audio_file, "application/octet-stream")},
                 timeout=(20, 900),
