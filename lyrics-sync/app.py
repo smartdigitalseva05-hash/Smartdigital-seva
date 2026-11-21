@@ -4,7 +4,7 @@ from faster_whisper import WhisperModel
 from difflib import SequenceMatcher
 import tempfile, os, re, uuid, threading, time, resource, platform, requests, logging, unicodedata
 
-app = FastAPI(title="Auto Lyrics Sync API", version="1.6.0")
+app = FastAPI(title="Auto Lyrics Sync API", version="1.6.1")
 logger = logging.getLogger("lyrics_sync")
 
 @app.middleware("http")
@@ -360,7 +360,7 @@ def timed_tokens(text, start, end):
 
 @app.get("/")
 def health():
-    return {"status": "ok", "service": "Auto Lyrics Sync API", "version": "1.6.0"}
+    return {"status": "ok", "service": "Auto Lyrics Sync API", "version": "1.6.1"}
 
 @app.get("/api/diagnostics")
 def diagnostics():
@@ -370,11 +370,15 @@ def diagnostics():
         peak_rss_mb = None
     sarvam_present = bool(os.getenv("SARVAM_API_KEY", "").strip())
     groq_present = bool(os.getenv("GROQ_API_KEY", "").strip())
-    # Report the provider that will be used for the default Odia workflow.
-    # In auto mode Odia uses Sarvam first; Groq is the fallback for files <=25 MB.
+    # Odia is deliberately pinned to Sarvam Saaras v4 regardless of the
+    # generic provider preference; other languages follow TRANSCRIPTION_PROVIDER.
     configured_provider = os.getenv("TRANSCRIPTION_PROVIDER", "auto").strip().lower()
+    if sarvam_present:
+        odia_provider = "sarvam"
+    else:
+        odia_provider = "unavailable"
     if configured_provider in {"", "auto"}:
-        provider = "sarvam" if sarvam_present else ("groq" if groq_present else "local")
+        provider = "groq" if groq_present else ("sarvam" if sarvam_present else "local")
     elif configured_provider == "groq" and not groq_present:
         provider = "sarvam" if sarvam_present else "local"
     elif configured_provider == "sarvam" and not sarvam_present:
@@ -382,7 +386,8 @@ def diagnostics():
     else:
         provider = configured_provider
     return {
-        "status": "ok", "version": "1.6.0", "provider": provider,
+        "status": "ok", "version": "1.6.1", "provider": provider,
+        "odia_provider": odia_provider,
         "hosted_key_configured": sarvam_present or groq_present,
         "sarvam_key_configured": sarvam_present,
         "groq_key_configured": groq_present,
@@ -565,10 +570,12 @@ async def sync(
                 configured_provider = os.getenv("TRANSCRIPTION_PROVIDER", "auto").strip().lower()
                 sarvam_ready = bool(os.getenv("SARVAM_API_KEY", "").strip())
                 groq_ready = bool(os.getenv("GROQ_API_KEY", "").strip())
-                if configured_provider in {"", "auto"}:
-                    active_provider = ("sarvam" if language == "or" and sarvam_ready
-                                       else "groq" if groq_ready
-                                       else "sarvam" if sarvam_ready else "local")
+                # The Odia transcription path always uses Sarvam, even if a
+                # generic Groq preference is configured for Hindi/English.
+                if language == "or":
+                    active_provider = "sarvam"
+                elif configured_provider in {"", "auto"}:
+                    active_provider = "groq" if groq_ready else ("sarvam" if sarvam_ready else "local")
                 else:
                     active_provider = configured_provider
                 upload_limit = 25 * 1024 * 1024 if active_provider == "groq" else MAX_AUDIO_BYTES
