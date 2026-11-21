@@ -2,9 +2,9 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTa
 from fastapi.middleware.cors import CORSMiddleware
 from faster_whisper import WhisperModel
 from difflib import SequenceMatcher
-import tempfile, os, re, uuid, threading, time, resource, platform
+import tempfile, os, re, uuid, threading, time, resource, platform, requests
 
-app = FastAPI(title="Auto Lyrics Sync API", version="1.2.0")
+app = FastAPI(title="Auto Lyrics Sync API", version="1.3.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -30,12 +30,84 @@ def get_model():
         _model = WhisperModel(os.getenv("WHISPER_MODEL", "tiny"), device="cpu", compute_type="int8", cpu_threads=1, num_workers=1)
     return _model
 
+def transcribe_audio(path, language, lyrics):
+    """Prefer hosted Groq Whisper so the small Render instance does not load a local model."""
+    api_key = os.getenv("GROQ_API_KEY", "").strip()
+    provider = os.getenv("TRANSCRIPTION_PROVIDER", "groq" if api_key else "local").strip().lower()
+    if provider == "groq":
+        if not api_key:
+            raise RuntimeError("Hosted AI is selected but GROQ_API_KEY is missing. Add it in Render Environment, or set TRANSCRIPTION_PROVIDER=local.")
+        if os.path.getsize(path) > 25 * 1024 * 1024:
+            raise ValueError("Hosted Groq transcription accepts files up to 25 MB on this API tier. Compress the audio or use a smaller file.")
+        data = {"model": os.getenv("GROQ_WHISPER_MODEL", "whisper-large-v3-turbo"), "response_format": "verbose_json", "temperature": "0"}
+        if language != "auto":
+            data["language"] = language
+        if lyrics.strip():
+            data["prompt"] = lyrics[:700]
+        with open(path, "rb") as audio_file:
+            response = requests.post(
+                "https://api.groq.com/openai/v1/audio/transcriptions",
+                headers={"Authorization": f"Bearer {api_key}"},
+                data=[("model", data["model"]), ("response_format", "verbose_json"), ("temperature", "0")]
+                     + ([("language", language)] if language != "auto" else [])
+                     + ([("prompt", data["prompt"])] if "prompt" in data else [])
+                     + [("timestamp_granularities[]", "word")],
+                files={"file": (os.path.basename(path), audio_file, "application/octet-stream")},
+                timeout=(20, 900),
+            )
+        if not response.ok:
+            detail = response.text[:500]
+            raise RuntimeError(f"Hosted transcription API returned HTTP {response.status_code}: {detail}")
+        payload = response.json()
+        remote_words = payload.get("words") or []
+        words = []
+        for item in remote_words:
+            found = tokens(item.get("word", ""))
+            if found and item.get("start") is not None and item.get("end") is not None:
+                words.append({"token": found[0], "start": float(item["start"]), "end": float(item["end"])})
+        if not words:
+            raise RuntimeError("Hosted AI returned no word-level timestamps. Please retry or use local transcription.")
+        return words, payload.get("text", ""), payload.get("language", language), float(payload.get("duration", 0) or 0)
+
+    model = get_model()
+    lang = None if language == "auto" else language
+    segments, info = model.transcribe(
+        path, language=lang, word_timestamps=True, vad_filter=True,
+        beam_size=1, condition_on_previous_text=False
+    )
+    words, transcript = [], []
+    for seg in segments:
+        transcript.append(seg.text)
+        if seg.words:
+            for word in seg.words:
+                found = tokens(word.word)
+                if found:
+                    words.append({"token": found[0], "start": float(word.start), "end": float(word.end)})
+    return words, " ".join(transcript), info.language, float(info.duration or 0)
+
 def tokens(text):
     return re.findall(r"[^\W_]+", text.lower(), flags=re.UNICODE)
 
 @app.get("/")
 def health():
-    return {"status": "ok", "service": "Auto Lyrics Sync API", "version": "1.1.0"}
+    return {"status": "ok", "service": "Auto Lyrics Sync API", "version": "1.3.0"}
+
+@app.get("/api/diagnostics")
+def diagnostics():
+    try:
+        peak_rss_mb = round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024, 1)
+    except Exception:
+        peak_rss_mb = None
+    key_present = bool(os.getenv("GROQ_API_KEY", "").strip())
+    provider = os.getenv("TRANSCRIPTION_PROVIDER", "groq" if key_present else "local").strip().lower()
+    return {
+        "status": "ok", "version": "1.3.0", "provider": provider,
+        "hosted_key_configured": key_present,
+        "local_model_loaded": _model is not None,
+        "uptime_seconds": int(time.time() - _started_at),
+        "peak_rss_mb": peak_rss_mb,
+        "platform": platform.platform(),
+    }
 
 @app.get("/api/jobs/{job_id}")
 def job_status(job_id: str):
@@ -49,21 +121,9 @@ def process_job(job_id, path, lyrics, language):
     try:
         with _jobs_lock:
             _jobs[job_id] = {"status": "processing", "message": "AI is analyzing the audio.", "updated_at": time.time()}
-        # Keep model inference off the web event loop and serialize model use on small hosts.
+        # Serialize inference per instance; hosted transcription avoids loading Whisper into Render RAM.
         with _model_lock:
-            model = get_model()
-            lang = None if language == "auto" else language
-            segments, info = model.transcribe(
-                path, language=lang, word_timestamps=True, vad_filter=True, beam_size=1, condition_on_previous_text=False
-            )
-            words, transcript = [], []
-            for seg in segments:
-                transcript.append(seg.text)
-                if seg.words:
-                    for word in seg.words:
-                        found = tokens(word.word)
-                        if found:
-                            words.append({"token": found[0], "start": float(word.start), "end": float(word.end)})
+            words, transcript, detected_language, duration = transcribe_audio(path, language, lyrics)
         if not words:
             raise ValueError("Speech could not be detected. Try clearer audio or another language setting.")
         lyric_lines = [line.strip() for line in lyrics.splitlines() if line.strip()]
@@ -89,7 +149,7 @@ def process_job(job_id, path, lyrics, language):
                 aligned.append({"text": line, "start": None, "end": None, "confidence": 0})
         with _jobs_lock:
             _jobs[job_id] = {"status": "completed", "updated_at": time.time(), "result": {
-                "language": info.language, "duration": info.duration,
+                "language": detected_language, "duration": duration,
                 "lines": aligned, "transcript": " ".join(transcript)
             }}
     except Exception as exc:
@@ -134,8 +194,8 @@ async def sync(
                 if not chunk:
                     break
                 total += len(chunk)
-                if total > MAX_AUDIO_BYTES:
-                    raise HTTPException(413, "Audio file must be 40 MB or smaller.")
+                if total > (25 * 1024 * 1024 if os.getenv("GROQ_API_KEY", "").strip() and os.getenv("TRANSCRIPTION_PROVIDER", "groq").strip().lower() == "groq" else MAX_AUDIO_BYTES):
+                    raise HTTPException(413, "Audio file exceeds the current transcription provider limit (25 MB hosted / 40 MB local).")
                 tmp.write(chunk)
         job_id = uuid.uuid4().hex
         with _jobs_lock:
