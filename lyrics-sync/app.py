@@ -91,6 +91,7 @@ def transcribe_sarvam_batch(path, language, lyrics):
         json={"job_parameters": {
             "model": "saaras:v4", "mode": "transcribe",
             "language_code": language_code,
+            "with_timestamps": True,
             "keyterms": keyterms,
             "with_diarization": True, "with_timestamps": True, "num_speakers": 1
         }},
