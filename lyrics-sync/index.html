@@ -7,7 +7,7 @@
 <section class="card"><h2>୧. ଅଡିଓ ଅପଲୋଡ୍ କରନ୍ତୁ</h2><input id="audio" type="file" accept="audio/*"><audio id="player" controls class="hide"></audio>
 <div class="row"><div><label>ଗୀତର ଭାଷା</label><select id="lang"><option value="auto">ସ୍ୱୟଂଚାଳିତ ଚିହ୍ନଟ</option><option value="or">ଓଡ଼ିଆ</option><option value="hi">ହିନ୍ଦୀ</option><option value="en">ଇଂରାଜୀ</option></select></div><div><label>AI Server URL</label><input id="api" placeholder="https://your-app.onrender.com" /><button class="secondary" id="testApi" type="button" style="margin-top:8px">AI ସର୍ଭର ଯାଞ୍ଚ କରନ୍ତୁ</button></div></div><p class="hint">AI ସର୍ଭର URL ପୂର୍ବରୁ ସେଟ୍ ହୋଇଛି। ସଂଯୋଗ ଯାଞ୍ଚ କରିବାକୁ ଉପର ବଟନ୍ ଦବାନ୍ତୁ।</p></section>
 <section class="card"><h2>୨. ସମ୍ପୂର୍ଣ୍ଣ ଗୀତିକା ଏଠାରେ ଲେଖନ୍ତୁ</h2><textarea id="lyrics" placeholder="ଅଲେଖ ମହିମା ତୁମେ ଅନନ୍ତ ଅମର&#10;ତୁମେ ପରମ ବ୍ରହ୍ମ ନିରାକାର&#10;..."></textarea><p class="hint">ଗୀତର ପ୍ରତ୍ୟେକ ଧାଡ଼ିକୁ ନୂଆ ଧାଡ଼ିରେ ଲେଖନ୍ତୁ। ପ୍ରତ୍ୟେକ ଧାଡ଼ିର ସମୟ ନିଜେ ଦେବାକୁ ପଡ଼ିବ ନାହିଁ।</p><button id="go">✨ ସମ୍ପୂର୍ଣ୍ଣ ଗୀତର ସମୟ ସ୍ୱୟଂଚାଳିତ ମେଳ କରନ୍ତୁ</button><div id="status" class="status"></div></section>
-<section id="out" class="card hide"><h2>୩. ଗୀତିକା ସମୟ ମେଳ ପୂର୍ବଦୃଶ୍ୟ</h2><div id="now" class="stage">ଗୀତ ଚଲାନ୍ତୁ</div><audio id="preview" controls></audio><div class="actions"><button class="secondary" id="srt">⬇ SRT ଡାଉନଲୋଡ୍</button><button class="secondary" id="json">⬇ ସମୟ JSON ଡାଉନଲୋଡ୍</button></div><div class="row" style="margin-top:14px"><div><label for="videoBg">ଭିଡିଓ ପାଇଁ ପୃଷ୍ଠଭୂମି ଫଟୋ / ଭିଡିଓ</label><input id="videoBg" type="file" accept="image/*,video/*"><p class="hint">ନିଜ ଫଟୋ କିମ୍ବା ଭିଡିଓ ବାଛନ୍ତୁ। ନ ବାଛିଲେ ଡିଫଲ୍ଟ ପୃଷ୍ଠଭୂମି ରହିବ।</p></div><div><label for="videoRatio">ଭିଡିଓ ଆକାର</label><select id="videoRatio"><option value="16:9">YouTube ୧୬:୯ (Landscape)</option><option value="9:16">Shorts ୯:୧୬ (Portrait)</option></select></div></div><label for="videoTitle">ଭିଡିଓ ଶୀର୍ଷକ (ଇଚ୍ଛାଧୀନ)</label><input id="videoTitle" maxlength="80" value="ALEKH MAHIMA VANI" placeholder="ଭିଡିଓ ଶୀର୍ଷକ"><div class="actions"><button class="secondary" id="videoExport" type="button">🎬 ଗୀତିକା ଭିଡିଓ ତିଆରି (YouTube / Shorts)</button></div><div id="videoDownloadArea" class="status" aria-live="polite"></div><p class="hint">ଭିଡିଓ ରେକର୍ଡିଂ ବ୍ରାଉଜର୍‌ରେ ହୁଏ। ଆପଣଙ୍କ ଡିଭାଇସ୍ MP4 ସମର୍ଥନ ନକଲେ WebM ଫାଇଲ୍ ମିଳିବ।</p><p class="hint">ପ୍ରତ୍ୟେକ ଧାଡ଼ିର ଆରମ୍ଭ/ଶେଷ ସମୟ ସେକେଣ୍ଡରେ ଏଠାରେ ବଦଳାଇପାରିବେ। ସମୟ ନମିଳିଥିବା ଧାଡ଼ିର ସମୟ ଭରି SRT/JSON ଡାଉନଲୋଡ୍ କରନ୍ତୁ।</p><h2>AI ଗୀତରେ କ’ଣ ଶୁଣିଲା?</h2><p id="matchSummary" class="hint"></p><pre id="heard" class="transcript">ସିଙ୍କ୍ ପରେ AI ଶୁଣିଥିବା ଶବ୍ଦ ଏଠାରେ ଦେଖାଯିବ।</pre><div id="list"></div></section>
+<section id="out" class="card hide"><h2>୩. ଗୀତିକା ସମୟ ମେଳ ପୂର୍ବଦୃଶ୍ୟ</h2><div id="now" class="stage">ଗୀତ ଚଲାନ୍ତୁ</div><audio id="preview" controls></audio><div class="actions"><button class="secondary" id="srt">⬇ SRT ଡାଉନଲୋଡ୍</button><button class="secondary" id="json">⬇ ସମୟ JSON ଡାଉନଲୋଡ୍</button></div><div class="row" style="margin-top:14px"><div><label for="videoBg">ପୃଷ୍ଠଭୂମି ଫଟୋ / ଭିଡିଓ (ଇଚ୍ଛାଧୀନ)</label><input id="videoBg" type="file" accept="image/*,video/*"><p class="hint">କୌଣସି ଫଟୋ କିମ୍ବା ଭିଡିଓ ଅପଲୋଡ୍ ଆବଶ୍ୟକ ନୁହେଁ। ଖାଲି ରଖିଲେ ଆପେଆପେ ସୁନ୍ଦର ଡିଜାଇନ୍ ପୃଷ୍ଠଭୂମି ସହ ଗୀତିକା ଭିଡିଓ ତିଆରି ହେବ।</p></div><div><label for="videoRatio">ଭିଡିଓ ଆକାର</label><select id="videoRatio"><option value="16:9">YouTube ୧୬:୯ (Landscape)</option><option value="9:16">Shorts ୯:୧୬ (Portrait)</option></select></div></div><label for="videoTitle">ଭିଡିଓ ଶୀର୍ଷକ (ଇଚ୍ଛାଧୀନ)</label><input id="videoTitle" maxlength="80" value="ALEKH MAHIMA VANI" placeholder="ଭିଡିଓ ଶୀର୍ଷକ"><div class="actions"><button class="secondary" id="videoExport" type="button">🎬 ଗୀତିକା ଭିଡିଓ ତିଆରି (YouTube / Shorts)</button></div><div id="videoDownloadArea" class="status" aria-live="polite"></div><p class="hint">ଫଟୋ/ଭିଡିଓ ଅପଲୋଡ୍ ବିନା ମଧ୍ୟ ଭିଡିଓ ହେବ। ଡିଫଲ୍ଟ ଡିଜାଇନ୍ ପୃଷ୍ଠଭୂମି ଓ ଗୀତିକା ସହ ରେକର୍ଡ ହେବ। MP4 ସମର୍ଥନ ନଥିଲେ WebM ଫାଇଲ୍ ମିଳିବ।</p><p class="hint">ପ୍ରତ୍ୟେକ ଧାଡ଼ିର ଆରମ୍ଭ/ଶେଷ ସମୟ ସେକେଣ୍ଡରେ ଏଠାରେ ବଦଳାଇପାରିବେ। ସମୟ ନମିଳିଥିବା ଧାଡ଼ିର ସମୟ ଭରି SRT/JSON ଡାଉନଲୋଡ୍ କରନ୍ତୁ।</p><h2>AI ଗୀତରେ କ’ଣ ଶୁଣିଲା?</h2><p id="matchSummary" class="hint"></p><pre id="heard" class="transcript">ସିଙ୍କ୍ ପରେ AI ଶୁଣିଥିବା ଶବ୍ଦ ଏଠାରେ ଦେଖାଯିବ।</pre><div id="list"></div></section>
 <footer>ଅଡିଓ ପ୍ରକ୍ରିୟାକରଣ ଆପଣଙ୍କ AI ସର୍ଭରରେ ହୁଏ। ବ୍ୟକ୍ତିଗତ କିମ୍ବା କପିରାଇଟ୍ ଥିବା ଫାଇଲ୍ କେବଳ ଅଧିକାର ଥିଲେ ଅପଲୋଡ୍ କରନ୍ତୁ।</footer></main>
 <script>
 const $=x=>document.getElementById(x);let lines=[];let lastVideoUrl=null;const DEFAULT_API='https://auto-lyrics-sync-api.onrender.com';const saved=localStorage.getItem('lyricsApi');$('api').value=saved||DEFAULT_API;$('api').onchange=()=>localStorage.setItem('lyricsApi',$('api').value.trim().replace(/\/+$/,''));
@@ -71,9 +71,21 @@ $('videoExport')?.addEventListener('click',async()=>{
   }
   function draw(){
     const t=audioEl.currentTime;
-    ctx.fillStyle='#101a30';ctx.fillRect(0,0,width,height);
+    // Built-in animated devotional background; no user photo/video upload required.
+    const pulse=(Math.sin(t*.35)+1)/2;
+    const grad=ctx.createLinearGradient(0,0,width,height);
+    grad.addColorStop(0,'#07152f');grad.addColorStop(.48,'#18234a');grad.addColorStop(1,'#321b3d');
+    ctx.fillStyle=grad;ctx.fillRect(0,0,width,height);
+    const glow=ctx.createRadialGradient(width*.5,height*(.43+.025*Math.sin(t*.5)),width*.03,width*.5,height*.5,width*.72);
+    glow.addColorStop(0,'rgba(224,169,91,'+(.20+.08*pulse)+')');glow.addColorStop(1,'rgba(7,12,32,0)');
+    ctx.fillStyle=glow;ctx.fillRect(0,0,width,height);
+    ctx.save();ctx.translate(width/2,height*.5);ctx.strokeStyle='rgba(244,207,143,.16)';ctx.lineWidth=Math.max(1,width*.0012);
+    const radius=Math.min(width,height)*(.19+.008*pulse);
+    for(let ring=0;ring<4;ring++){ctx.beginPath();ctx.arc(0,0,radius*(1+ring*.22),0,Math.PI*2);ctx.stroke()}
+    for(let k=0;k<24;k++){const ang=(Math.PI*2*k/24)+t*.012;ctx.save();ctx.rotate(ang);ctx.beginPath();ctx.ellipse(0,-radius*.72,radius*.12,radius*.34,0,0,Math.PI*2);ctx.stroke();ctx.restore()}
+    ctx.restore();
     if(bgImage)cover(bgImage,width,height);else if(bgVideo&&bgVideo.readyState>=2)cover(bgVideo,width,height);
-    ctx.fillStyle='rgba(5,10,22,.48)';ctx.fillRect(0,0,width,height);
+    if(bgImage||bgVideo){ctx.fillStyle='rgba(5,10,22,.52)';ctx.fillRect(0,0,width,height)}else{ctx.fillStyle='rgba(5,10,22,.12)';ctx.fillRect(0,0,width,height)}
     const pad=width*.08;
     ctx.textAlign='center';ctx.textBaseline='middle';
     ctx.fillStyle='#f1d49a';ctx.font='bold '+Math.round(width*.035)+'px system-ui, sans-serif';
