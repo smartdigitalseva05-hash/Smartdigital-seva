@@ -10,24 +10,30 @@ logger = logging.getLogger("lyrics_sync")
 @app.middleware("http")
 async def request_trace(request, call_next):
     started = time.time()
-    if request.url.path == "/api/sync":
-        logger.info("SYNC_UPLOAD_RECEIVED method=%s content_length=%s",
-                    request.method, request.headers.get("content-length", "unknown"))
+    if request.url.path.startswith("/api/"):
+        logger.info("API_REQUEST method=%s path=%s origin=%s content_length=%s",
+                    request.method, request.url.path,
+                    request.headers.get("origin", "-"),
+                    request.headers.get("content-length", "unknown"))
     try:
         response = await call_next(request)
     except Exception:
         logger.exception("REQUEST_FAILED method=%s path=%s",
                          request.method, request.url.path)
         raise
-    if request.url.path == "/api/sync":
-        logger.info("SYNC_UPLOAD_RESPONSE status=%s elapsed_seconds=%.2f",
-                    response.status_code, time.time() - started)
+    if request.url.path.startswith("/api/"):
+        logger.info("API_RESPONSE method=%s path=%s status=%s elapsed_seconds=%.2f",
+                    request.method, request.url.path, response.status_code,
+                    time.time() - started)
     return response
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["https://smartdigitalseva05-hash.github.io"],
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
+    allow_credentials=False,
+    max_age=600,
 )
 
 _model = None
