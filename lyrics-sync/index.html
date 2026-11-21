@@ -135,7 +135,6 @@ $('videoExport')?.addEventListener('click',async()=>{
     const link=document.createElement('a');link.href=lastVideoUrl;link.download=filename;link.textContent='If the button does not work, tap here to save '+filename;
     link.style.display='inline-block';link.style.padding='12px';link.style.marginTop='8px';link.style.border='1px solid currentColor';link.style.borderRadius='10px';link.style.color='inherit';link.style.fontWeight='700';
     area.appendChild(link);
-    const autoLink=document.createElement('a');autoLink.href=lastVideoUrl;autoLink.download=filename;autoLink.style.display='none';document.body.appendChild(autoLink);autoLink.click();autoLink.remove();
     $('status').textContent='✅ Video ready ('+ext.toUpperCase()+', '+(blob.size/1024/1024).toFixed(1)+' MB). Tap Download Video below to save it to your device.';
   };
   audioEl.onended=()=>{if(recorder.state!=='inactive')recorder.stop()};
