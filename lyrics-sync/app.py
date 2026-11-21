@@ -39,18 +39,15 @@ def transcribe_audio(path, language, lyrics):
             raise RuntimeError("Hosted AI is selected but GROQ_API_KEY is missing. Add it in Render Environment, or set TRANSCRIPTION_PROVIDER=local.")
         if os.path.getsize(path) > 25 * 1024 * 1024:
             raise ValueError("Hosted Groq transcription accepts files up to 25 MB on this API tier. Compress the audio or use a smaller file.")
-        data = {"model": os.getenv("GROQ_WHISPER_MODEL", "whisper-large-v3-turbo"), "response_format": "verbose_json", "temperature": "0"}
-        if language != "auto":
-            data["language"] = language
+        model_name = os.getenv("GROQ_WHISPER_MODEL", "whisper-large-v3-turbo")
         # Do not send full lyrics as a Whisper prompt: long multilingual lyrics
         # can exceed the provider prompt limit. Lyrics are aligned after transcription.
         with open(path, "rb") as audio_file:
             response = requests.post(
                 "https://api.groq.com/openai/v1/audio/transcriptions",
                 headers={"Authorization": f"Bearer {api_key}"},
-                data=[("model", data["model"]), ("response_format", "verbose_json"), ("temperature", "0")]
+                data=[("model", model_name), ("response_format", "verbose_json"), ("temperature", "0")]
                      + ([("language", language)] if language != "auto" else [])
-                     + ([("prompt", data["prompt"])] if "prompt" in data else [])
                      + [("timestamp_granularities[]", "word")],
                 files={"file": (os.path.basename(path), audio_file, "application/octet-stream")},
                 timeout=(20, 900),
