@@ -391,6 +391,20 @@ def process_job(job_id, path, lyrics, language):
                                       end=round(cursor_time, 3),
                                       confidence="estimated")
 
+        else:
+            # If ASR could not match any lyric line, still create a full-song
+            # estimated timeline so no lyric line is left without a time.
+            if duration > 0 and aligned:
+                weights = [weight(i) for i in range(len(aligned))]
+                total = sum(weights)
+                cursor_time = 0.0
+                for i, w in enumerate(weights):
+                    start_time = cursor_time
+                    cursor_time += float(duration) * w / total
+                    aligned[i].update(start=round(start_time, 3),
+                                      end=round(cursor_time, 3),
+                                      confidence="estimated")
+
         with _jobs_lock:
             _jobs[job_id] = {"status": "completed", "updated_at": time.time(), "result": {
                 "language": detected_language, "selected_language": language, "duration": duration,
