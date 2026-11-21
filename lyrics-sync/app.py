@@ -30,7 +30,7 @@ def get_model():
     return _model
 
 def tokens(text):
-    return re.findall(r"[^\\W_]+", text.lower(), flags=re.UNICODE)
+    return re.findall(r"[^\W_]+", text.lower(), flags=re.UNICODE)
 
 @app.get("/")
 def health():
