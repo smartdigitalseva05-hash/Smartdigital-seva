@@ -13,4 +13,4 @@ services:
       - key: WHISPER_MODEL
         value: tiny
       - key: TRANSCRIPTION_PROVIDER
-        value: groq
+        value: auto
