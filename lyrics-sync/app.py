@@ -15,7 +15,8 @@ app.add_middleware(
 _model = None
 _model_lock = threading.Lock()
 _jobs = {}
-_jobs_lock = threading.Lock()\n_started_at = time.time()
+_jobs_lock = threading.Lock()
+_started_at = time.time()
 MAX_AUDIO_BYTES = 40 * 1024 * 1024
 MAX_LYRICS_CHARS = 30000
 MAX_LYRIC_LINES = 500
