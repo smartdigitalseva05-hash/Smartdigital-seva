@@ -7,7 +7,7 @@
 <section class="card"><h2>1. Audio Upload करें</h2><input id="audio" type="file" accept="audio/*"><audio id="player" controls class="hide"></audio>
 <div class="row"><div><label>गाने की भाषा</label><select id="lang"><option value="auto">Auto Detect</option><option value="or">Odia</option><option value="hi">Hindi</option><option value="en">English</option></select></div><div><label>AI Server URL</label><input id="api" placeholder="https://your-app.onrender.com" /><button class="secondary" id="testApi" type="button" style="margin-top:8px">AI Server जाँचें</button></div></div><p class="hint">AI Server URL पहले से सेट है। AI Server जाँचें बटन दबाकर कनेक्शन जाँचें।</p></section>
 <section class="card"><h2>2. पूरा Lyrics एक ही जगह Paste करें</h2><textarea id="lyrics" placeholder="ଅଲେଖ ମହିମା ତୁମେ ଅନନ୍ତ ଅମର&#10;ତୁମେ ପରମ ବ୍ରହ୍ମ ନିରାକାର&#10;..."></textarea><p class="hint">हर गाने की लाइन नई पंक्ति में रखें। आपको हर लाइन की timing खुद नहीं डालनी है।</p><button id="go">✨ पूरे गाने का Auto Sync करें</button><div id="status" class="status"></div></section>
-<section id="out" class="card hide"><h2>3. Lyrics Sync Preview</h2><div id="now" class="stage">गाना चलाएँ</div><audio id="preview" controls></audio><div class="actions"><button class="secondary" id="srt">⬇ SRT Download</button><button class="secondary" id="json">⬇ Timing JSON</button></div><p class="hint">हर लाइन का Start/End समय सेकंड में और Lyrics यहीं सुधार सकते हैं। जिन लाइनों की timing नहीं मिली, उनका समय भरें; फिर SRT/JSON डाउनलोड करें।</p><h2>AI ने गाने में क्या सुना?</h2><p id="matchSummary" class="hint"></p><pre id="heard" class="transcript">Sync के बाद AI transcript यहाँ दिखेगा।</pre><div id="list"></div></section>
+<section id="out" class="card hide"><h2>3. Lyrics Sync Preview</h2><div id="now" class="stage">गाना चलाएँ</div><audio id="preview" controls></audio><div class="actions"><button class="secondary" id="srt">⬇ SRT Download</button><button class="secondary" id="json">⬇ Timing JSON</button></div><div class="actions"><button class="secondary" id="videoExport" type="button">🎬 Lyrics Video Export (16:9)</button></div><p class="hint">Video export browser recording use karta hai. MP4 support device/browser par depend karta hai; otherwise WebM download hoga.</p><p class="hint">हर लाइन का Start/End समय सेकंड में और Lyrics यहीं सुधार सकते हैं। जिन लाइनों की timing नहीं मिली, उनका समय भरें; फिर SRT/JSON डाउनलोड करें।</p><h2>AI ने गाने में क्या सुना?</h2><p id="matchSummary" class="hint"></p><pre id="heard" class="transcript">Sync के बाद AI transcript यहाँ दिखेगा।</pre><div id="list"></div></section>
 <footer>Audio processing आपके configured AI server पर होता है। निजी या कॉपीराइट सामग्री केवल अधिकार होने पर अपलोड करें।</footer></main>
 <script>
 const $=x=>document.getElementById(x);let lines=[];const DEFAULT_API='https://auto-lyrics-sync-api.onrender.com';const saved=localStorage.getItem('lyricsApi');$('api').value=saved||DEFAULT_API;$('api').onchange=()=>localStorage.setItem('lyricsApi',$('api').value.trim().replace(/\/+$/,''));
@@ -24,4 +24,48 @@ function dl(n,c,type){let a=document.createElement('a');a.href=URL.createObjectU
 function ts(t){t=Math.max(0,t||0);let h=Math.floor(t/3600),m=Math.floor(t%3600/60),s=Math.floor(t%60),ms=Math.floor(t%1*1000);return [h,m,s].map(x=>String(x).padStart(2,'0')).join(':')+','+String(ms).padStart(3,'0')}
 $('srt').onclick=()=>{let n=0;const valid=lines.filter(x=>Number.isFinite(Number(x.start))&&Number.isFinite(Number(x.end))&&x.start!==null&&x.end!==null&&Number(x.end)>Number(x.start));if(!valid.length){$('status').textContent='SRT बनाने के लिए कम-से-कम एक लाइन का सही Start और End समय भरें।';return}if(valid.length<lines.length)$('status').textContent=(lines.length-valid.length)+' लाइनें सही timing के बिना हैं; उन्हें SRT में शामिल नहीं किया गया।';dl('lyrics-captions.srt',valid.map(x=>{n++;return n+'\n'+ts(Number(x.start))+' --> '+ts(Number(x.end))+'\n'+x.text+'\n'}).join('\n'),'text/plain')};
 $('json').onclick=()=>dl('lyrics-timing.json',JSON.stringify(lines,null,2),'application/json');
+
+$('videoExport')?.addEventListener('click',async()=>{
+  const audio=$('audio').files[0];
+  if(!audio){$('status').textContent='पहले audio चुनें।';return}
+  const valid=lines.filter(x=>Number.isFinite(Number(x.start))&&Number.isFinite(Number(x.end))&&x.start!==null&&x.end!==null&&Number(x.end)>Number(x.start));
+  if(!valid.length){$('status').textContent='पहले कम-से-कम एक सही timed lyric line sync करें।';return}
+  const width=1280,height=720,fps=30;
+  const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
+  const ctx=canvas.getContext('2d');
+  const stream=canvas.captureStream(fps);
+  const audioEl=$('preview');audioEl.src=URL.createObjectURL(audio);audioEl.currentTime=0;
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;
+  if(!AudioCtx){$('status').textContent='इस browser में audio mixing उपलब्ध नहीं है।';return}
+  const ac=new AudioCtx();await ac.resume();
+  const source=ac.createMediaElementSource(audioEl);const dest=ac.createMediaStreamDestination();
+  source.connect(dest);source.connect(ac.destination);
+  dest.stream.getAudioTracks().forEach(t=>stream.addTrack(t));
+  const mime=['video/mp4;codecs=h264,aac','video/webm;codecs=vp9,opus','video/webm'].find(t=>MediaRecorder.isTypeSupported(t));
+  if(!mime){$('status').textContent='इस browser में video recording format उपलब्ध नहीं है।';return}
+  const recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:5000000});
+  const chunks=[];recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+  recorder.onstop=async()=>{
+    const blob=new Blob(chunks,{type:mime});const ext=mime.includes('mp4')?'mp4':'webm';
+    const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='lyrics-video-16x9.'+ext;a.click();
+    $('status').textContent='वीडियो export पूरा: '+ext.toUpperCase()+' • यदि WEBM मिला है तो MP4 में convert करना होगा।';
+    stream.getTracks().forEach(t=>t.stop());await ac.close();
+  };
+  const draw=()=>{
+    const t=audioEl.currentTime;const line=[...valid].reverse().find(x=>x.start<=t&&x.end>t);
+    const g=ctx.createLinearGradient(0,0,width,height);g.addColorStop(0,'#10243b');g.addColorStop(1,'#291b36');
+    ctx.fillStyle=g;ctx.fillRect(0,0,width,height);
+    ctx.fillStyle='#e8c98a';ctx.font='bold 28px sans-serif';ctx.textAlign='center';ctx.fillText('ALEKH MAHIMA VANI',width/2,90);
+    ctx.fillStyle='#ffffff';ctx.font='bold 46px sans-serif';
+    const text=line?.text||'♪';
+    const words=text.split(/\s+/);let rows=[],row='';
+    for(const w of words){const test=row?row+' '+w:w;if(ctx.measureText(test).width>1050&&row){rows.push(row);row=w}else row=test}
+    if(row)rows.push(row);
+    rows.slice(0,3).forEach((v,i)=>ctx.fillText(v,width/2,height/2+(i-(Math.min(rows.length,3)-1)/2)*64));
+    ctx.fillStyle='rgba(255,255,255,.55)';ctx.font='20px sans-serif';ctx.fillText('Jaya Alekh Mahima',width/2,height-65);
+    if(!audioEl.paused&&!audioEl.ended)requestAnimationFrame(draw);
+  };
+  $('status').textContent='Video रिकॉर्ड हो रहा है… tab खुला रखें और audio पूरा होने दें।';
+  recorder.start(1000);audioEl.onplay=()=>requestAnimationFrame(draw);audioEl.onended=()=>{if(recorder.state!=='inactive')recorder.stop()};await audioEl.play();
+});
 </script></body></html>
