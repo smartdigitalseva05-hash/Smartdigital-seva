@@ -352,8 +352,11 @@ def diagnostics():
         peak_rss_mb = None
     sarvam_present = bool(os.getenv("SARVAM_API_KEY", "").strip())
     groq_present = bool(os.getenv("GROQ_API_KEY", "").strip())
-    default_provider = "sarvam" if sarvam_present else ("groq" if groq_present else "local")
+    # Keep diagnostics identical to the provider selection used by transcribe_audio().
+    default_provider = "groq" if groq_present else ("sarvam" if sarvam_present else "local")
     provider = os.getenv("TRANSCRIPTION_PROVIDER", default_provider).strip().lower()
+    if provider == "groq" and not groq_present:
+        provider = "sarvam" if sarvam_present else "local"
     return {
         "status": "ok", "version": "1.5.0", "provider": provider,
         "hosted_key_configured": sarvam_present or groq_present,
