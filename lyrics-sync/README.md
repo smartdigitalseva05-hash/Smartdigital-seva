@@ -9,7 +9,7 @@
 - Live lyrics preview
 - SRT captions और JSON timing export
 
-## Deployment (दो भाग)
+## Deployment (दो भाग)\n\nRepository root में `render.yaml` blueprint भी जोड़ा गया है। Render Dashboard → New → Blueprint से इस GitHub repository को चुनें; Render blueprint से API service create करने का प्रस्ताव देगा। Service deploy होने पर उसका `onrender.com` URL frontend के AI Server URL box में डालें।
 
 ### 1. Frontend: GitHub Pages
 इस repository की Settings → Pages में Deploy from branch चुनें, branch `main`, folder `/ (root)` रखें। यदि Pages पहले से चालू है तो नया पेज इस URL पर उपलब्ध होगा:
