@@ -4,7 +4,7 @@ from faster_whisper import WhisperModel
 from difflib import SequenceMatcher
 import tempfile, os, re, uuid, threading, time, resource, platform, requests, logging, unicodedata
 
-app = FastAPI(title="Auto Lyrics Sync API", version="1.4.0")
+app = FastAPI(title="Auto Lyrics Sync API", version="1.5.0")
 logger = logging.getLogger("lyrics_sync")
 
 @app.middleware("http")
@@ -144,15 +144,14 @@ def transcribe_sarvam_batch(path, language, lyrics):
     if output_payload is None:
         raise RuntimeError("Sarvam transcript ଡାଉନଲୋଡ୍ ହୋଇପାରିଲା ନାହିଁ।")
 
-    # Batch output schemas can differ slightly between API revisions. Accept the
-    # documented parallel arrays as well as entry-style timestamp objects.
+    # Sarvam Batch schemas vary: normalize every supported phrase-timing shape.
     payload = output_payload
     if isinstance(payload, dict) and isinstance(payload.get("result"), dict):
         payload = payload["result"]
-    transcript = str(payload.get("transcript") or "")
-    timestamps = payload.get("timestamps") or {}
+    transcript = str(payload.get("transcript") or "") if isinstance(payload, dict) else ""
     words = []
     phrase_texts = []
+    seen_phrases = set()
 
     def add_timed_phrase(text_value, start_value, end_value):
         if text_value is None or start_value is None or end_value is None:
@@ -164,48 +163,50 @@ def transcribe_sarvam_batch(path, language, lyrics):
         except (TypeError, ValueError):
             return
         phrase = str(text_value).strip()
-        if phrase:
-            phrase_texts.append(phrase)
-            words.extend(timed_tokens(phrase, start_value, end_value))
+        key = (phrase, round(start_value, 3), round(end_value, 3))
+        if not phrase or key in seen_phrases:
+            return
+        seen_phrases.add(key)
+        phrase_texts.append(phrase)
+        words.extend(timed_tokens(phrase, start_value, end_value))
 
-    if isinstance(timestamps, dict):
-        chunks = timestamps.get("chunks") or timestamps.get("words") or timestamps.get("segments") or []
-        starts = timestamps.get("start_time_seconds") or timestamps.get("start") or []
-        ends = timestamps.get("end_time_seconds") or timestamps.get("end") or []
-        if isinstance(chunks, list) and isinstance(starts, list) and isinstance(ends, list):
-            for index, chunk in enumerate(chunks):
+    def scan_timing_node(node):
+        if isinstance(node, list):
+            for child in node:
+                scan_timing_node(child)
+            return
+        if not isinstance(node, dict):
+            return
+
+        # Entry-style timestamps, including nested diarization segments.
+        text_value = (node.get("transcript") or node.get("text") or
+                      node.get("word") or node.get("phrase") or node.get("chunk"))
+        start_value = node.get("start_time_seconds", node.get("start", node.get("start_time")))
+        end_value = node.get("end_time_seconds", node.get("end", node.get("end_time")))
+        if text_value is not None and start_value is not None and end_value is not None:
+            add_timed_phrase(text_value, start_value, end_value)
+
+        # Sarvam's documented parallel arrays: words + start/end seconds.
+        starts = node.get("start_time_seconds") or node.get("start") or node.get("starts") or []
+        ends = node.get("end_time_seconds") or node.get("end") or node.get("ends") or []
+        phrases = (node.get("words") or node.get("chunks") or
+                   node.get("segments") or node.get("texts") or [])
+        if isinstance(phrases, list) and isinstance(starts, list) and isinstance(ends, list):
+            for index, phrase in enumerate(phrases):
                 if index < len(starts) and index < len(ends):
-                    add_timed_phrase(chunk, starts[index], ends[index])
-        # Some response variants return timestamp entries as objects.
-        entries = timestamps.get("entries") or timestamps.get("segments") or timestamps.get("words") or []
-        if not words and isinstance(entries, list):
-            for entry in entries:
-                if isinstance(entry, dict):
-                    add_timed_phrase(
-                        entry.get("text") or entry.get("transcript") or entry.get("word"),
-                        entry.get("start_time_seconds", entry.get("start")),
-                        entry.get("end_time_seconds", entry.get("end")),
-                    )
-    elif isinstance(timestamps, list):
-        for entry in timestamps:
-            if isinstance(entry, dict):
-                add_timed_phrase(
-                    entry.get("text") or entry.get("transcript") or entry.get("word"),
-                    entry.get("start_time_seconds", entry.get("start")),
-                    entry.get("end_time_seconds", entry.get("end")),
-                )
+                    add_timed_phrase(phrase, starts[index], ends[index])
 
-    diarized = payload.get("diarized_transcript") or {}
-    diarized_entries = diarized.get("entries", []) if isinstance(diarized, dict) else diarized
-    if not words and isinstance(diarized_entries, list):
-        for entry in diarized_entries:
-            if isinstance(entry, dict):
-                add_timed_phrase(
-                    entry.get("transcript") or entry.get("text"),
-                    entry.get("start_time_seconds", entry.get("start")),
-                    entry.get("end_time_seconds", entry.get("end")),
-                )
+        # Continue recursively: some batch output revisions wrap results in
+        # data/output/transcription objects rather than exposing timestamps at root.
+        for value in node.values():
+            if isinstance(value, (dict, list)):
+                scan_timing_node(value)
 
+    scan_timing_node(payload)
+    if not transcript and phrase_texts:
+        transcript = " ".join(phrase_texts)
+    if words:
+        words.sort(key=lambda item: (item["start"], item["end"]))
     if not transcript:
         transcript = " ".join(phrase_texts)
     if not words:
@@ -333,7 +334,7 @@ def timed_tokens(text, start, end):
 
 @app.get("/")
 def health():
-    return {"status": "ok", "service": "Auto Lyrics Sync API", "version": "1.4.0"}
+    return {"status": "ok", "service": "Auto Lyrics Sync API", "version": "1.5.0"}
 
 @app.get("/api/diagnostics")
 def diagnostics():
