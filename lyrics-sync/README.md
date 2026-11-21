@@ -3,9 +3,9 @@
 यह project Smart Digital Seva repository में अलग folder `/lyrics-sync/` में रखा गया है। मुख्य website का root `index.html` सुरक्षित है और बदला नहीं गया है।
 
 ## Features
-- Audio upload (40 MB तक)
+- Audio upload (hosted Groq mode में 25 MB तक; local mode में 40 MB तक)
 - पूरा Lyrics एक साथ paste
-- Whisper AI speech recognition और अनुमानित line-level timing alignment
+- Hosted Groq Whisper Large V3 Turbo (word timestamps) या local Whisper fallback; अनुमानित line-level timing alignment
 - Live lyrics preview
 - SRT captions और JSON timing export
 
@@ -28,9 +28,13 @@ Frontend URL:
 - Root Directory: `lyrics-sync`
 - Build command: `pip install -r requirements.txt`
 - Start command: `uvicorn app:app --host 0.0.0.0 --port $PORT`
-- Environment variable: `WHISPER_MODEL=tiny` (कम RAM में चलने के लिए हल्का मॉडल)
+- Optional fallback: `WHISPER_MODEL=tiny`
+- Recommended hosted mode: Render → **Environment** में `GROQ_API_KEY` नाम का secret जोड़ें। API key केवल backend environment में रखें; उसे HTML, GitHub या browser storage में कभी न डालें।
+- Hosted mode अपने-आप `whisper-large-v3-turbo` चुनता है और word timestamps माँगता है। Hosted mode में अधिकतम audio size 25 MB है। API rate limits / provider availability लागू हो सकती है।
+- Groq API key बनाने के लिए [Groq Console API Keys](https://console.groq.com/keys) खोलें। Key बनाने के बाद Render service के Environment में secret value डालें और service redeploy/restart करें। कोई key ChatGPT को न भेजें।
+- Website में **AI Server जाँचें** दबाने पर diagnostics बताएगा कि hosted key configured है या अभी local fallback चल रहा है।
 
-Deploy होने के बाद Render का `onrender.com` URL वेबसाइट के **AI Server URL** बॉक्स में डालें। पहली बार मॉडल डाउनलोड होने में समय लगेगा। Free hosting में cold start, RAM, CPU और request-duration की सीमाएँ हो सकती हैं। बेहतर पहचान/लंबे गानों के लिए पर्याप्त RAM वाला paid server और `WHISPER_MODEL=small` विचार करें।
+Deploy होने के बाद Render का `onrender.com` URL वेबसाइट के **AI Server URL** बॉक्स में डालें। Groq key configure होने पर Render को Whisper model RAM में load नहीं करना पड़ेगा। बिना key के local fallback चलेगा, जो Free instance पर crash हो सकता है।
 
 ## Accuracy limitations
 Whisper singing/भजन के शब्द हमेशा सही नहीं पहचानता। इस MVP में transcript के शब्दों से pasted lyric lines का approximate alignment होता है; गलत पहचाने या दोहराए गए शब्दों के कारण कुछ lines unmatched/गलत समय पर हो सकती हैं। प्रत्येक लाइन का confidence दिया जाता है। अब preview में हर लाइन का text और Start/End समय manually सुधार सकते हैं; unmatched lines में समय भरकर SRT export किया जा सकता है। यह अभी word-by-word karaoke highlighting या MP4 video export नहीं है।
