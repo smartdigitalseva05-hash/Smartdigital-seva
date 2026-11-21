@@ -31,7 +31,7 @@ Render Dashboard → **New → Blueprint** से इस GitHub repository क�
 Deploy होने के बाद Render का `onrender.com` URL वेबसाइट के **AI Server URL** बॉक्स में डालें। पहली बार मॉडल डाउनलोड होने में समय लगेगा। Free hosting में cold start, RAM, CPU और request-duration की सीमाएँ हो सकती हैं। बेहतर पहचान/लंबे गानों के लिए पर्याप्त RAM वाला paid server और `WHISPER_MODEL=small` विचार करें।
 
 ## Accuracy limitations
-Whisper singing/भजन के शब्द हमेशा सही नहीं पहचानता। इस MVP में transcript के शब्दों से pasted lyric lines का approximate alignment होता है; गलत पहचाने या दोहराए गए शब्दों के कारण कुछ lines unmatched/गलत समय पर हो सकती हैं। प्रत्येक लाइन का confidence दिया जाता है। Review/edit workflow आगे जोड़ना चाहिए। यह अभी word-by-word karaoke highlighting या MP4 video export नहीं है।
+Whisper singing/भजन के शब्द हमेशा सही नहीं पहचानता। इस MVP में transcript के शब्दों से pasted lyric lines का approximate alignment होता है; गलत पहचाने या दोहराए गए शब्दों के कारण कुछ lines unmatched/गलत समय पर हो सकती हैं। प्रत्येक लाइन का confidence दिया जाता है। अब preview में हर लाइन का text और Start/End समय manually सुधार सकते हैं; unmatched lines में समय भरकर SRT export किया जा सकता है। यह अभी word-by-word karaoke highlighting या MP4 video export नहीं है।
 
 ## Security / privacy
 - Audio configured backend पर upload होता है; backend temporary file को processing के बाद delete करता है।
