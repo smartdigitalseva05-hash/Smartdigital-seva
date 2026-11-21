@@ -93,7 +93,7 @@ def transcribe_sarvam_batch(path, language, lyrics):
     with open(path, "rb") as audio_file:
         uploaded = requests.put(
             upload_url, data=audio_file,
-            headers={"Content-Type": "application/octet-stream"},
+            headers={"Content-Type": "application/octet-stream", "x-ms-blob-type": "BlockBlob"},
             timeout=(30, 900)
         )
     if not uploaded.ok:
