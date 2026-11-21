@@ -90,7 +90,7 @@ $('videoExport')?.addEventListener('click',async()=>{
     }else{ctx.fillStyle='#fff';ctx.font='bold '+Math.round(width*.07)+'px system-ui';ctx.fillText('♪',width/2,height*.5)}
     if(next){const fs=Math.round(width*.026),rows=wrap(next.text,width-pad*2,fs).slice(0,2);ctx.font=fs+'px system-ui';ctx.fillStyle='rgba(255,255,255,.85)';rows.forEach((v,i)=>ctx.fillText(v,width/2,height*.78+i*fs*1.35))}
     ctx.fillStyle='rgba(255,255,255,.8)';ctx.font=Math.round(width*.021)+'px system-ui';ctx.fillText('Jaya Alekh Mahima',width/2,height*.93);
-    if(!audioEl.paused&&!audioEl.ended&&!stopped)drawId=requestAnimationFrame(draw);
+    if(!stopped&&recorder.state==='recording')drawId=requestAnimationFrame(draw);
   }
   recorder.onstop=async()=>{
     stopped=true;cancelAnimationFrame(drawId);
@@ -105,7 +105,7 @@ $('videoExport')?.addEventListener('click',async()=>{
   audioEl.onended=()=>{if(recorder.state!=='inactive')recorder.stop()};
   audioEl.onerror=()=>{if(recorder.state!=='inactive')recorder.stop();$('status').textContent='ଅଡିଓ ପ୍ଲେବ୍ୟାକ୍‌ରେ ତ୍ରୁଟି ହେଲା।'};
   $('videoExport').disabled=true;$('status').textContent='ଭିଡିଓ ରେକର୍ଡ ହେଉଛି… ଗୀତ ସରିବା ପର୍ଯ୍ୟନ୍ତ ପୃଷ୍ଠା ଖୋଲା ରଖନ୍ତୁ।';
-  draw();recorder.start(1000);
+  recorder.start(1000);draw();
   try{await audioEl.play()}catch(e){recorder.stop();$('status').textContent='ଅଡିଓ ଚଲିଲା ନାହିଁ: '+e.message}
 });
 </script></body></html>
