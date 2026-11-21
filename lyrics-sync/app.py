@@ -360,11 +360,17 @@ def diagnostics():
         peak_rss_mb = None
     sarvam_present = bool(os.getenv("SARVAM_API_KEY", "").strip())
     groq_present = bool(os.getenv("GROQ_API_KEY", "").strip())
-    # Keep diagnostics identical to the provider selection used by transcribe_audio().
-    default_provider = "groq" if groq_present else ("sarvam" if sarvam_present else "local")
-    provider = os.getenv("TRANSCRIPTION_PROVIDER", default_provider).strip().lower()
-    if provider == "groq" and not groq_present:
+    # Report the provider that will be used for the default Odia workflow.
+    # In auto mode Odia uses Sarvam first; Groq is the fallback for files <=25 MB.
+    configured_provider = os.getenv("TRANSCRIPTION_PROVIDER", "auto").strip().lower()
+    if configured_provider in {"", "auto"}:
+        provider = "sarvam" if sarvam_present else ("groq" if groq_present else "local")
+    elif configured_provider == "groq" and not groq_present:
         provider = "sarvam" if sarvam_present else "local"
+    elif configured_provider == "sarvam" and not sarvam_present:
+        provider = "groq" if groq_present else "local"
+    else:
+        provider = configured_provider
     return {
         "status": "ok", "version": "1.5.0", "provider": provider,
         "hosted_key_configured": sarvam_present or groq_present,
@@ -541,7 +547,15 @@ async def sync(
                 if not chunk:
                     break
                 total += len(chunk)
-                active_provider = os.getenv("TRANSCRIPTION_PROVIDER", "sarvam" if os.getenv("SARVAM_API_KEY", "").strip() else ("groq" if os.getenv("GROQ_API_KEY", "").strip() else "local")).strip().lower()
+                configured_provider = os.getenv("TRANSCRIPTION_PROVIDER", "auto").strip().lower()
+                sarvam_ready = bool(os.getenv("SARVAM_API_KEY", "").strip())
+                groq_ready = bool(os.getenv("GROQ_API_KEY", "").strip())
+                if configured_provider in {"", "auto"}:
+                    active_provider = ("sarvam" if language == "or" and sarvam_ready
+                                       else "groq" if groq_ready
+                                       else "sarvam" if sarvam_ready else "local")
+                else:
+                    active_provider = configured_provider
                 upload_limit = 25 * 1024 * 1024 if active_provider == "groq" else MAX_AUDIO_BYTES
                 if total > upload_limit:
                     raise HTTPException(413, "ଅଡିଓ ଫାଇଲ୍ ବର୍ତ୍ତମାନର ସୀମାଠାରୁ ବଡ଼ (Hosted ୨୫ MB / Local ୪୦ MB)।")
