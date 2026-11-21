@@ -178,19 +178,31 @@ def process_job(job_id, path, lyrics, language):
                 continue
             best, best_score = None, 0.0
             for start in range(cursor, min(len(words), cursor + 120)):
-                tolerance = max(4, int(len(target) * 0.5))
+                # Keep candidate windows close to the lyric length. Very wide windows
+                # can accidentally match unrelated words in songs with repeated phrases.
+                tolerance = max(2, int(len(target) * 0.3))
                 low = max(1, len(target) - tolerance)
                 high = min(len(target) + tolerance, len(words) - start)
                 for length in range(low, high + 1):
                     heard = [item["token"] for item in words[start:start + length]]
-                    score = SequenceMatcher(None, target, heard).ratio()
-                    if score > best_score:
-                        best, best_score = (start, start + length - 1), score
-            minimum_score = 0.42 if len(target) >= 4 else 0.55
+                    # Require substantial token coverage as well as sequence similarity.
+                    coverage = len(set(target) & set(heard)) / max(1, len(set(target)))
+                    score = SequenceMatcher(None, target, heard, autojunk=False).ratio()
+                    combined = score * 0.75 + coverage * 0.25
+                    if combined > best_score:
+                        best, best_score = (start, start + length - 1), combined
+            # Conservative thresholds: a missed line is safer than a fabricated timestamp.
+            minimum_score = 0.76 if len(target) >= 4 else 0.88
             if best and best_score >= minimum_score:
                 first, last = best
-                aligned.append({"text": line, "start": words[first]["start"], "end": words[last]["end"], "confidence": round(best_score, 2)})
-                cursor = max(cursor, last + 1)
+                start_time = float(words[first]["start"])
+                end_time = float(words[last]["end"])
+                if (0 <= start_time < end_time and
+                        (not duration or end_time <= duration + 1.0)):
+                    aligned.append({"text": line, "start": round(start_time, 3), "end": round(end_time, 3), "confidence": round(best_score, 2)})
+                    cursor = max(cursor, last + 1)
+                else:
+                    aligned.append({"text": line, "start": None, "end": None, "confidence": 0})
             else:
                 aligned.append({"text": line, "start": None, "end": None, "confidence": 0})
         with _jobs_lock:
