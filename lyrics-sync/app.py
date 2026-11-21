@@ -4,7 +4,7 @@ from faster_whisper import WhisperModel
 from difflib import SequenceMatcher
 import tempfile, os, re, uuid, threading, time, resource, platform, requests, logging, unicodedata
 
-app = FastAPI(title="Auto Lyrics Sync API", version="1.5.0")
+app = FastAPI(title="Auto Lyrics Sync API", version="1.6.0")
 logger = logging.getLogger("lyrics_sync")
 
 @app.middleware("http")
@@ -360,7 +360,7 @@ def timed_tokens(text, start, end):
 
 @app.get("/")
 def health():
-    return {"status": "ok", "service": "Auto Lyrics Sync API", "version": "1.5.0"}
+    return {"status": "ok", "service": "Auto Lyrics Sync API", "version": "1.6.0"}
 
 @app.get("/api/diagnostics")
 def diagnostics():
@@ -382,7 +382,7 @@ def diagnostics():
     else:
         provider = configured_provider
     return {
-        "status": "ok", "version": "1.5.0", "provider": provider,
+        "status": "ok", "version": "1.6.0", "provider": provider,
         "hosted_key_configured": sarvam_present or groq_present,
         "sarvam_key_configured": sarvam_present,
         "groq_key_configured": groq_present,
