@@ -238,8 +238,16 @@ def transcribe_audio(path, language, lyrics):
     """Prefer hosted Groq Whisper so the small Render instance does not load a local model."""
     sarvam_key = os.getenv("SARVAM_API_KEY", "").strip()
     groq_key = os.getenv("GROQ_API_KEY", "").strip()
-    default_provider = "groq" if groq_key else ("sarvam" if sarvam_key else "local")
-    provider = os.getenv("TRANSCRIPTION_PROVIDER", default_provider).strip().lower()
+    # Odia is routed to Sarvam first; Groq Whisper is the hosted fallback.
+    # Hindi/English use Groq first for word-level timestamps.
+    provider_setting = os.getenv("TRANSCRIPTION_PROVIDER", "auto").strip().lower()
+    if provider_setting in {"", "auto"}:
+        if language == "or" and sarvam_key:
+            provider = "sarvam"
+        else:
+            provider = "groq" if groq_key else ("sarvam" if sarvam_key else "local")
+    else:
+        provider = provider_setting
     if provider == "sarvam":
         try:
             return transcribe_sarvam_batch(path, language, lyrics)
