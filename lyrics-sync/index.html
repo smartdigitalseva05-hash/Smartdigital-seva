@@ -45,12 +45,24 @@ $('videoExport')?.addEventListener('click',async()=>{
     else{URL.revokeObjectURL(bgUrl);$('status').textContent='କେବଳ ଫଟୋ କିମ୍ବା ଭିଡିଓ ଫାଇଲ୍ ବାଛନ୍ତୁ।';return}
   }
   const stream=canvas.captureStream(fps);
-  const audioEl=document.createElement('audio');audioEl.src=URL.createObjectURL(audioFile);audioEl.preload='auto';
+  const audioEl=document.createElement('audio'),audioUrl=URL.createObjectURL(audioFile);
+  audioEl.src=audioUrl;audioEl.preload='auto';audioEl.playsInline=true;audioEl.volume=1;
   const AudioCtx=window.AudioContext||window.webkitAudioContext;
-  if(!AudioCtx){$('status').textContent='ଏହି ବ୍ରାଉଜର୍‌ରେ ଅଡିଓ ମିଶ୍ରଣ ସୁବିଧା ନାହିଁ।';return}
-  const ac=new AudioCtx();await ac.resume();
-  const source=ac.createMediaElementSource(audioEl),dest=ac.createMediaStreamDestination();
-  source.connect(dest);source.connect(ac.destination);dest.stream.getAudioTracks().forEach(t=>stream.addTrack(t));
+  if(!AudioCtx){stream.getTracks().forEach(t=>t.stop());URL.revokeObjectURL(audioUrl);$('status').textContent='ଏହି ବ୍ରାଉଜର୍‌ରେ ଅଡିଓ ମିଶ୍ରଣ ସୁବିଧା ନାହିଁ।';return}
+  const ac=new AudioCtx();
+  try{
+    await new Promise((resolve,reject)=>{
+      if(audioEl.readyState>=HTMLMediaElement.HAVE_FUTURE_DATA){resolve();return}
+      const timer=setTimeout(()=>reject(new Error('ଅଡିଓ ଫାଇଲ୍ ପଢ଼ିବାକୁ ସମୟ ଶେଷ ହେଲା।')),30000);
+      audioEl.addEventListener('canplay',()=>{clearTimeout(timer);resolve()},{once:true});
+      audioEl.addEventListener('error',()=>{clearTimeout(timer);reject(new Error('ଅଡିଓ ଫାଇଲ୍ ଡିକୋଡ୍ ହୋଇପାରିଲା ନାହିଁ।'))},{once:true});
+      audioEl.load();
+    });
+    await ac.resume();
+  }catch(e){stream.getTracks().forEach(t=>t.stop());URL.revokeObjectURL(audioUrl);try{await ac.close()}catch(_){}$('status').textContent='ଅଡିଓ ପ୍ରସ୍ତୁତ ହୋଇନାହିଁ: '+e.message;return}
+  let source,dest;
+  try{source=ac.createMediaElementSource(audioEl);dest=ac.createMediaStreamDestination();source.connect(dest);source.connect(ac.destination);dest.stream.getAudioTracks().forEach(t=>stream.addTrack(t))}
+  catch(e){stream.getTracks().forEach(t=>t.stop());URL.revokeObjectURL(audioUrl);try{await ac.close()}catch(_){}$('status').textContent='ଅଡିଓ ରେକର୍ଡିଂ ସଂଯୋଗ ବିଫଳ: '+e.message;return}
   const mime=['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm'].find(t=>MediaRecorder.isTypeSupported(t));
   if(!mime){stream.getTracks().forEach(t=>t.stop());await ac.close();$('status').textContent='ଏହି ବ୍ରାଉଜର୍‌ରେ ସମର୍ଥିତ MP4/WebM ରେକର୍ଡିଂ ଫର୍ମାଟ୍ ମିଳିଲା ନାହିଁ।';return}
   let recorder;
@@ -107,7 +119,7 @@ $('videoExport')?.addEventListener('click',async()=>{
   recorder.onstop=async()=>{
     stopped=true;cancelAnimationFrame(drawId);
     const ext=mime.includes('mp4')?'mp4':'webm',blob=new Blob(chunks,{type:mime});
-    stream.getTracks().forEach(t=>t.stop());audioEl.pause();audioEl.removeAttribute('src');audioEl.load();if(bgVideo)bgVideo.pause();
+    stream.getTracks().forEach(t=>t.stop());audioEl.pause();audioEl.removeAttribute('src');audioEl.load();URL.revokeObjectURL(audioUrl);if(bgVideo)bgVideo.pause();
     if(bgUrl)URL.revokeObjectURL(bgUrl);
     try{await ac.close()}catch(_){}
     $('videoExport').disabled=false;
@@ -126,9 +138,17 @@ $('videoExport')?.addEventListener('click',async()=>{
     $('status').textContent='✅ ଭିଡିଓ ପ୍ରସ୍ତୁତ ('+ext.toUpperCase()+', '+(blob.size/1024/1024).toFixed(1)+' MB)। ଅଟୋ ଡାଉନଲୋଡ୍ ନ ହେଲେ ତଳର ଡାଉନଲୋଡ୍ ଲିଙ୍କ୍‌କୁ ଟ୍ୟାପ୍ କରନ୍ତୁ।';
   };
   audioEl.onended=()=>{if(recorder.state!=='inactive')recorder.stop()};
-  audioEl.onerror=()=>{if(recorder.state!=='inactive')recorder.stop();$('status').textContent='ଅଡିଓ ପ୍ଲେବ୍ୟାକ୍‌ରେ ତ୍ରୁଟି ହେଲା।'};
-  $('videoExport').disabled=true;$('status').textContent='ଭିଡିଓ ରେକର୍ଡ ହେଉଛି… ଗୀତ ସରିବା ପର୍ଯ୍ୟନ୍ତ ପୃଷ୍ଠା ଖୋଲା ରଖନ୍ତୁ।';
-  recorder.start(1000);draw();
-  try{await audioEl.play()}catch(e){recorder.stop();$('status').textContent='ଅଡିଓ ଚଲିଲା ନାହିଁ: '+e.message}
+  audioEl.onerror=()=>{if(recorder.state!=='inactive')recorder.stop();$('status').textContent='ଅଡିଓ ପ୍ଲେବ୍ୟାକ୍‌ରେ ତ୍ରୁଟି ହେଲା। ଫାଇଲ୍ ଫର୍ମାଟ୍ କିମ୍ବା ଫାଇଲ୍ ନଷ୍ଟ ହୋଇଛି କି ଯାଞ୍ଚ କରନ୍ତୁ।'};
+  $('videoExport').disabled=true;$('status').textContent='ଅଡିଓ ପ୍ରସ୍ତୁତ ହେଉଛି…';
+  try{
+    await ac.resume();await audioEl.play();
+    if(audioEl.paused)throw new Error('ବ୍ରାଉଜର୍ ଅଡିଓ ଚାଲୁ କରିନାହିଁ।');
+    recorder.start(1000);draw();
+    $('status').textContent='ଭିଡିଓ ରେକର୍ଡ ହେଉଛି… ଗୀତ ସରିବା ପର୍ଯ୍ୟନ୍ତ ପୃଷ୍ଠା ଖୋଲା ରଖନ୍ତୁ।';
+  }catch(e){
+    $('videoExport').disabled=false;audioEl.pause();if(recorder.state!=='inactive')recorder.stop();
+    stream.getTracks().forEach(t=>t.stop());URL.revokeObjectURL(audioUrl);try{await ac.close()}catch(_){}
+    $('status').textContent='❌ ଅଡିଓ ଚଲାଇବା/ରେକର୍ଡିଂ ଆରମ୍ଭ ବିଫଳ: '+(e.message||e.name||'ଅଜଣା ତ୍ରୁଟି');
+  }
 });
 </script></body></html>
