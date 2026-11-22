@@ -1,8 +1,12 @@
 """Unit tests for the dependency-free lyrics timing helpers."""
 import math
+import sys
 import unicodedata
 import unittest
+from pathlib import Path
 
+# unittest discovery adds the tests folder, not its parent, to sys.path.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from lyrics_core import timed_tokens, tokens
 
 
