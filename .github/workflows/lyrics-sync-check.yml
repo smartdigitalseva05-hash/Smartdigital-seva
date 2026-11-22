@@ -27,6 +27,8 @@ jobs:
           python-version: "3.11"
       - name: Check Python syntax
         run: python -m py_compile lyrics-sync/app.py
+      - name: Run Unicode timing unit tests
+        run: python -m unittest discover -s lyrics-sync/tests -v
       - name: Check frontend structure
         run: |
           python - <<'PY'

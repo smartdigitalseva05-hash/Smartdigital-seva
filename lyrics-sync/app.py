@@ -2,7 +2,8 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTa
 from fastapi.middleware.cors import CORSMiddleware
 from faster_whisper import WhisperModel
 from difflib import SequenceMatcher
-import tempfile, os, re, uuid, threading, time, resource, platform, requests, logging, unicodedata
+import tempfile, os, re, uuid, threading, time, resource, platform, requests, logging
+from lyrics_core import tokens, timed_tokens
 
 app = FastAPI(title="Auto Lyrics Sync API", version="1.6.2")
 logger = logging.getLogger("lyrics_sync")
@@ -330,36 +331,6 @@ def transcribe_audio(path, language, lyrics):
                 words.extend(timed_tokens(word.word, word.start, word.end))
     return words, " ".join(transcript), info.language, float(info.duration or 0)
 
-def tokens(text):
-    """Tokenize Unicode words without splitting Indic-script combining marks."""
-    text = unicodedata.normalize("NFC", str(text or "")).casefold()
-    result, current = [], []
-    for char in text:
-        category = unicodedata.category(char)
-        if category.startswith("L") or category.startswith("M"):
-            current.append(char)
-        elif current:
-            result.append("".join(current))
-            current = []
-    if current:
-        result.append("".join(current))
-    return result
-
-
-def timed_tokens(text, start, end):
-    """Preserve all Unicode tokens when an ASR timestamp contains multiple words."""
-    parts = tokens(text)
-    if not parts:
-        return []
-    start, end = float(start), float(end)
-    span = max(0.0, end - start)
-    count = len(parts)
-    return [
-        {"token": part,
-         "start": start + span * index / count,
-         "end": start + span * (index + 1) / count}
-        for index, part in enumerate(parts)
-    ]
 
 
 @app.get("/")

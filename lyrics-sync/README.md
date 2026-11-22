@@ -8,6 +8,18 @@
 - Sarvam Saaras v4 Batch API (लंबे audio, phrase timestamps), Groq Whisper (word timestamps) या local Whisper fallback; अनुमानित line-level timing alignment
 - Live lyrics preview
 - SRT captions और JSON timing export
+- 16:9 YouTube तथा 9:16 Shorts के लिए browser-based MP4/WebM lyrics video export
+
+## Local quality checks
+
+Backend helper tests third-party AI packages के बिना चलाए जा सकते हैं:
+
+```bash
+python -m unittest discover -s lyrics-sync/tests -v
+python -m py_compile lyrics-sync/app.py lyrics-sync/lyrics_core.py
+```
+
+GitHub Actions push और pull request पर Python syntax, Unicode timing unit tests, frontend HTML structure तथा JavaScript syntax जाँचता है।
 
 ## Deployment
 
@@ -39,7 +51,7 @@ Frontend URL:
 Deploy होने के बाद Render का `onrender.com` URL वेबसाइट के **AI Server URL** बॉक्स में डालें। Groq key configure होने पर Render को Whisper model RAM में load नहीं करना पड़ेगा। बिना key के local fallback चलेगा, जो Free instance पर crash हो सकता है।
 
 ## Accuracy limitations
-Whisper singing/भजन के शब्द हमेशा सही नहीं पहचानता। इस MVP में transcript के शब्दों से pasted lyric lines का approximate alignment होता है; गलत पहचाने या दोहराए गए शब्दों के कारण कुछ lines unmatched/गलत समय पर हो सकती हैं। प्रत्येक लाइन का confidence दिया जाता है। अब preview में हर लाइन का text और Start/End समय manually सुधार सकते हैं; unmatched lines में समय भरकर SRT export किया जा सकता है। यह अभी word-by-word karaoke highlighting या MP4 video export नहीं है।
+Whisper singing/भजन के शब्द हमेशा सही नहीं पहचानता। इस MVP में transcript के शब्दों से pasted lyric lines का approximate alignment होता है; गलत पहचाने या दोहराए गए शब्दों के कारण कुछ lines unmatched/गलत समय पर हो सकती हैं। प्रत्येक लाइन का confidence दिया जाता है। अब preview में हर लाइन का text और Start/End समय manually सुधार सकते हैं; unmatched lines में समय भरकर SRT export किया जा सकता है। यह अभी word-by-word karaoke highlighting नहीं है। Video export browser की MediaRecorder और codec support पर निर्भर है; MP4 उपलब्ध न होने पर WebM चुना जा सकता है।
 
 ## Security / privacy
 - Audio configured backend पर upload होता है; backend temporary file को processing के बाद delete करता है।
