@@ -3,8 +3,8 @@
 यह project Smart Digital Seva repository में अलग folder `/lyrics-sync/` में रखा गया है। मुख्य website का root `index.html` सुरक्षित है और बदला नहीं गया है।
 
 ## Features
-- Audio upload (hosted Groq mode में 25 MB तक; local mode में 40 MB तक)
-- पूरा Lyrics एक साथ paste
+- Audio upload (hosted Groq mode में 25 MB तक; Sarvam/local mode में 40 MB तक)
+- पूरा Lyrics एक साथ paste (अधिकतम 30,000 characters और 500 non-empty lines)
 - Sarvam Saaras v4 Batch API (लंबे audio, phrase timestamps), Groq Whisper (word timestamps) या local Whisper fallback; अनुमानित line-level timing alignment
 - Live lyrics preview
 - SRT captions और JSON timing export
@@ -12,14 +12,14 @@
 
 ## Local quality checks
 
-Backend helper tests third-party AI packages के बिना चलाए जा सकते हैं:
+Backend helper tests और frontend contract tests third-party AI packages के बिना चलाए जा सकते हैं:
 
 ```bash
 python -m unittest discover -s lyrics-sync/tests -v
 python -m py_compile lyrics-sync/app.py lyrics-sync/lyrics_core.py
 ```
 
-GitHub Actions push और pull request पर Python syntax, Unicode timing unit tests, frontend HTML structure तथा JavaScript syntax जाँचता है।
+Frontend contract tests duplicate HTML IDs, missing controls, broken label targets, audio picker support और sync/export controls की मौजूदगी जाँचते हैं। GitHub Actions push और pull request पर Python syntax, सभी unit/contract tests, HTML structure तथा JavaScript syntax जाँचता है।
 
 ## Deployment
 
@@ -43,7 +43,7 @@ Frontend URL:
 - Optional fallback: `WHISPER_MODEL=tiny`
 - Recommended Odia mode: Render → **Environment** में `SARVAM_API_KEY` secret जोड़ें। यह key होने पर backend अपने-आप Sarvam Saaras v4 Batch API चुनेगा। API key केवल backend environment में रखें; उसे HTML, GitHub या browser storage में कभी न डालें।
 - Sarvam Batch API में Odia के लिए `od-IN` और `saaras:v4` उपयोग होता है। 2 घंटे तक audio स्वीकार्य है; API phrase/chunk-level timestamps देती है, word-level timestamps नहीं। Lyrics line timing phrase timestamps से अनुमानित रूप से align होती है।
-- Groq `GROQ_API_KEY` କୁ fallback ଭାବରେ ରଖନ୍ତୁ; Sarvam ସଫଳ ହେବା ପରେ ମାତ୍ର ଏହାକୁ ହଟାନ୍ତୁ।
+- Groq `GROQ_API_KEY` को fallback के रूप में रखें; Sarvam सफलतापूर्वक चलने के बाद ही इसे हटाएँ।
 - Groq fallback mode अपने-आप `whisper-large-v3` चुनता है और word timestamps माँगता है। Groq mode में अधिकतम audio size 25 MB; Sarvam/local mode में backend सीमा 40 MB है। API rate limits / provider availability लागू हो सकती है।
 - Groq API key बनाने के लिए [Groq Console API Keys](https://console.groq.com/keys) खोलें। Key बनाने के बाद Render service के Environment में secret value डालें और service redeploy/restart करें। कोई key ChatGPT को न भेजें।
 - Website में **AI Server जाँचें** दबाने पर diagnostics बताएगा कि hosted key configured है या अभी local fallback चल रहा है।
@@ -54,7 +54,9 @@ Deploy होने के बाद Render का `onrender.com` URL वेब�
 Whisper singing/भजन के शब्द हमेशा सही नहीं पहचानता। इस MVP में transcript के शब्दों से pasted lyric lines का approximate alignment होता है; गलत पहचाने या दोहराए गए शब्दों के कारण कुछ lines unmatched/गलत समय पर हो सकती हैं। प्रत्येक लाइन का confidence दिया जाता है। अब preview में हर लाइन का text और Start/End समय manually सुधार सकते हैं; unmatched lines में समय भरकर SRT export किया जा सकता है। यह अभी word-by-word karaoke highlighting नहीं है। Video export browser की MediaRecorder और codec support पर निर्भर है; MP4 उपलब्ध न होने पर WebM चुना जा सकता है।
 
 ## Security / privacy
-- Audio configured backend पर upload होता है; backend temporary file को processing के बाद delete करता है।
-- Upload 40 MB तक और lyrics 30,000 characters तक सीमित हैं; server-side authentication और rate limiting अभी नहीं हैं।
-- Public launch से पहले authentication, rate limiting, request queue, abuse controls और privacy notice जोड़ें।
+- Audio configured backend पर upload होता है; backend सामान्य job completion/failure पर temporary file delete करता है।
+- Upload 40 MB तक सीमित है (Groq mode में 25 MB); lyrics 30,000 characters और 500 non-empty lines तक सीमित हैं।
+- Backend एक समय में प्रति instance अधिकतम एक active sync job स्वीकार करता है; व्यस्त होने पर HTTP 429 देता है। यह capacity guard है, per-user/IP rate limiting नहीं।
+- Login/authentication अभी लागू नहीं है। Job status process memory में रहता है और Render restart/redeploy होने पर खो सकता है।
+- Public launch से पहले authentication, per-user/IP rate limiting, durable job queue, abuse controls और privacy notice जोड़ें।
 - निजी/कॉपीराइट audio तभी upload करें जब आपके पास उपयोग का अधिकार हो।
