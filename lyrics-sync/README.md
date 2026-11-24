@@ -3,7 +3,7 @@
 यह project Smart Digital Seva repository में अलग folder `/lyrics-sync/` में रखा गया है। मुख्य website का root `index.html` सुरक्षित है और बदला नहीं गया है।
 
 ## Features
-- Audio upload (hosted Groq mode में 25 MB तक; Sarvam/local mode में 40 MB तक)
+- Audio upload (Groq mode में 25 MB तक; Sarvam/local mode में 40 MB तक; खाली/zero-byte audio अस्वीकार)
 - पूरा Lyrics एक साथ paste (अधिकतम 30,000 characters और 500 non-empty lines)
 - Sarvam Saaras v4 Batch API (लंबे audio, phrase timestamps), Groq Whisper (word timestamps) या local Whisper fallback; अनुमानित line-level timing alignment
 - Live lyrics preview
@@ -19,7 +19,7 @@ python -m unittest discover -s lyrics-sync/tests -v
 python -m py_compile lyrics-sync/app.py lyrics-sync/lyrics_core.py
 ```
 
-Frontend contract tests duplicate HTML IDs, missing controls, broken label targets, audio picker support और sync/export controls की मौजूदगी जाँचते हैं। GitHub Actions push और pull request पर Python syntax, सभी unit/contract tests, HTML structure तथा JavaScript syntax जाँचता है।
+Frontend contract tests duplicate HTML IDs, missing controls, broken label targets, audio picker support और sync/export controls की मौजूदगी जाँचते हैं। Backend unit tests lyrics character/line limits, zero-byte और oversized audio, तथा key-aware provider selection भी जाँचते हैं। GitHub Actions push और pull request पर Python syntax, सभी unit/contract tests, HTML structure तथा JavaScript syntax जाँचता है।
 
 ## Deployment
 
@@ -55,7 +55,7 @@ Whisper singing/भजन के शब्द हमेशा सही नह�
 
 ## Security / privacy
 - Audio configured backend पर upload होता है; backend सामान्य job completion/failure पर temporary file delete करता है।
-- Upload 40 MB तक सीमित है (Groq mode में 25 MB); lyrics 30,000 characters और 500 non-empty lines तक सीमित हैं।
+- Upload 40 MB तक सीमित है (Groq mode में 25 MB); zero-byte audio स्वीकार नहीं होता। Lyrics 30,000 characters और अधिकतम 500 non-empty lines तक सीमित हैं।
 - Backend एक समय में प्रति instance अधिकतम एक active sync job स्वीकार करता है; व्यस्त होने पर HTTP 429 देता है। यह capacity guard है, per-user/IP rate limiting नहीं।
 - Login/authentication अभी लागू नहीं है। Job status process memory में रहता है और Render restart/redeploy होने पर खो सकता है।
 - Public launch से पहले authentication, per-user/IP rate limiting, durable job queue, abuse controls और privacy notice जोड़ें।

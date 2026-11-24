@@ -3,9 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from faster_whisper import WhisperModel
 from difflib import SequenceMatcher
 import tempfile, os, re, uuid, threading, time, resource, platform, requests, logging
-from lyrics_core import tokens, timed_tokens
+from lyrics_core import tokens, timed_tokens, validate_lyrics, validate_audio_size, select_transcription_provider
 
-app = FastAPI(title="Auto Lyrics Sync API", version="1.6.2")
+app = FastAPI(title="Auto Lyrics Sync API", version="1.6.3")
 logger = logging.getLogger("lyrics_sync")
 
 @app.middleware("http")
@@ -280,12 +280,13 @@ def transcribe_audio(path, language, lyrics):
             )
         return words, transcript, "or", duration
 
-    # Hindi/English use Groq first for word-level timestamps.
-    provider_setting = os.getenv("TRANSCRIPTION_PROVIDER", "auto").strip().lower()
-    if provider_setting in {"", "auto"}:
-        provider = "groq" if groq_key else ("sarvam" if sarvam_key else "local")
-    else:
-        provider = provider_setting
+    # Keep provider selection consistent with diagnostics and upload limits.
+    provider = select_transcription_provider(
+        language,
+        os.getenv("TRANSCRIPTION_PROVIDER", "auto"),
+        bool(sarvam_key),
+        bool(groq_key),
+    )
     if provider == "sarvam":
         return transcribe_sarvam_batch(path, language, lyrics)
     api_key = groq_key
@@ -335,7 +336,7 @@ def transcribe_audio(path, language, lyrics):
 
 @app.get("/")
 def health():
-    return {"status": "ok", "service": "Auto Lyrics Sync API", "version": "1.6.2"}
+    return {"status": "ok", "service": "Auto Lyrics Sync API", "version": "1.6.3"}
 
 @app.get("/api/diagnostics")
 def diagnostics():
@@ -352,16 +353,11 @@ def diagnostics():
         odia_provider = "sarvam"
     else:
         odia_provider = "unavailable"
-    if configured_provider in {"", "auto"}:
-        provider = "groq" if groq_present else ("sarvam" if sarvam_present else "local")
-    elif configured_provider == "groq" and not groq_present:
-        provider = "sarvam" if sarvam_present else "local"
-    elif configured_provider == "sarvam" and not sarvam_present:
-        provider = "groq" if groq_present else "local"
-    else:
-        provider = configured_provider
+    provider = select_transcription_provider(
+        "auto", configured_provider, sarvam_present, groq_present
+    )
     return {
-        "status": "ok", "version": "1.6.2", "provider": provider,
+        "status": "ok", "version": "1.6.3", "provider": provider,
         "odia_provider": odia_provider,
         "hosted_key_configured": sarvam_present or groq_present,
         "sarvam_key_configured": sarvam_present,
@@ -514,20 +510,42 @@ async def sync(
     lyrics: str = Form(...),
     language: str = Form("auto"),
 ):
-    if not lyrics.strip():
-        raise HTTPException(400, "ପ୍ରଥମେ ସମ୍ପୂର୍ଣ୍ଣ ଗୀତିକା ଲେଖନ୍ତୁ।")
-    if len(lyrics) > MAX_LYRICS_CHARS:
-        raise HTTPException(413, "ଗୀତିକା ବହୁତ ଲମ୍ବା। ୩୦,୦୦୦ ଅକ୍ଷର ମଧ୍ୟରେ ରଖନ୍ତୁ।")
-    lyric_line_count = sum(1 for line in lyrics.splitlines() if line.strip())
-    if lyric_line_count > MAX_LYRIC_LINES:
-        raise HTTPException(413, "ଭଲ ଭାବେ ପ୍ରକ୍ରିୟା ପାଇଁ ୫୦୦ ରୁ କମ୍ ଖାଲି ନଥିବା ଧାଡ଼ି ରଖନ୍ତୁ।")
-    if lyric_line_count == 0:
-        raise HTTPException(400, "ପଢ଼ିହେବା ଭଳି ଗୀତିକା ଧାଡ଼ି ମିଳିଲା ନାହିଁ। ପ୍ରତ୍ୟେକ ଧାଡ଼ିକୁ ଅଲଗା ଲାଇନ୍‌ରେ ଲେଖନ୍ତୁ।")
+    try:
+        lyric_line_count = validate_lyrics(lyrics, MAX_LYRICS_CHARS, MAX_LYRIC_LINES)
+    except ValueError as exc:
+        reason = str(exc)
+        messages = {
+            "empty_lyrics": "ପ୍ରଥମେ ସମ୍ପୂର୍ଣ୍ଣ ଗୀତିକା ଲେଖନ୍ତୁ।",
+            "lyrics_too_long": "ଗୀତିକା ବହୁତ ଲମ୍ବା। ୩୦,୦୦୦ ଅକ୍ଷର ମଧ୍ୟରେ ରଖନ୍ତୁ।",
+            "too_many_lyric_lines": "ଗୀତିକାରେ ସର୍ବାଧିକ ୫୦୦ଟି ଖାଲି ନଥିବା ଧାଡ଼ି ରଖନ୍ତୁ।",
+            "no_lyric_lines": "ପଢ଼ିହେବା ଭଳି ଗୀତିକା ଧାଡ଼ି ମିଳିଲା ନାହିଁ। ପ୍ରତ୍ୟେକ ଧାଡ଼ିକୁ ଅଲଗା ଲାଇନ୍‌ରେ ଲେଖନ୍ତୁ।",
+        }
+        status_code = 413 if reason in {"lyrics_too_long", "too_many_lyric_lines"} else 400
+        raise HTTPException(status_code, messages.get(reason, "ଗୀତିକା ଯାଞ୍ଚ ହୋଇପାରିଲା ନାହିଁ।")) from exc
     if language not in {"auto", "or", "hi", "en"}:
         raise HTTPException(400, "ସ୍ୱୟଂଚାଳିତ ଚିହ୍ନଟ, ଓଡ଼ିଆ, ହିନ୍ଦୀ କିମ୍ବା ଇଂରାଜୀ ବାଛନ୍ତୁ।")
     suffix = os.path.splitext(audio.filename or "audio.mp3")[1].lower() or ".mp3"
     if suffix not in ALLOWED_AUDIO:
         raise HTTPException(415, "ଏହି ଅଡିଓ ଫର୍ମାଟ୍ ସମର୍ଥିତ ନୁହେଁ। MP3, WAV, M4A, AAC, OGG, FLAC କିମ୍ବା WEBM ବ୍ୟବହାର କରନ୍ତୁ।")
+    active_provider = select_transcription_provider(
+        language,
+        os.getenv("TRANSCRIPTION_PROVIDER", "auto"),
+        bool(os.getenv("SARVAM_API_KEY", "").strip()),
+        bool(os.getenv("GROQ_API_KEY", "").strip()),
+    )
+    upload_limit = 25 * 1024 * 1024 if active_provider == "groq" else MAX_AUDIO_BYTES
+
+    def check_audio_size(size):
+        try:
+            return validate_audio_size(size, upload_limit)
+        except ValueError as exc:
+            if str(exc) == "audio_too_large":
+                raise HTTPException(
+                    413,
+                    "ଅଡିଓ ଫାଇଲ୍ ଏହି provider ପାଇଁ ନିର୍ଦ୍ଧାରିତ ସୀମାଠାରୁ ବଡ଼। Groq: ୨୫ MB; Sarvam/local: ୪୦ MB।",
+                ) from exc
+            raise HTTPException(400, "ଖାଲି କିମ୍ବା ଅବୈଧ ଅଡିଓ ଫାଇଲ୍ ଅପଲୋଡ୍ ହୋଇଛି। ଦୟାକରି ସଠିକ୍ ଅଡିଓ ବାଛନ୍ତୁ।") from exc
+
     path = None
     upload_started = time.time()
     logger.info("SYNC_UPLOAD_RECEIVED filename=%s language=%s content_length=%s",
@@ -542,21 +560,10 @@ async def sync(
                 if not chunk:
                     break
                 total += len(chunk)
-                configured_provider = os.getenv("TRANSCRIPTION_PROVIDER", "auto").strip().lower()
-                sarvam_ready = bool(os.getenv("SARVAM_API_KEY", "").strip())
-                groq_ready = bool(os.getenv("GROQ_API_KEY", "").strip())
-                # The Odia transcription path always uses Sarvam, even if a
-                # generic Groq preference is configured for Hindi/English.
-                if language == "or":
-                    active_provider = "sarvam"
-                elif configured_provider in {"", "auto"}:
-                    active_provider = "groq" if groq_ready else ("sarvam" if sarvam_ready else "local")
-                else:
-                    active_provider = configured_provider
-                upload_limit = 25 * 1024 * 1024 if active_provider == "groq" else MAX_AUDIO_BYTES
-                if total > upload_limit:
-                    raise HTTPException(413, "ଅଡିଓ ଫାଇଲ୍ ବର୍ତ୍ତମାନର ସୀମାଠାରୁ ବଡ଼ (Hosted ୨୫ MB / Local ୪୦ MB)।")
+                check_audio_size(total)
                 tmp.write(chunk)
+        # Reject empty uploads before allocating a job or starting an AI request.
+        check_audio_size(total)
         job_id = uuid.uuid4().hex
         with _jobs_lock:
             now = time.time()
