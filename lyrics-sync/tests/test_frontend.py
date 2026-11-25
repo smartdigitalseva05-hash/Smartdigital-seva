@@ -90,6 +90,13 @@ class FrontendContractTests(unittest.TestCase):
     def test_caption_and_video_exports_are_available(self):
         self.assertTrue({"srt", "json", "videoExport", "videoRatio"}.issubset(set(self.ids)))
 
+    def test_backend_cors_uses_an_explicit_origin_allowlist(self):
+        app_path = Path(__file__).resolve().parents[1] / "app.py"
+        backend = app_path.read_text(encoding="utf-8")
+        self.assertIn("parse_allowed_origins", backend)
+        self.assertIn("allow_origins=allowed_origins", backend)
+        self.assertNotIn('allow_origins=["*"]', backend)
+
     def test_inline_javascript_is_present(self):
         self.assertGreater(self.parser.script_count, 0)
         self.assertTrue("".join(self.parser.script_text).strip())
