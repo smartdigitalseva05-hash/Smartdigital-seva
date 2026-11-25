@@ -7,7 +7,11 @@ from pathlib import Path
 
 # unittest discovery adds the tests folder, not its parent, to sys.path.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from lyrics_core import timed_tokens, tokens, validate_lyrics, validate_audio_size, select_transcription_provider
+from lyrics_core import (
+    timed_tokens, tokens, validate_lyrics, validate_audio_size,
+    select_transcription_provider, parse_allowed_origins,
+    DEFAULT_CORS_ORIGINS, active_job_count,
+)
 
 
 class TokenizationTests(unittest.TestCase):
@@ -103,6 +107,36 @@ class InputValidationTests(unittest.TestCase):
         self.assertEqual(select_transcription_provider("hi", "groq", True, False), "sarvam")
         self.assertEqual(select_transcription_provider("en", "sarvam", False, True), "groq")
         self.assertEqual(select_transcription_provider("en", "groq", False, True), "groq")
+
+
+class ConfigurationAndCapacityTests(unittest.TestCase):
+    def test_default_cors_origin_is_production_pages_site(self):
+        self.assertEqual(parse_allowed_origins(), list(DEFAULT_CORS_ORIGINS))
+
+    def test_cors_origins_are_normalized_and_deduplicated(self):
+        self.assertEqual(
+            parse_allowed_origins(" HTTPS://Example.COM/ ,https://example.com, http://localhost:8000 "),
+            ["https://example.com", "http://localhost:8000"],
+        )
+
+    def test_cors_rejects_wildcards_paths_and_invalid_origins(self):
+        self.assertEqual(
+            parse_allowed_origins("*, https://example.com/app, javascript://example.com, https://user:pass@example.com"),
+            [],
+        )
+
+    def test_invalid_provider_setting_uses_safe_auto_selection(self):
+        self.assertEqual(select_transcription_provider("hi", "unknown", True, True), "groq")
+
+    def test_active_job_count_ignores_finished_and_invalid_entries(self):
+        jobs = {
+            "queued": {"status": "queued"},
+            "running": {"status": "processing"},
+            "done": {"status": "completed"},
+            "failed": {"status": "failed"},
+            "invalid": None,
+        }
+        self.assertEqual(active_job_count(jobs), 2)
 
 
 if __name__ == "__main__":
