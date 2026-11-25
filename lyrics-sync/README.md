@@ -19,7 +19,7 @@ python -m unittest discover -s lyrics-sync/tests -v
 python -m py_compile lyrics-sync/app.py lyrics-sync/lyrics_core.py
 ```
 
-Frontend contract tests duplicate HTML IDs, missing controls, broken label targets, audio picker support और sync/export controls की मौजूदगी जाँचते हैं। Backend unit tests lyrics character/line limits, zero-byte और oversized audio, तथा key-aware provider selection भी जाँचते हैं। GitHub Actions push और pull request पर Python syntax, सभी unit/contract tests, HTML structure तथा JavaScript syntax जाँचता है।
+Frontend contract tests duplicate HTML IDs, missing controls, broken label targets, audio picker support, sync/export controls और backend CORS allowlist wiring जाँचते हैं। Backend unit tests lyrics character/line limits, zero-byte और oversized audio, key-aware provider selection, CORS origin parsing तथा active-job counting जाँचते हैं। GitHub Actions push और pull request पर Python syntax, सभी unit/contract tests, HTML structure तथा JavaScript syntax जाँचता है।
 
 ## Deployment
 
@@ -56,7 +56,8 @@ Whisper singing/भजन के शब्द हमेशा सही नह�
 ## Security / privacy
 - Audio configured backend पर upload होता है; backend सामान्य job completion/failure पर temporary file delete करता है।
 - Upload 40 MB तक सीमित है (Groq mode में 25 MB); zero-byte audio स्वीकार नहीं होता। Lyrics 30,000 characters और अधिकतम 500 non-empty lines तक सीमित हैं।
-- Backend एक समय में प्रति instance अधिकतम एक active sync job स्वीकार करता है; व्यस्त होने पर HTTP 429 देता है। यह capacity guard है, per-user/IP rate limiting नहीं।
+- Backend एक समय में प्रति instance अधिकतम एक active sync job स्वीकार करता है; व्यस्त होने पर HTTP 429 देता है। व्यस्तता की शुरुआती जाँच processing की दूसरी temporary copy बनाने से पहले होती है और upload के बाद lock के भीतर दोबारा जाँच होती है, ताकि simultaneous requests की race न हो। यह capacity guard है, per-user/IP rate limiting नहीं।
+- Browser CORS allowlist default रूप से केवल production GitHub Pages origin `https://smartdigitalseva05-hash.github.io` स्वीकार करती है। Custom domain के लिए Render Environment में `CORS_ALLOWED_ORIGINS` को comma-separated exact origins (केवल scheme + host + optional port; कोई path नहीं) के रूप में सेट करें। Local development के लिए उदाहरण: `http://localhost:8000,http://127.0.0.1:8000`। Invalid entries और `*` wildcard अस्वीकार होते हैं। CORS authentication नहीं है और direct non-browser API calls को नहीं रोकता।
 - Login/authentication अभी लागू नहीं है। Job status process memory में रहता है और Render restart/redeploy होने पर खो सकता है।
 - Public launch से पहले authentication, per-user/IP rate limiting, durable job queue, abuse controls और privacy notice जोड़ें।
 - निजी/कॉपीराइट audio तभी upload करें जब आपके पास उपयोग का अधिकार हो।
