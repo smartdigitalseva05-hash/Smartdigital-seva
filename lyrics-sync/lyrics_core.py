@@ -5,6 +5,54 @@ be tested independently of the speech-to-text runtime.
 """
 import math
 import unicodedata
+from urllib.parse import urlsplit
+
+
+DEFAULT_CORS_ORIGINS = ("https://smartdigitalseva05-hash.github.io",)
+
+
+def parse_allowed_origins(value=None):
+    """Parse a comma-separated HTTP(S) origin allowlist without wildcards.
+
+    An unset value uses the production GitHub Pages origin. An explicitly
+    configured but invalid value fails closed by returning an empty list.
+    """
+    if value is None or not str(value).strip():
+        return list(DEFAULT_CORS_ORIGINS)
+
+    origins = []
+    for candidate in str(value).split(","):
+        candidate = candidate.strip()
+        if not candidate or candidate == "*":
+            continue
+        try:
+            parsed = urlsplit(candidate)
+            parsed.port  # Validate an explicitly supplied port.
+        except ValueError:
+            continue
+        if (
+            parsed.scheme.lower() not in {"http", "https"}
+            or not parsed.hostname
+            or not parsed.netloc
+            or parsed.username is not None
+            or parsed.password is not None
+            or parsed.path not in {"", "/"}
+            or parsed.query
+            or parsed.fragment
+        ):
+            continue
+        origin = f"{parsed.scheme.lower()}://{parsed.netloc.lower()}"
+        if origin not in origins:
+            origins.append(origin)
+    return origins
+
+
+def active_job_count(jobs):
+    """Count queued/processing jobs in an in-memory job registry."""
+    return sum(
+        1 for job in jobs.values()
+        if isinstance(job, dict) and job.get("status") in {"queued", "processing"}
+    )
 
 
 def validate_lyrics(text, max_chars=30000, max_lines=500):
@@ -51,6 +99,8 @@ def select_transcription_provider(language, configured_provider, sarvam_key_pres
     if language == "or":
         return "sarvam"
     setting = str(configured_provider or "auto").strip().lower()
+    if setting not in {"", "auto", "groq", "sarvam", "local"}:
+        setting = "auto"
     if setting in {"", "auto"}:
         if groq_key_present:
             return "groq"
