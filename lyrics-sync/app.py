@@ -3,9 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from faster_whisper import WhisperModel
 from difflib import SequenceMatcher
 import tempfile, os, re, uuid, threading, time, resource, platform, requests, logging
-from lyrics_core import tokens, timed_tokens, validate_lyrics, validate_audio_size, select_transcription_provider
+from lyrics_core import (
+    tokens, timed_tokens, validate_lyrics, validate_audio_size,
+    select_transcription_provider, parse_allowed_origins, active_job_count,
+)
 
-app = FastAPI(title="Auto Lyrics Sync API", version="1.6.3")
+app = FastAPI(title="Auto Lyrics Sync API", version="1.6.4")
 logger = logging.getLogger("lyrics_sync")
 
 @app.middleware("http")
@@ -28,11 +31,15 @@ async def request_trace(request, call_next):
                     time.time() - started)
     return response
 
+allowed_origins = parse_allowed_origins(os.getenv("CORS_ALLOWED_ORIGINS"))
+if not allowed_origins:
+    logger.warning("CORS_ALLOWED_ORIGINS has no valid entries; browser cross-origin access is disabled.")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["*"],
+    allow_headers=["Content-Type"],
     allow_credentials=False,
     max_age=600,
 )
@@ -47,6 +54,7 @@ MAX_LYRICS_CHARS = 30000
 MAX_LYRIC_LINES = 500
 MAX_ACTIVE_JOBS = 1
 JOB_RETENTION_SECONDS = 2 * 60 * 60
+BUSY_JOB_MESSAGE = "ଅନ୍ୟ ଏକ ଅଡିଓ ପ୍ରକ୍ରିୟା ଚାଲିଛି। ଏହା ସରିବା ପରେ ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ।"
 ALLOWED_AUDIO = {".mp3", ".wav", ".m4a", ".aac", ".ogg", ".flac", ".webm", ".mp4"}
 
 def get_model():
@@ -336,7 +344,7 @@ def transcribe_audio(path, language, lyrics):
 
 @app.get("/")
 def health():
-    return {"status": "ok", "service": "Auto Lyrics Sync API", "version": "1.6.3"}
+    return {"status": "ok", "service": "Auto Lyrics Sync API", "version": "1.6.4"}
 
 @app.get("/api/diagnostics")
 def diagnostics():
@@ -357,7 +365,7 @@ def diagnostics():
         "auto", configured_provider, sarvam_present, groq_present
     )
     return {
-        "status": "ok", "version": "1.6.3", "provider": provider,
+        "status": "ok", "version": "1.6.4", "provider": provider,
         "odia_provider": odia_provider,
         "hosted_key_configured": sarvam_present or groq_present,
         "sarvam_key_configured": sarvam_present,
@@ -546,6 +554,13 @@ async def sync(
                 ) from exc
             raise HTTPException(400, "ଖାଲି କିମ୍ବା ଅବୈଧ ଅଡିଓ ଫାଇଲ୍ ଅପଲୋଡ୍ ହୋଇଛି। ଦୟାକରି ସଠିକ୍ ଅଡିଓ ବାଛନ୍ତୁ।") from exc
 
+    # Fast preflight avoids creating another processing temp file while busy.
+    # Capacity is checked again under the lock after upload to close the race
+    # between simultaneous requests.
+    with _jobs_lock:
+        if active_job_count(_jobs) >= MAX_ACTIVE_JOBS:
+            raise HTTPException(429, BUSY_JOB_MESSAGE)
+
     path = None
     upload_started = time.time()
     logger.info("SYNC_UPLOAD_RECEIVED filename=%s language=%s content_length=%s",
@@ -570,9 +585,8 @@ async def sync(
             for old_id, old_job in list(_jobs.items()):
                 if old_job.get("status") in {"completed", "failed"} and now - old_job.get("updated_at", now) > JOB_RETENTION_SECONDS:
                     _jobs.pop(old_id, None)
-            active = sum(1 for item in _jobs.values() if item.get("status") in {"queued", "processing"})
-            if active >= MAX_ACTIVE_JOBS:
-                raise HTTPException(429, "ଅନ୍ୟ ଏକ ଅଡିଓ ପ୍ରକ୍ରିୟା ଚାଲିଛି। ଏହା ସରିବା ପରେ ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ।")
+            if active_job_count(_jobs) >= MAX_ACTIVE_JOBS:
+                raise HTTPException(429, BUSY_JOB_MESSAGE)
             _jobs[job_id] = {"status": "queued", "message": "ଅପଲୋଡ୍ ସଫଳ। AI ପ୍ରକ୍ରିୟା ପାଇଁ ଅପେକ୍ଷା କରନ୍ତୁ।", "updated_at": now}
             if len(_jobs) > 50:
                 for old_id, old_job in list(_jobs.items()):
