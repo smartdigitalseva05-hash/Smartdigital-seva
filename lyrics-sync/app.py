@@ -7,8 +7,9 @@ from lyrics_core import (
     tokens, timed_tokens, validate_lyrics, validate_audio_size,
     select_transcription_provider, parse_allowed_origins, active_job_count,
 )
+from request_limits import RequestBodyLimitMiddleware
 
-app = FastAPI(title="Auto Lyrics Sync API", version="1.6.4")
+app = FastAPI(title="Auto Lyrics Sync API", version="1.6.5")
 logger = logging.getLogger("lyrics_sync")
 
 @app.middleware("http")
@@ -35,15 +36,6 @@ allowed_origins = parse_allowed_origins(os.getenv("CORS_ALLOWED_ORIGINS"))
 if not allowed_origins:
     logger.warning("CORS_ALLOWED_ORIGINS has no valid entries; browser cross-origin access is disabled.")
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=allowed_origins,
-    allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["Content-Type"],
-    allow_credentials=False,
-    max_age=600,
-)
-
 _model = None
 _model_lock = threading.Lock()
 _jobs = {}
@@ -52,6 +44,25 @@ _started_at = time.time()
 MAX_AUDIO_BYTES = 40 * 1024 * 1024
 MAX_LYRICS_CHARS = 30000
 MAX_LYRIC_LINES = 500
+# Bound the full multipart body before Starlette buffers uploaded files.
+# 4 bytes per Unicode code point plus 1 MiB for multipart/header overhead.
+MAX_REQUEST_BODY_BYTES = MAX_AUDIO_BYTES + MAX_LYRICS_CHARS * 4 + 1024 * 1024
+
+# Register the body guard before CORS so rejected requests still receive CORS
+# headers and the browser can display the 413 response.
+app.add_middleware(
+    RequestBodyLimitMiddleware,
+    max_body_bytes=MAX_REQUEST_BODY_BYTES,
+    paths=("/api/sync",),
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type"],
+    allow_credentials=False,
+    max_age=600,
+)
 MAX_ACTIVE_JOBS = 1
 JOB_RETENTION_SECONDS = 2 * 60 * 60
 BUSY_JOB_MESSAGE = "ଅନ୍ୟ ଏକ ଅଡିଓ ପ୍ରକ୍ରିୟା ଚାଲିଛି। ଏହା ସରିବା ପରେ ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ।"
@@ -344,7 +355,7 @@ def transcribe_audio(path, language, lyrics):
 
 @app.get("/")
 def health():
-    return {"status": "ok", "service": "Auto Lyrics Sync API", "version": "1.6.4"}
+    return {"status": "ok", "service": "Auto Lyrics Sync API", "version": "1.6.5"}
 
 @app.get("/api/diagnostics")
 def diagnostics():
@@ -365,7 +376,7 @@ def diagnostics():
         "auto", configured_provider, sarvam_present, groq_present
     )
     return {
-        "status": "ok", "version": "1.6.4", "provider": provider,
+        "status": "ok", "version": "1.6.5", "provider": provider,
         "odia_provider": odia_provider,
         "hosted_key_configured": sarvam_present or groq_present,
         "sarvam_key_configured": sarvam_present,
