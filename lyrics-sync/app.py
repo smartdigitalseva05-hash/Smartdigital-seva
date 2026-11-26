@@ -12,6 +12,20 @@ from request_limits import RequestBodyLimitMiddleware
 app = FastAPI(title="Auto Lyrics Sync API", version="1.6.5")
 logger = logging.getLogger("lyrics_sync")
 
+MAX_AUDIO_BYTES = 40 * 1024 * 1024
+MAX_LYRICS_CHARS = 30000
+MAX_LYRIC_LINES = 500
+# Bound the full multipart body before Starlette buffers uploaded files.
+# 4 bytes per Unicode code point plus 1 MiB for multipart/header overhead.
+MAX_REQUEST_BODY_BYTES = MAX_AUDIO_BYTES + MAX_LYRICS_CHARS * 4 + 1024 * 1024
+
+# Register before request tracing; CORS is added last and remains outermost.
+app.add_middleware(
+    RequestBodyLimitMiddleware,
+    max_body_bytes=MAX_REQUEST_BODY_BYTES,
+    paths=("/api/sync",),
+)
+
 @app.middleware("http")
 async def request_trace(request, call_next):
     started = time.time()
@@ -41,20 +55,6 @@ _model_lock = threading.Lock()
 _jobs = {}
 _jobs_lock = threading.Lock()
 _started_at = time.time()
-MAX_AUDIO_BYTES = 40 * 1024 * 1024
-MAX_LYRICS_CHARS = 30000
-MAX_LYRIC_LINES = 500
-# Bound the full multipart body before Starlette buffers uploaded files.
-# 4 bytes per Unicode code point plus 1 MiB for multipart/header overhead.
-MAX_REQUEST_BODY_BYTES = MAX_AUDIO_BYTES + MAX_LYRICS_CHARS * 4 + 1024 * 1024
-
-# Register the body guard before CORS so rejected requests still receive CORS
-# headers and the browser can display the 413 response.
-app.add_middleware(
-    RequestBodyLimitMiddleware,
-    max_body_bytes=MAX_REQUEST_BODY_BYTES,
-    paths=("/api/sync",),
-)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
