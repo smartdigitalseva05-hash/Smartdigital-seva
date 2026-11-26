@@ -26,7 +26,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Check Python syntax
-        run: python -m py_compile lyrics-sync/app.py lyrics-sync/lyrics_core.py
+        run: python -m py_compile lyrics-sync/app.py lyrics-sync/lyrics_core.py lyrics-sync/request_limits.py
       - name: Run backend and frontend contract tests
         run: python -m unittest discover -s lyrics-sync/tests -v
       - name: Check frontend structure
