@@ -104,8 +104,10 @@ class FrontendContractTests(unittest.TestCase):
         self.assertIn("MAX_REQUEST_BODY_BYTES", backend)
         self.assertIn('paths=("/api/sync",)', backend)
         guard_registration = backend.index("    RequestBodyLimitMiddleware,")
+        trace_registration = backend.index('@app.middleware("http")')
         cors_registration = backend.index("    CORSMiddleware,")
-        self.assertLess(guard_registration, cors_registration,
+        self.assertLess(guard_registration, trace_registration)
+        self.assertLess(trace_registration, cors_registration,
                         "CORS must wrap the body guard so browsers can read 413 errors.")
 
     def test_inline_javascript_is_present(self):
