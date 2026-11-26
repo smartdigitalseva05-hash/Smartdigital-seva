@@ -97,6 +97,17 @@ class FrontendContractTests(unittest.TestCase):
         self.assertIn("allow_origins=allowed_origins", backend)
         self.assertNotIn('allow_origins=["*"]', backend)
 
+    def test_upload_body_limit_runs_before_multipart_parser(self):
+        app_path = Path(__file__).resolve().parents[1] / "app.py"
+        backend = app_path.read_text(encoding="utf-8")
+        self.assertIn("RequestBodyLimitMiddleware", backend)
+        self.assertIn("MAX_REQUEST_BODY_BYTES", backend)
+        self.assertIn('paths=("/api/sync",)', backend)
+        guard_registration = backend.index("    RequestBodyLimitMiddleware,")
+        cors_registration = backend.index("    CORSMiddleware,")
+        self.assertLess(guard_registration, cors_registration,
+                        "CORS must wrap the body guard so browsers can read 413 errors.")
+
     def test_inline_javascript_is_present(self):
         self.assertGreater(self.parser.script_count, 0)
         self.assertTrue("".join(self.parser.script_text).strip())
