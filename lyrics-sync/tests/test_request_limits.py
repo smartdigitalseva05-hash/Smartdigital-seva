@@ -1,6 +1,11 @@
 """Tests for the ASGI request-body guard used by the sync upload endpoint."""
 
+import sys
 import unittest
+from pathlib import Path
+
+# unittest discovery starts in the tests directory; expose the project modules.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from request_limits import RequestBodyLimitMiddleware
 
