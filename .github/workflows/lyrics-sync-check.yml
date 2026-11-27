@@ -2,7 +2,7 @@ name: Lyrics Sync quality checks
 
 on:
   push:
-    branches: ["main", "lyrics-sync/**"]
+    branches: ["main", "lyrics-sync/**", "restore/**"]
     paths:
       - "lyrics-sync/**"
       - ".github/workflows/lyrics-sync-check.yml"
