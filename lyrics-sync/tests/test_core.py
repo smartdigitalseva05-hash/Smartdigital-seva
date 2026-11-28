@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from lyrics_core import (
     timed_tokens, tokens, validate_lyrics, validate_audio_size,
     select_transcription_provider, parse_allowed_origins,
-    DEFAULT_CORS_ORIGINS, active_job_count,
+    DEFAULT_CORS_ORIGINS, active_job_count, interpolate_unmatched_lines,
 )
 
 
@@ -107,6 +107,48 @@ class InputValidationTests(unittest.TestCase):
         self.assertEqual(select_transcription_provider("hi", "groq", True, False), "sarvam")
         self.assertEqual(select_transcription_provider("en", "sarvam", False, True), "groq")
         self.assertEqual(select_transcription_provider("en", "groq", False, True), "groq")
+
+
+class AlignmentInterpolationTests(unittest.TestCase):
+    def test_no_confirmed_match_keeps_all_lines_untimed(self):
+        lines = [
+            {"text": "opening", "start": None, "end": None, "confidence": 0},
+            {"text": "chorus", "start": None, "end": None, "confidence": 0},
+        ]
+        original = [dict(line) for line in lines]
+
+        result = interpolate_unmatched_lines(lines, 180)
+
+        self.assertIs(result, lines)
+        self.assertEqual(result, original)
+
+    def test_only_gaps_around_confirmed_matches_are_estimated(self):
+        lines = [
+            {"text": "opening line", "start": None, "end": None, "confidence": 0},
+            {"text": "confirmed", "start": 2.0, "end": 3.0, "confidence": 0.94},
+            {"text": "ending line", "start": None, "end": None, "confidence": 0},
+        ]
+
+        result = interpolate_unmatched_lines(lines, 5.0)
+
+        self.assertEqual((result[0]["start"], result[0]["end"]), (0.0, 2.0))
+        self.assertEqual(result[0]["confidence"], "estimated")
+        self.assertEqual((result[1]["start"], result[1]["end"]), (2.0, 3.0))
+        self.assertEqual(result[1]["confidence"], 0.94)
+        self.assertEqual((result[2]["start"], result[2]["end"]), (3.0, 5.0))
+        self.assertEqual(result[2]["confidence"], "estimated")
+
+    def test_nonpositive_gaps_remain_untimed(self):
+        lines = [
+            {"text": "gap", "start": None, "end": None, "confidence": 0},
+            {"text": "confirmed", "start": 0.0, "end": 2.0, "confidence": 0.9},
+        ]
+
+        result = interpolate_unmatched_lines(lines, 2.0)
+
+        self.assertIsNone(result[0]["start"])
+        self.assertIsNone(result[0]["end"])
+        self.assertEqual(result[1]["confidence"], 0.9)
 
 
 class ConfigurationAndCapacityTests(unittest.TestCase):
