@@ -110,6 +110,12 @@ class FrontendContractTests(unittest.TestCase):
         self.assertLess(trace_registration, cors_registration,
                         "CORS must wrap the body guard so browsers can read 413 errors.")
 
+    def test_ai_timing_uses_conservative_interpolation_helper(self):
+        app_path = Path(__file__).resolve().parents[1] / "app.py"
+        backend = app_path.read_text(encoding="utf-8")
+        self.assertIn("interpolate_unmatched_lines", backend)
+        self.assertNotIn("full-song\\n            # estimated timeline", backend)
+
     def test_inline_javascript_is_present(self):
         self.assertGreater(self.parser.script_count, 0)
         self.assertTrue("".join(self.parser.script_text).strip())
