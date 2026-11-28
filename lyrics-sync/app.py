@@ -6,6 +6,7 @@ import tempfile, os, re, uuid, threading, time, resource, platform, requests, lo
 from lyrics_core import (
     tokens, timed_tokens, validate_lyrics, validate_audio_size,
     select_transcription_provider, parse_allowed_origins, active_job_count,
+    interpolate_unmatched_lines,
 )
 from request_limits import RequestBodyLimitMiddleware
 
@@ -448,63 +449,7 @@ def process_job(job_id, path, lyrics, language):
                 "Odia audio was transcribed, but none of the supplied Odia lyric lines matched the AI transcript. "
                 "No fake estimated timings were saved. Check that the selected song is the same as these lyrics."
             )
-        def weight(i):
-            return max(1, len(tokens(aligned[i]["text"])))
-        if anchors:
-            first = anchors[0]
-            if first > 0:
-                weights = [weight(i) for i in range(first)]
-                total = sum(weights)
-                end_bound = max(0.0, float(aligned[first]["start"]))
-                cursor_time = 0.0
-                for i, w in enumerate(weights):
-                    start_time = cursor_time
-                    cursor_time += end_bound * w / total
-                    aligned[i].update(start=round(start_time, 3),
-                                      end=round(cursor_time, 3),
-                                      confidence="estimated")
-            for left, right in zip(anchors, anchors[1:]):
-                if right - left <= 1:
-                    continue
-                begin = float(aligned[left]["end"])
-                finish = float(aligned[right]["start"])
-                if finish <= begin:
-                    continue
-                weights = [weight(i) for i in range(left + 1, right)]
-                total = sum(weights)
-                cursor_time = begin
-                for i, w in zip(range(left + 1, right), weights):
-                    start_time = cursor_time
-                    cursor_time += (finish - begin) * w / total
-                    aligned[i].update(start=round(start_time, 3),
-                                      end=round(cursor_time, 3),
-                                      confidence="estimated")
-            last = anchors[-1]
-            if last < len(aligned) - 1 and duration > float(aligned[last]["end"]):
-                weights = [weight(i) for i in range(last + 1, len(aligned))]
-                total = sum(weights)
-                begin, finish = float(aligned[last]["end"]), float(duration)
-                cursor_time = begin
-                for i, w in zip(range(last + 1, len(aligned)), weights):
-                    start_time = cursor_time
-                    cursor_time += (finish - begin) * w / total
-                    aligned[i].update(start=round(start_time, 3),
-                                      end=round(cursor_time, 3),
-                                      confidence="estimated")
-
-        else:
-            # If ASR could not match any lyric line, still create a full-song
-            # estimated timeline so no lyric line is left without a time.
-            if duration > 0 and aligned:
-                weights = [weight(i) for i in range(len(aligned))]
-                total = sum(weights)
-                cursor_time = 0.0
-                for i, w in enumerate(weights):
-                    start_time = cursor_time
-                    cursor_time += float(duration) * w / total
-                    aligned[i].update(start=round(start_time, 3),
-                                      end=round(cursor_time, 3),
-                                      confidence="estimated")
+        aligned = interpolate_unmatched_lines(aligned, duration)
 
         with _jobs_lock:
             _jobs[job_id] = {"status": "completed", "updated_at": time.time(), "result": {
