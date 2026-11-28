@@ -130,6 +130,78 @@ def tokens(text):
     return result
 
 
+
+def interpolate_unmatched_lines(aligned, duration):
+    """Estimate only gaps adjacent to confirmed AI matches.
+
+    When no lyric line matches the transcript, leave every line untimed. A
+    fabricated full-song schedule looks authoritative but is not evidence of
+    synchronization; users can choose the explicit No-AI timeline instead.
+    The input list is updated in place and returned for convenient chaining.
+    """
+    if not isinstance(aligned, list) or not aligned:
+        return aligned
+
+    try:
+        duration = float(duration)
+    except (TypeError, ValueError, OverflowError):
+        duration = 0.0
+    if not math.isfinite(duration) or duration < 0:
+        duration = 0.0
+
+    anchors = []
+    for index, item in enumerate(aligned):
+        if not isinstance(item, dict):
+            continue
+        try:
+            start = float(item.get("start"))
+            end = float(item.get("end"))
+        except (TypeError, ValueError, OverflowError):
+            continue
+        if math.isfinite(start) and math.isfinite(end) and 0 <= start < end:
+            anchors.append(index)
+
+    # Do not invent a timeline when the ASR transcript matched no lyric line.
+    if not anchors:
+        return aligned
+
+    def weight(index):
+        return max(1, len(tokens(aligned[index].get("text", ""))))
+
+    def fill(indices, begin, finish):
+        indices = list(indices)
+        if not indices or not math.isfinite(begin) or not math.isfinite(finish) or finish <= begin:
+            return
+        weights = [weight(index) for index in indices]
+        total = sum(weights)
+        cursor = begin
+        for index, item_weight in zip(indices, weights):
+            start = cursor
+            cursor += (finish - begin) * item_weight / total
+            if cursor > start:
+                aligned[index].update(
+                    start=round(start, 3),
+                    end=round(cursor, 3),
+                    confidence="estimated",
+                )
+
+    first = anchors[0]
+    fill(range(0, first), 0.0, max(0.0, float(aligned[first]["start"])))
+
+    for left, right in zip(anchors, anchors[1:]):
+        fill(
+            range(left + 1, right),
+            float(aligned[left]["end"]),
+            float(aligned[right]["start"]),
+        )
+
+    last = anchors[-1]
+    last_end = float(aligned[last]["end"])
+    if last < len(aligned) - 1 and duration > last_end:
+        fill(range(last + 1, len(aligned)), last_end, duration)
+
+    return aligned
+
 def timed_tokens(text, start, end):
     """Split a phrase interval evenly across its Unicode word tokens.
 
